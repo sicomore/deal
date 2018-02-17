@@ -3,18 +3,18 @@ require_once __DIR__.'/include/init.php';
 
 // Recueil des informations du vendeur
 $req = <<<EOS
-SELECT m.*, n.avis avis, AVG(n.note) note_moy, a.*, c.*
+SELECT m.id idMembre, a.titre titreAnnonce, a.description_courte description_courte,  c.id idCommentaire, c.*
 FROM membre m
 JOIN annonce a ON a.membre_id = m.id
-JOIN notes n ON n.membre_id2 = m.id
 JOIN commentaire c ON c.annonce_id = a.id
 WHERE m.id =
 EOS
-.$_GET['id'];
+.(int)$_GET['id'];
 $stmt = $pdo->query($req);
 $membreTout = $stmt->fetchAll();
-foreach ($membreTout as $membre) {
-  # code...
+
+foreach ($membreTout as $ligne => $membre) {
+  echo $membre['idMembre'];
 }
 
 // ----------------- Traitement de l'affichage -----------------------

@@ -22,30 +22,30 @@ EOS
 $stmt = $pdo->query($req);
 $annonce = $stmt->fetch();
 
-// $req = 'SELECT COUNT(*) FROM commentaire WHERE membre_id = '.$_SESSION['membre']['id'].' AND annonce_id = '.$_GET['id'];
-// $stmt = $pdo->query($req);
-// $dejaCommente = $stmt->fetchColumn();
-// var_dump($dejaCommente);
-
 // Requête d'affichage des commentaires de l'annonce
-$req = 'SELECT c.*, m.pseudo pseudo FROM commentaire c JOIN membre m ON m.id = c.membre_id WHERE annonce_id ='.$_GET['id'];
-$stmt = $pdo->query($req);
+$reqCommentaires = <<<EOS
+SELECT c.*, m.pseudo pseudo
+FROM commentaire c
+JOIN membre m ON m.id = c.membre_id
+WHERE annonce_id =
+EOS
+.(int)$_GET['id'];
+$stmt = $pdo->query($reqCommentaires);
 $commentTous = $stmt->fetchAll();
-
-foreach ($commentTous as $membreCommente) {
-  $reqM = $req .' AND membre_id ='. $annonce['membre_id'];
+foreach ($commentTous as $key => $comment) {
 }
 
-$req .= ' ORDER BY id DESC LIMIT 5';
-$stmt = $pdo->query($req);
+// Requête pour affichage des commentaires sur l'annonce
+$reqCommentaires .= ' ORDER BY c.id DESC LIMIT 5';
+$stmt = $pdo->query($reqCommentaires);
 $commentAffiches = $stmt->fetchAll();
 
 // Enregistrement du commentaire dans la table éponyme
-if (!empty($commentaire)) {
+if (!empty($commentaire) && $commentaire != $comment['commentaire']) {
   $req = 'INSERT INTO commentaire(commentaire, membre_id, annonce_id) VALUES (:commentaire, :membre_id, :annonce_id)';
   $stmt = $pdo->prepare($req);
   $stmt->bindValue(':commentaire', $commentaire);
-  $stmt->bindValue(':membre_id', $annonce['membre_id']);
+  $stmt->bindValue(':membre_id', $_SESSION['membre']['id']);
   $stmt->bindValue(':annonce_id', $annonce['id']);
   $stmt->execute();
   $success = true;
@@ -232,11 +232,14 @@ include __DIR__.('/layout/top.php');
 
     <div class="col-sm-8">
       <h3>Description</h3>
-      <p>
-        <?= $annonce['description_longue']; ?>
-      </p>
       <div class="row">
         <div class="col-md-6">
+          <div class="">
+            <h3>Prix : <?= $annonce['prix']; ?> €</h3>
+          </div>
+          <p>
+            <?= $annonce['description_longue']; ?>
+          </p>
           <p>
             <b>Date de publication :</b>
             <?= strftime('%d/%m/%Y', strtotime($annonce['date_enregistrement'])); ?>
@@ -244,9 +247,6 @@ include __DIR__.('/layout/top.php');
           <p>
             <b>Membre :</b>
             <?= $annonce['pseudo']; ?>
-          </p>
-          <p>
-            <?= $annonce['prix']; ?> €
           </p>
           <p>
             <b>Région :</b>
@@ -286,7 +286,9 @@ include __DIR__.('/layout/top.php');
       <h3>Commentaires laissés pour cette annonce</h3>
 
       <div class="container">
-        <?php foreach ($commentAffiches as $commentAffiche): ?>
+
+        <?php
+        foreach ($commentAffiches as $commentAffiche): ?>
           <div class="panel panel-default">
             <div class="panel-heading">
               <b><a href="<?= SITE_PATH.'profil.php?id='.$commentAffiche['membre_id'] ;?>">
@@ -296,6 +298,7 @@ include __DIR__.('/layout/top.php');
                 <?= $commentAffiche['commentaire'] ;?>
               </div>
             </div>
+
           <?php endforeach; ?>
         </div>
       </div>
