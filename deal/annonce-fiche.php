@@ -51,10 +51,10 @@ if (!empty($commentaire)) {
   $success = true;
 }
 
-// Requête sur la table note
+// Requête sur la table notes
 if (!empty($avis) || !empty($note)) {
 
-  $req = 'SELECT n.*, m.pseudo pseudo FROM note n JOIN membre m ON m.id = n.membre_id1';
+  $req = 'SELECT n.*, m.pseudo pseudo FROM notes n JOIN membre m ON m.id = n.membre_id1';
   $stmt = $pdo->query($req);
   $noteToutes = $stmt->fetchAll();
 
@@ -62,18 +62,11 @@ if (!empty($avis) || !empty($note)) {
   $stmt = $pdo->query($req);
   $noteJamaisLaissee = $stmt->fetchColumn();
 
-  // $reqN = $req . ' WHERE membre_id2 = '.
-
-  // $reqS = $req. ' AND membre_id = '.$_SESSION['membre']['id'];
-  // $stmt = $pdo->query($reqS);
-  // $dejaCommente = $stmt->fetchColumn();
-
-
   // Enregistrement de la note et de l'avis dans la table Note
   // membre_id1 = le notant
   // membre_id2 = le noté
   if ($noteJamaisLaissee == 0) {
-    $req = 'INSERT INTO note(note, avis, membre_id1, membre_id2) VALUES (:note, :avis, :membre_id1, :membre_id2)';
+    $req = 'INSERT INTO notes(note, avis, membre_id1, membre_id2, date_enregistrement) VALUES (:note, :avis, :membre_id1, :membre_id2, now())';
     $stmt = $pdo->prepare($req);
     $stmt->bindValue(':note', $note);
     $stmt->bindValue(':avis', $avis);
@@ -81,6 +74,22 @@ if (!empty($avis) || !empty($note)) {
     $stmt->bindValue(':membre_id2', $annonce['membre_id']);
     $stmt->execute();
     $success = true;
+
+    // Mise à jour de la table notes
+  } else {
+    if (empty($note)) {
+      $MAJ = ' avis = \''.$avis.'\',';
+      setFlashMessage('Votre avis sur le vendeur a bien été mis à jour');
+    } elseif (empty($avis)) {
+      $MAJ = ' note = '.$note.',';
+      setFlashMessage('Votre note sur le vendeur a bien été mise à jour');
+    } else {
+      $MAJ = ' note = '.$note.', avis = \''.$avis.'\',';
+      setFlashMessage('Votre note et votre avis sur le vendeur ont bien été mis à jour');
+    }
+
+    $req = 'UPDATE notes SET '. $MAJ .' date_enregistrement = now() WHERE membre_id1 = ' .$_SESSION['membre']['id']. ' AND membre_id2 = '.$annonce['membre_id'];
+    $stmt = $pdo->exec($req);
   }
 }
 
@@ -172,20 +181,20 @@ include __DIR__.('/layout/top.php');
 
 <div id="page-wrapper">
 
-  <div class="row page-header">
-    <?php
-    displayFlashMessage();
+  <?php
+  displayFlashMessage();
 
-    // Message en cas de succès
-    if (isset($success)) :
-      ?>
-      <div class="alert alert-success">
-        <strong>Votre commentaire ou votre avis a bien été pris en compte.</strong>
-      </div>
-      <?php
-    endif;
+  // Message en cas de succès
+  if (isset($success)) :
     ?>
+    <div class="alert alert-success">
+      <strong>Votre commentaire ou votre avis a bien été pris en compte.</strong>
+    </div>
+    <?php
+  endif;
+  ?>
 
+  <div class="row page-header">
     <div class="col-sm-3">
       <h1 class="">
         <?= $annonce['titre'];  ?>
@@ -281,7 +290,7 @@ include __DIR__.('/layout/top.php');
           <div class="panel panel-default">
             <div class="panel-heading">
               <b><a href="<?= SITE_PATH.'profil.php?id='.$commentAffiche['membre_id'] ;?>">
-                <?= $commentAffiche['pseudo']?></a> a laissé un message le <?= strftime('%d/%m/%Y', strtotime($commentAffiche['date_enregistrement'])); ?></b>
+                <?= $commentAffiche['pseudo']?></a> a laissé un message le <?= strftime('%d/%m/%Y à %Hh%M', strtotime($commentAffiche['date_enregistrement'])); ?></b>
               </div>
               <div class="panel-body">
                 <?= $commentAffiche['commentaire'] ;?>
