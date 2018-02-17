@@ -13,7 +13,9 @@ EOS
 .$_GET['id'];
 $stmt = $pdo->query($req);
 $membreTout = $stmt->fetchAll();
-
+foreach ($membreTout as $membre) {
+  # code...
+}
 
 // ----------------- Traitement de l'affichage -----------------------
 // ----------------- Traitement de l'affichage -----------------------
