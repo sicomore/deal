@@ -148,7 +148,6 @@ include __DIR__.('/layout/top.php');
     </div>
     <div class="form-group col-sm-8">
       <input name="email" value="<?= $email ;?>" type="email" class="form-control" id="email" aria-describedby="email" placeholder="Votre email">
-      <!-- <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small> -->
     </div>
   </div>
 
