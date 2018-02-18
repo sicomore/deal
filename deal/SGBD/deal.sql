@@ -18,6 +18,88 @@ USE `deal`;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `categorie`
+--
+
+DROP TABLE IF EXISTS `categorie`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `categorie` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `titre` varchar(100) NOT NULL,
+  `mots_cles` text,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `categorie`
+--
+
+LOCK TABLES `categorie` WRITE;
+/*!40000 ALTER TABLE `categorie` DISABLE KEYS */;
+INSERT INTO `categorie` VALUES (1,'Emplois','Offres d\'emploi'),(2,'Véhicules','Voitures, Motos, Bateaux, Vélos, Équipement'),(3,'Immobilier','Ventes, Locations, Colocations, Bureaux, Logement'),(4,'Vacances','Camping, Hotels, Hôtes'),(5,'Multimedia','Jeux vidéos, Informatique, Image, Son, Téléphones'),(6,'Loisirs','Films, Musique, Livres'),(7,'Matériel','Outillage, Fournitures de bureau, Matériel agricole'),(8,'Services','Prestations de services, Événements'),(9,'Maison','Ameublement, Electroménager, Bricolage, Jardinage'),(10,'Vêtements','Jean, Chemise, Robe, Chaussure'),(11,'Autres','Divers et d\'été');
+/*!40000 ALTER TABLE `categorie` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `membre`
+--
+
+DROP TABLE IF EXISTS `membre`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `membre` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `civilite` enum('M.','Mme') NOT NULL,
+  `pseudo` varchar(45) NOT NULL,
+  `mdp` varchar(255) NOT NULL,
+  `nom` varchar(45) NOT NULL,
+  `prenom` varchar(45) NOT NULL,
+  `telephone` varchar(45) DEFAULT NULL,
+  `email` varchar(45) NOT NULL,
+  `role` enum('user','admin') NOT NULL,
+  `date_enregistrement` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `pseudo_UNIQUE` (`pseudo`)
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `membre`
+--
+
+LOCK TABLES `membre` WRITE;
+/*!40000 ALTER TABLE `membre` DISABLE KEYS */;
+INSERT INTO `membre` VALUES (3,'Mme','zozo','$2y$10$liB5bg/87nxSQR3zjGS.HuGy6vcTww3SuG/rdPrpOltAg5kPUHAgm','zozo','rrrrrrr','615 46 441325','zozo@zaza.com','user','2018-02-09 11:28:59'),(4,'M.','tttttt','$2y$10$ZcBhVA3wcYsop2I2si8XDu4crBEolduLNVZxi6uuS0jDWhzfWCTn2','ttttttt','mlkjkljm lkjghljg','2232554','rezaraze@qsdfqsdf.fr','admin','2018-02-09 11:37:30'),(6,'Mme','qqqqqqqqqqqq','$2y$10$JfGHaNyO00vOhhjJtgoI2u7BgB/N0euD4gsnnBU03UfF.qNTKv/9.','q q  q q q q  q','ooooooooo','611325','dfdfdfdfdfd@zaza.com','admin','2018-02-09 19:18:51'),(8,'M.','azerazer','$2y$10$p3GIAX.vSj/tdGu9BX6n.O124gFhwGYvpYVdcUViUveAvZHT7m2/O','azer','uuiopuoipuio','6441325','azer@azer.com','user','2018-02-13 09:49:51'),(9,'M.','zaza','$2y$10$zAJNtmHkMT5Oe1/o3Y/KVuvhXrUJMhWHWVc0HNQQ4QhLO7kKBEU1K','zaza','zaza','61546441325','zaza@zaza.com','admin','2018-02-13 09:55:17'),(15,'M.','v\'areybrtyazqn(\"','$2y$10$MS4jCmANFkcnB8FKQDzIwujwoQVQYbhIbmYJzNkl/OrNmcGyLkKM.','(\'b-z(\'yz(\'-è\"z(\'','\'(byè(\"_u\'n-èi','73278563','bzyz@gsdfgdsf.gdf','admin','2018-02-13 16:26:54'),(16,'M.','mister','$2y$10$squNP9bXAPKWhOlu/MiW..i0w1CxClVkCOiu8jtGFmXM8eBWd5/Uq','nggsdsdgsgsdfg','vvgzerghzhz  zh zh','7567863','edrgzes@drfgszdrfghs.gt','user','2018-02-13 16:46:14'),(17,'M.','lolo','$2y$10$FgXiElXI3IJe9ymJZdfIaur1C..k2Ed1jel384.LOPa/TzgYvzw6q','lolo','lolo','2534543654','kqsjhflkqs@jqhsldkfhjlqjs.fr','admin','2018-02-13 16:54:03'),(31,'Mme','z','$2y$10$c3lVclEwJbNQwChThYcrKeznowTttx4So3I6poQZ7VqysWflkfbpG','z','z','35435','dfkqdhfjs@qdsfqsd.fr','admin','2018-02-14 11:48:54'),(32,'Mme','zz','$2y$10$V6hOzWQ6Z8qlB6VlY1vaN.dUaLNzM.blqk0/vg8KI4zQL3SjmK3Oy','z','z','35454','dfsgsdfg@dfgsdfg.ggt','admin','2018-02-14 11:51:14'),(33,'Mme','momo','$2y$10$fQ9Cgk1R8i/kQOctPuVKOeaOin7QTzYEvE9..4VQiFTP/XO0rDJSi','momo','momo','21342345435','qsdfgqs@qsdgfqsdf.fr','user','2018-02-17 18:08:33');
+/*!40000 ALTER TABLE `membre` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `region`
+--
+
+DROP TABLE IF EXISTS `region`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `region` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `nom` varchar(45) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `region`
+--
+
+LOCK TABLES `region` WRITE;
+/*!40000 ALTER TABLE `region` DISABLE KEYS */;
+INSERT INTO `region` VALUES (1,'Auvergne-Rhône-Alpes'),(2,'Bourgogne-Franche-Comte'),(3,'Bretagne'),(4,'Centre-Val de Loire'),(5,'Corse'),(6,'Grand Est'),(7,'Hauts-de-France'),(8,'Ile-de-France'),(9,'Normandie'),(10,'Nouvelle-Aquitaine'),(11,'Occitanie'),(12,'Pays de la Loire'),(13,'Provence-Alpes-Côte d\'Azur');
+/*!40000 ALTER TABLE `region` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `annonce`
 --
 
@@ -59,31 +141,6 @@ INSERT INTO `annonce` VALUES (20,'Pull élan','u§uèir  ruktikltui;ruyestrjy zs
 UNLOCK TABLES;
 
 --
--- Table structure for table `categorie`
---
-
-DROP TABLE IF EXISTS `categorie`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `categorie` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `titre` varchar(100) NOT NULL,
-  `mots_cles` text,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `categorie`
---
-
-LOCK TABLES `categorie` WRITE;
-/*!40000 ALTER TABLE `categorie` DISABLE KEYS */;
-INSERT INTO `categorie` VALUES (1,'Emplois','Offres d\'emploi'),(2,'Véhicules','Voitures, Motos, Bateaux, Vélos, Équipement'),(3,'Immobilier','Ventes, Locations, Colocations, Bureaux, Logement'),(4,'Vacances','Camping, Hotels, Hôtes'),(5,'Multimedia','Jeux vidéos, Informatique, Image, Son, Téléphones'),(6,'Loisirs','Films, Musique, Livres'),(7,'Matériel','Outillage, Fournitures de bureau, Matériel agricole'),(8,'Services','Prestations de services, Événements'),(9,'Maison','Ameublement, Electroménager, Bricolage, Jardinage'),(10,'Vêtements','Jean, Chemise, Robe, Chaussure'),(11,'Autres','Divers et d\'été');
-/*!40000 ALTER TABLE `categorie` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `commentaire`
 --
 
@@ -114,38 +171,6 @@ INSERT INTO `commentaire` VALUES (1,'rrrrrrr',17,27,'2018-02-15 12:17:40'),(2,'h
 /*!40000 ALTER TABLE `commentaire` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Table structure for table `membre`
---
-
-DROP TABLE IF EXISTS `membre`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `membre` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `civilite` enum('M.','Mme') NOT NULL,
-  `pseudo` varchar(45) NOT NULL,
-  `mdp` varchar(255) NOT NULL,
-  `nom` varchar(45) NOT NULL,
-  `prenom` varchar(45) NOT NULL,
-  `telephone` varchar(45) DEFAULT NULL,
-  `email` varchar(45) NOT NULL,
-  `role` enum('user','admin') NOT NULL,
-  `date_enregistrement` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `pseudo_UNIQUE` (`pseudo`)
-) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `membre`
---
-
-LOCK TABLES `membre` WRITE;
-/*!40000 ALTER TABLE `membre` DISABLE KEYS */;
-INSERT INTO `membre` VALUES (3,'Mme','zozo','$2y$10$liB5bg/87nxSQR3zjGS.HuGy6vcTww3SuG/rdPrpOltAg5kPUHAgm','zozo','rrrrrrr','615 46 441325','zozo@zaza.com','user','2018-02-09 11:28:59'),(4,'M.','tttttt','$2y$10$ZcBhVA3wcYsop2I2si8XDu4crBEolduLNVZxi6uuS0jDWhzfWCTn2','ttttttt','mlkjkljm lkjghljg','2232554','rezaraze@qsdfqsdf.fr','admin','2018-02-09 11:37:30'),(6,'Mme','qqqqqqqqqqqq','$2y$10$JfGHaNyO00vOhhjJtgoI2u7BgB/N0euD4gsnnBU03UfF.qNTKv/9.','q q  q q q q  q','ooooooooo','611325','dfdfdfdfdfd@zaza.com','admin','2018-02-09 19:18:51'),(8,'M.','azerazer','$2y$10$p3GIAX.vSj/tdGu9BX6n.O124gFhwGYvpYVdcUViUveAvZHT7m2/O','azer','uuiopuoipuio','6441325','azer@azer.com','user','2018-02-13 09:49:51'),(9,'M.','zaza','$2y$10$zAJNtmHkMT5Oe1/o3Y/KVuvhXrUJMhWHWVc0HNQQ4QhLO7kKBEU1K','zaza','zaza','61546441325','zaza@zaza.com','admin','2018-02-13 09:55:17'),(15,'M.','v\'areybrtyazqn(\"','$2y$10$MS4jCmANFkcnB8FKQDzIwujwoQVQYbhIbmYJzNkl/OrNmcGyLkKM.','(\'b-z(\'yz(\'-è\"z(\'','\'(byè(\"_u\'n-èi','73278563','bzyz@gsdfgdsf.gdf','admin','2018-02-13 16:26:54'),(16,'M.','mister','$2y$10$squNP9bXAPKWhOlu/MiW..i0w1CxClVkCOiu8jtGFmXM8eBWd5/Uq','nggsdsdgsgsdfg','vvgzerghzhz  zh zh','7567863','edrgzes@drfgszdrfghs.gt','user','2018-02-13 16:46:14'),(17,'M.','lolo','$2y$10$FgXiElXI3IJe9ymJZdfIaur1C..k2Ed1jel384.LOPa/TzgYvzw6q','lolo','lolo','2534543654','kqsjhflkqs@jqhsldkfhjlqjs.fr','admin','2018-02-13 16:54:03'),(31,'Mme','z','$2y$10$c3lVclEwJbNQwChThYcrKeznowTttx4So3I6poQZ7VqysWflkfbpG','z','z','35435','dfkqdhfjs@qdsfqsd.fr','admin','2018-02-14 11:48:54'),(32,'Mme','zz','$2y$10$V6hOzWQ6Z8qlB6VlY1vaN.dUaLNzM.blqk0/vg8KI4zQL3SjmK3Oy','z','z','35454','dfsgsdfg@dfgsdfg.ggt','admin','2018-02-14 11:51:14'),(33,'Mme','momo','$2y$10$fQ9Cgk1R8i/kQOctPuVKOeaOin7QTzYEvE9..4VQiFTP/XO0rDJSi','momo','momo','21342345435','qsdfgqs@qsdgfqsdf.fr','user','2018-02-17 18:08:33');
-/*!40000 ALTER TABLE `membre` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `notes`
@@ -179,29 +204,7 @@ INSERT INTO `notes` VALUES (1,3,'smdflkq qsmldjkflm mlqsjdfm lqhksdfmlqks',6,8,'
 /*!40000 ALTER TABLE `notes` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Table structure for table `region`
---
 
-DROP TABLE IF EXISTS `region`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `region` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `nom` varchar(45) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `region`
---
-
-LOCK TABLES `region` WRITE;
-/*!40000 ALTER TABLE `region` DISABLE KEYS */;
-INSERT INTO `region` VALUES (1,'Auvergne-Rhône-Alpes'),(2,'Bourgogne-Franche-Comte'),(3,'Bretagne'),(4,'Centre-Val de Loire'),(5,'Corse'),(6,'Grand Est'),(7,'Hauts-de-France'),(8,'Ile-de-France'),(9,'Normandie'),(10,'Nouvelle-Aquitaine'),(11,'Occitanie'),(12,'Pays de la Loire'),(13,'Provence-Alpes-Côte d\'Azur');
-/*!40000 ALTER TABLE `region` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
