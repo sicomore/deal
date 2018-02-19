@@ -285,21 +285,51 @@ include __DIR__.('/layout/top.php');
     <div class="row" id="commentaires">
       <h3>Commentaires laissés pour cette annonce</h3>
 
-      <div class="container">
 
         <?php
-        foreach ($commentAffiches as $commentAffiche): ?>
-          <div class="panel panel-default">
-            <div class="panel-heading">
-              <b><a href="<?= SITE_PATH.'profil.php?id='.$commentAffiche['membre_id'] ;?>">
-                <?= $commentAffiche['pseudo']?></a> a laissé un message le <?= strftime('%d/%m/%Y à %Hh%M', strtotime($commentAffiche['date_enregistrement'])); ?></b>
-              </div>
-              <div class="panel-body">
-                <?= $commentAffiche['commentaire'] ;?>
-              </div>
-            </div>
+        if (empty($commentTous)) :
+          ?>
+          <div class="col-xs-3">
 
-          <?php endforeach; ?>
+          <p>Aucun commentaire laissé pour cette annonce</p>
+          <p>Soyez le premier à en laisser un !</p>
+        </div>
+          <div class="col-xs-3">
+          <button type="button" class="btn btn-primary <?= $disabled; ?>" data-toggle="modal" data-target="#flipFlop">
+            Laisser un commentaire
+          </button>
+        </div>
+          <?php
+          else :
+            foreach ($commentAffiches as $commentAffiche):
+              ?>
+              <div class="container">
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <b><a href="<?= SITE_PATH.'profil.php?id='.$commentAffiche['membre_id'] ;?>">
+                    <?= $commentAffiche['pseudo']?></a> a laissé un message le <?= strftime('%d/%m/%Y à %Hh%M', strtotime($commentAffiche['date_enregistrement'])); ?></b>
+                  </div>
+                  <div class="panel-body">
+                    <?= $commentAffiche['commentaire'] ;?>
+                    <?php
+                    if (isUserConnected()):
+                      ?>
+                      <div class="pull-right">
+                        <button type="button" class="btn btn-primary <?= $disabled; ?>" data-toggle="modal" data-target="#flipFlop">
+                          Répondre au commentaire
+                        </button>
+                        <!-- <button type="button" name="reponse" formaction="">
+                        Répondre
+                      </button> -->
+                    </div>
+                  <?php endif; ?>
+                </div>
+              </div>
+
+              <?php
+          endforeach;
+        endif;
+          ?>
         </div>
       </div>
 

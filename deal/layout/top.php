@@ -175,7 +175,7 @@
       </a>
       <ul class="dropdown-menu dropdown-user">
         <li>
-          <a href="<?=SITE_PATH;?>profil.php?id=<?= $_SESSION['membre']['id'] ?>"><i class="fa fa-user fa-fw"></i> Mon profil</a>
+          <a href="<?=SITE_PATH;?>profil.php"><i class="fa fa-user fa-fw"></i> Mon profil</a>
         </li>
         <li class="divider"></li>
         <li>

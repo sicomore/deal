@@ -5,24 +5,12 @@ require_once __DIR__ .'/../include/init.php';
 $tri_annonces = '';
 
 extract($_POST);
-// var_dump($tri_annonces);
 if (empty($_POST)) {
   $tri_annonces = 'a.id desc';
 }
 $req = 'SELECT a.*, m.pseudo, c.titre titre_categorie, r.nom nom_region FROM annonce a JOIN categorie c ON c.id = categorie_id JOIN membre m ON m.id = a.membre_id JOIN region r ON r.id = region_id ORDER BY '. $tri_annonces;
 $stmt = $pdo->query($req);
 $annonces = $stmt->fetchAll();
-
-
-// $selected = 'selected';
-
-// $tri_annonces = (isset($_POST['tri_annonces']))
-// ? $_POST['tri_annonces']
-// : 'a.id desc' ;
-
-// $stmt->bindParam(':tri', $tri_annonces);
-// $stmt->execute();
-
 
 include __DIR__ .'/../layout/top.php';
 ?>
@@ -32,11 +20,6 @@ include __DIR__ .'/../layout/top.php';
 <!-- <p class="col-sm-4"><a href="annonce-edit.php">Ajouter une annonce</a></p> -->
 <?php
 displayFlashMessage();
-
-// function selected($tri_annonces, $value) {
-//   echo $selected = ($tri_annonces == $value) ? '"'.$value.'" selected' : '"'.$value.'"';
-//   return $selected;
-// }
 ?>
 
 <!-- Select de tri -->

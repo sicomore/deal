@@ -127,14 +127,6 @@ include __DIR__.('/layout/top.php');
           </label>
         </div>
 
-        <!-- <div class="form-group">
-        <select name="civilite" class="form-control" id="civilite">
-        <option disabled>Civilité</option>
-        <option>Homme</option>
-        <option>Femme</option>
-      </select>
-    </div> -->
-
     <div class="form-group col-sm-5">
       <input name="nom" value="<?= $nom ;?>" type="text" class="form-control" id="nom" aria-describedby="name" placeholder="Votre nom">
     </div>

@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__.'/../include/init.php';
+adminSecurity();
 
 $errors = [];
 $civilite = $pseudo = $nom = $prenom = $email = $telephone = $role = $mdp = '';
@@ -169,7 +170,7 @@ include __DIR__.('/../layout/top.php');
         <td><?= strftime('%d/%m/%Y',strtotime($mb['date_enregistrement'])); ?></td>
         <!-- //number_format (chiffre, nb décimales, séparateur décimal, séparateur millier) -->
         <td>
-          <a href="membre-edit.php?id=<?= $mb['id'] ?>" class="btn btn-primary">Modifier</a>
+          <a href="<?= SITE_PATH; ?>profil.php?id=<?= $mb['id'] ?>" class="btn btn-primary">Modifier</a>
           <a href="membre-delete.php?id=<?= $mb['id'] ?>" class="btn btn-danger">Supprimer</a>
         </td>
       </tr>
@@ -183,7 +184,7 @@ include __DIR__.('/../layout/top.php');
 
   <!--=========== FORMULAIRE D'INSCRIPTION et modification d'un membre ============-->
 
-  <?php
+  <!-- < ?php
   if (!empty($_GET)) {
     $req = 'SELECT * FROM membre WHERE id =' . $_GET['id'];
     $stmt = $pdo->query($req);
@@ -198,7 +199,7 @@ include __DIR__.('/../layout/top.php');
         <div class="row">
           <div class="col-md-6">
 
-            <!-- Input pseudo -->
+            <!-- Input pseudo - ->
             <div class="form-group col">
               <div class="input-group">
                 <span class="input-group-addon" id="basic-addon1">Pseudo</span>
@@ -208,62 +209,62 @@ include __DIR__.('/../layout/top.php');
 
             <div class="row">
 
-              <!-- Select civilité -->
+              <!-- Select civilité - ->
               <div class="form-group col-sm-6">
                 <select name="civilite" class="form-control selectpicker" id="civilite">
                   <option value=''>Civilité</option>
-                  <option value="Mme" <?= $civilite == 'Mme' ? 'selected' : ''; ?>>Femme</option>
-                  <option value="M." <?= $civilite == 'M.' ? 'selected' : ''; ?>>Homme</option>
+                  <option value="Mme" < ?= $civilite == 'Mme' ? 'selected' : ''; ?>>Femme</option>
+                  <option value="M." < ?= $civilite == 'M.' ? 'selected' : ''; ?>>Homme</option>
                 </select>
               </div>
 
-              <!-- Select Statut -->
+              <!-- Select Statut - ->
               <div class="form-group col-sm-6">
                 <select name="role" class="form-control selectpicker" id="role">
                   <option value=''>Statut</option>
-                  <option value="user" <?= $role == 'user' ? 'selected' : ''; ?>>Utilisateur</option>
-                  <option value="admin" <?= $role == 'admin' ? 'selected' : ''; ?>>Administrateur</option>
+                  <option value="user" < ?= $role == 'user' ? 'selected' : ''; ?>>Utilisateur</option>
+                  <option value="admin" < ?= $role == 'admin' ? 'selected' : ''; ?>>Administrateur</option>
                 </select>
               </div>
             </div>
 
-            <!-- Input nom du membre -->
+            <!-- Input nom du membre - ->
             <div class="form-group col">
               <div class="input-group">
                 <span class="input-group-addon" id="basic-addon1">Nom</span>
-                <input name="nom" value="<?= $nom ;?>" type="text" class="form-control" id="nom" aria-describedby="name" placeholder="">
+                <input name="nom" value="< ?= $nom ;?>" type="text" class="form-control" id="nom" aria-describedby="name" placeholder="">
               </div>
             </div>
 
-            <!-- Input prénom du membre -->
+            <!-- Input prénom du membre - ->
             <div class="form-group col">
               <div class="input-group">
                 <span class="input-group-addon" id="basic-addon1">Prenom</span>
-                <input name="prenom" value="<?= $prenom ;?>" type="text" class="form-control" id="prenom" aria-describedby="forname" placeholder="">
+                <input name="prenom" value="< ?= $prenom ;?>" type="text" class="form-control" id="prenom" aria-describedby="forname" placeholder="">
               </div>
             </div>
           </div>
 
           <div class="col-md-6">
 
-            <!-- Input téléphone du membre -->
+            <!-- Input téléphone du membre - ->
             <div class="form-group col">
               <div class="input-group">
                 <span class="input-group-addon" id="basic-addon1">Téléphone</span>
-                <input name="telephone" value="<?= $telephone ;?>" type="text" class="form-control" id="telephone" aria-describedby="telephone" placeholder="">
+                <input name="telephone" value="< ?= $telephone ;?>" type="text" class="form-control" id="telephone" aria-describedby="telephone" placeholder="">
               </div>
 
             </div>
 
-            <!-- Input email du membre -->
+            <!-- Input email du membre - ->
             <div class="form-group col">
               <div class="input-group">
                 <span class="input-group-addon" id="basic-addon1">Email</span>
-                <input name="email" value="<?= $email ;?>" type="email" class="form-control" id="email" aria-describedby="email" placeholder="">
+                <input name="email" value="< ?= $email ;?>" type="email" class="form-control" id="email" aria-describedby="email" placeholder="">
               </div>
             </div>
 
-            <!-- Input mot de passe du membre -->
+            <!-- Input mot de passe du membre - ->
             <div class="form-group col">
               <div class="input-group">
                 <span class="input-group-addon" id="basic-addon1">Mot de passe</span>
@@ -271,7 +272,7 @@ include __DIR__.('/../layout/top.php');
               </div>
             </div>
 
-            <!-- Input confirmation du mot de passe du membre -->
+            <!-- Input confirmation du mot de passe du membre - ->
             <div class="form-group col">
               <div class="input-group">
                 <span class="input-group-addon" id="basic-addon1">Confirmation</span>
@@ -287,7 +288,7 @@ include __DIR__.('/../layout/top.php');
         </div>
       </form>
     </div>
-  </div>
+  </div> -->
 </div>
 
 

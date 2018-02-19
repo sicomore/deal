@@ -1,69 +1,89 @@
 <?php
 require_once __DIR__.'/include/init.php';
 
-$errors = [];
-$civilite = $pseudo = $nom = $prenom = $email = $telephone = '';
-
 if (!empty($_POST)) {
   sanitizePost();
   extract($_POST);
-  // Extrait les valeurs à partir du tableau $_POST recueilli et renseigne les variables dédiées pour être retournée dans les values du formulaire afin de les garder en mémoire
 
-  if (empty($_POST['civilite'])) {
-    $errors[] = 'Choisir une civilité.';
-  }
-  if (empty($_POST['nom'])) {
-    $errors[] = 'Le nom est obligatoire.';
-  }
+  // Toutes les vérifications des champs du formulaire
   if (empty($_POST['pseudo'])) {
     $errors[] = 'Le pseudo est obligatoire.';
   } else {
     $req = 'SELECT COUNT(*) FROM membre WHERE pseudo = '.$pdo->quote($_POST['pseudo']);
     $stmt = $pdo->query($req);
     $nb = $stmt->fetchColumn();
-    if ($nb != 0) {
-      $errors[] = 'Cet pseudo est déjà utilisé.';
+    if (($nb != 0) && (!isset($_GET['id']))) {
+      $errors[] = 'Ce pseudo existe déjà.';
     }
+  }
+  if (empty($_POST['civilite'])) {
+    $errors[] = 'Choisir une civilité.';
+  }
+  if (empty($_POST['role'])) {
+    $errors[] = 'Choisir un statut pour le membre.';
+  }
+  if (empty($_POST['nom'])) {
+    $errors[] = 'Le nom est obligatoire.';
+  }
+  if (empty($_POST['prenom'])) {
+    $errors[] = 'Le prénom est obligatoire.';
+  }
+  if (empty($_POST['telephone'])) {
+    $errors[] = 'Le téléphone est obligatoire.';
+  } elseif (!preg_match ('#^[0-9 .+]+$#', $_POST['telephone'])) {
+    $errors[] = 'Le téléphone est invalide.';
   }
   if (empty($_POST['email'])) {
     $errors[] = 'L\'email est obligatoire.';
   } elseif (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
-    // Passe la variable dans un filtre (filter_var) qui vérifie ou valide des données en fonction d'un type de filtre
     $errors[] = 'L\'email est invalide.';
-  } else {
-    $req = 'SELECT COUNT(*) FROM membre WHERE email = '.$pdo->quote($_POST['email']);
-    $stmt = $pdo->query($req);
-    $nb = $stmt->fetchColumn();
-    if ($nb != 0) {
-      $errors[] = 'Cet email est déjà enregistré.';
-    }
-  }
-  if (empty($_POST['mdp'])) {
-    $errors[] = 'Le mot de passe est obligatoire.';
-  } elseif (!preg_match ('#^[A-Za-z0-9_-]{6,20}$#', $_POST['mdp'])) {
-    $errors [] = 'Le mot de passe doit contenir de 6 à 20 caractères';
-  }
-  if (empty($_POST['mdp-confirm'])) {
-    $errors[] = 'La confirmation du mot de passe est obligatoire.';
-  } elseif ($_POST['mdp-confirm'] != $_POST['mdp']) {
-    $errors[] = 'Les 2 mots de passe ne sont pas identiques.';
   }
 
+  // Vérification des mots de Passe
+  // Possibilité de ne pas changer en cas de "modification"
+  if ((!empty($_POST['mdp'])) XOR (!empty($_POST['mdp-confirm']))) {
+    $errors[] = 'Les 2 mots de passe ne sont pas identiques.';
+  }
+  if ((!empty($_POST['mdp'])) && (!empty($_POST['mdp-confirm']))) {
+    if (!preg_match ('#^[A-Za-z0-9_-]{6,20}$#', $_POST['mdp'])) {
+      $errors [] = 'Le mot de passe doit contenir de 6 à 20 caractères';
+    } elseif ($_POST['mdp-confirm'] != $_POST['mdp']) {
+      $errors[] = 'Les 2 mots de passe ne sont pas identiques.';
+    }
+  }
+  if ((empty($_POST['mdp'])) && (empty($_POST['mdp-confirm']))) {
+    if (!isset($_GET['id'])) {
+      $errors[] = 'Le mot de passe est obligatoire.';
+    }
+  }
+
+  // Si aucune erreur, MAJ en cas de modification / Ajout à la bdd en cas de création
   if (empty($errors)) {
     $encodePassword = password_hash ($mdp, PASSWORD_BCRYPT);
-    // encrypte le mot de passe
-    $req = 'INSERT INTO membre (civilite, pseudo, nom, prenom, telephone, email, mdp) VALUES (:civilite, :pseudo, :nom, :prenom, :telephone, :email, :mdp)';
-    $stmt = $pdo->prepare($req);
+
+    if (isset($_GET['id'])) {
+      $req = 'UPDATE membre SET civilite = :civilite, pseudo = :pseudo, nom = :nom, prenom = :prenom, telephone = :telephone, email = :email, mdp = :mdp, role = :role WHERE id = '. $_GET['id'];
+      $stmt = $pdo->prepare($req);
+
+    } else {
+      $req = 'INSERT INTO membre (civilite, pseudo, nom, prenom, telephone, email, mdp, role) VALUES (:civilite, :pseudo, :nom, :prenom, :telephone, :email, :mdp, :role)';
+      $stmt = $pdo->prepare($req);
+    }
+
     $stmt->bindValue(':civilite', $civilite);
+    $stmt->bindValue(':pseudo', $pseudo);
     $stmt->bindValue(':nom', $nom);
     $stmt->bindValue(':prenom', $prenom);
-    $stmt->bindValue(':pseudo', $pseudo);
+    $stmt->bindValue(':telephone', $telephone);
     $stmt->bindValue(':email', $email);
     $stmt->bindValue(':mdp', $encodePassword);
-    $stmt->bindValue(':telephone', $telephone);
+    $stmt->bindValue(':role', $role);
     $stmt->execute();
     $success = true;
-    // Affiche le message de confirmation dans HTML
+
+    setFlashMessage("Le membre $pseudo a bien été enregistré.");
+    header('Location: membre-edit.php');
+    die;
   }
 }
 
@@ -75,11 +95,12 @@ JOIN annonce a ON a.membre_id = m.id
 JOIN commentaire c ON c.annonce_id = a.id
 WHERE m.id =
 EOS
-.(int)$_GET['id'];
+.(int)$_SESSION['membre']['id'] ;
 $stmt = $pdo->query($req);
 $membreTout = $stmt->fetchAll();
 
 foreach ($membreTout as $ligne => $membre) {
+  extract($membre);
 }
 
 // ----------------- Traitement de l'affichage -----------------------
@@ -99,33 +120,112 @@ include __DIR__.('/layout/top.php');
   </div>
 
   <div class="row">
-    <div class="col-lg-8">
+    <div class="col-lg-6">
       <h2>Informations personnelles</h2>
-      <p>
-        ID membre : <?= $membre['idMembre'] ?>
-      </p>
-      <form method="post">
-        <div class="form-group">
-          <input name="pseudo" value="<?= $membre['pseudo'] ?>" type="text" class="form-control" id="pseudo" aria-describedby="name" placeholder="<?= $membre['pseudo'] ?>">
-        </div>
-        <div class="form-group">
-          <input name="nom" value="<?= $membre['nom'] ;?>" type="text" class="form-control" id="nom" aria-describedby="name" placeholder="<?= $membre['nom'] ;?>">
-        </div>
-        <div class="form-group">
-          <input name="prenom" value="<?= $membre['prenom'] ;?>" type="text" class="form-control" id="prenom" aria-describedby="name" placeholder="<?= $membre['prenom'] ;?>">
-        </div>
+      <h3>
+        ID membre : <?= $idMembre; ?>
+      </h3>
+      <form class="profil" method="post">
+        <!-- <div class="row"> -->
+          <!-- <div class="col-md-6"> -->
+          <div class="row">
 
-        <div class="pull-right">
-          <a href="index.php" class="btn btn-default" type="cancel">Annuler</a>
-          <button type="submit" class="btn btn-primary pull-right">Valider</button>
-        </div>
+            <!-- Select civilité -->
+            <div class="form-group col-sm-6">
+              <select name="civilite" class="form-control selectpicker" id="civilite">
+                <option value=''>Civilité</option>
+                <option value="Mme" <?= $civilite == 'Mme' ? 'selected' : ''; ?>>Madame</option>
+                <option value="M." <?= $civilite == 'M.' ? 'selected' : ''; ?>>Monsieur</option>
+              </select>
+            </div>
+
+            <!-- Select Statut -->
+            <?php
+            if (isUserAdmin()):
+            ?>
+
+            <div class="form-group col-sm-6">
+              <select name="role" class="form-control selectpicker" id="role">
+                <option value=''>Statut</option>
+                <option value="user" <?= $role == 'user' ? 'selected' : ''; ?>>Utilisateur</option>
+                <option value="admin" <?= $role == 'admin' ? 'selected' : ''; ?>>Administrateur</option>
+              </select>
+            </div>
+          <?php endif; ?>
+          </div>
+
+            <!-- Input pseudo -->
+            <div class="form-group col">
+              <div class="input-group">
+                <span class="input-group-addon" id="basic-addon1">Pseudo</span>
+                <input name="pseudo" value="<?= $pseudo ;?>" type="text" class="form-control" id="pseudo" placeholder="">
+              </div>
+            </div>
 
 
-    </form>
+            <!-- Input nom du membre -->
+            <div class="form-group col">
+              <div class="input-group">
+                <span class="input-group-addon" id="basic-addon1">Nom</span>
+                <input name="nom" value="<?= $nom ;?>" type="text" class="form-control" id="nom" aria-describedby="name" placeholder="">
+              </div>
+            </div>
+
+            <!-- Input prénom du membre -->
+            <div class="form-group col">
+              <div class="input-group">
+                <span class="input-group-addon" id="basic-addon1">Prenom</span>
+                <input name="prenom" value="<?= $prenom ;?>" type="text" class="form-control" id="prenom" aria-describedby="forname" placeholder="">
+              </div>
+            </div>
+          <!-- </div>
+
+          <div class="col-md-6"> -->
+
+            <!-- Input téléphone du membre -->
+            <div class="form-group col">
+              <div class="input-group">
+                <span class="input-group-addon" id="basic-addon1">Téléphone</span>
+                <input name="telephone" value="<?= $telephone ;?>" type="text" class="form-control" id="telephone" aria-describedby="telephone" placeholder="">
+              </div>
+
+            </div>
+
+            <!-- Input email du membre -->
+            <div class="form-group col">
+              <div class="input-group">
+                <span class="input-group-addon" id="basic-addon1">Email</span>
+                <input name="email" value="<?= $email ;?>" type="email" class="form-control" id="email" aria-describedby="email" placeholder="">
+              </div>
+            </div>
+
+            <!-- Input mot de passe du membre -->
+            <div class="form-group col">
+              <div class="input-group">
+                <span class="input-group-addon" id="basic-addon1">Mot de passe</span>
+                <input name="mdp" value="" type="password" class="form-control" id="mdp" placeholder="">
+              </div>
+            </div>
+
+            <!-- Input confirmation du mot de passe du membre -->
+            <div class="form-group col">
+              <div class="input-group">
+                <span class="input-group-addon" id="basic-addon1">Confirmation</span>
+                <input name="mdp-confirm" value="" type="password" class="form-control" id="mdp-confirm" placeholder="">
+              </div>
+            </div>
+
+            <div class="pull-right">
+              <button type="submit" class="btn btn-primary pull-right">Enregistrer</button>
+            </div>
+
+          <!-- </div> -->
+        <!-- </div> -->
+      </form>
 
     </div>
 
-    <div class="col-lg-4">
+    <div class="col-lg-6">
       <h3>Note</h3>
       <p></p>
 

@@ -6,6 +6,7 @@ $options = [
   PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
 ];
 
+
 $pdo = new PDO (
   'mysql:host=cl1-sql20; dbname=qnu76381',
   'qnu76381', 'OQ9WOt3OjmGt', $options
