@@ -51,7 +51,7 @@ function adminSecurity () {
       header('Location: '.SITE_PATH.'connexion.php');
     } else {
       header('HTTP/1.1 403 Forbidden');
-      echo "<p>Vous ne pouvez accéder à cette page en tant qu'membre</p>";
+      echo "<p>Vous ne pouvez accéder à cette page en tant que membre.</p>";
       echo '<p><a href="'.SITE_PATH.'connexion.php">Me connecter</a></p>';
       die;
     }

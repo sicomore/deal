@@ -1,6 +1,17 @@
 <?php
 require_once __DIR__.'/include/init.php';
 
+if (!isUserConnected() || !isUserAdmin() && isset($_GET['id'])) {
+  header('Location: index.php');
+  die;
+}
+if (isset($_GET['id'])) {
+  $idMembre = (int)$_GET['id'];
+} else {
+  $idMembre = $_SESSION['membre']['id'];
+}
+$civilite = $role = $pseudo = $nom = $prenom = $email = $telephone = '';
+
 if (!empty($_POST)) {
   sanitizePost();
   extract($_POST);
@@ -9,18 +20,24 @@ if (!empty($_POST)) {
   if (empty($_POST['pseudo'])) {
     $errors[] = 'Le pseudo est obligatoire.';
   } else {
-    $req = 'SELECT COUNT(*) FROM membre WHERE pseudo = '.$pdo->quote($_POST['pseudo']);
-    $stmt = $pdo->query($req);
+    $req = 'SELECT COUNT(*) FROM membre WHERE pseudo = :pseudo AND id != :id';
+    $pseudoFiltre = strtolower($_POST['pseudo']);
+    $stmt = $pdo->prepare($req);
+    $stmt->bindValue(':id', $idMembre);
+    $stmt->bindValue(':pseudo', $pseudoFiltre);
+    $stmt->execute();
     $nb = $stmt->fetchColumn();
-    if (($nb != 0) && (!isset($_GET['id']))) {
+    if ($nb != 0) {
       $errors[] = 'Ce pseudo existe déjà.';
     }
   }
   if (empty($_POST['civilite'])) {
     $errors[] = 'Choisir une civilité.';
   }
-  if (empty($_POST['role'])) {
-    $errors[] = 'Choisir un statut pour le membre.';
+  if (isUserAdmin()) {
+    if (empty($_POST['role'])) {
+      $errors[] = 'Choisir un statut pour le membre.';
+    }
   }
   if (empty($_POST['nom'])) {
     $errors[] = 'Le nom est obligatoire.';
@@ -39,10 +56,10 @@ if (!empty($_POST)) {
     $errors[] = 'L\'email est invalide.';
   }
 
-  // Vérification des mots de Passe
-  // Possibilité de ne pas changer en cas de "modification"
+  // Vérification des mots de passe
+  // Possibilité de ne pas changer en cas de modification de profil
   if ((!empty($_POST['mdp'])) XOR (!empty($_POST['mdp-confirm']))) {
-    $errors[] = 'Les 2 mots de passe ne sont pas identiques.';
+    $errors[] = 'Le mot de passe doit être renseigné 2 fois.';
   }
   if ((!empty($_POST['mdp'])) && (!empty($_POST['mdp-confirm']))) {
     if (!preg_match ('#^[A-Za-z0-9_-]{6,20}$#', $_POST['mdp'])) {
@@ -51,53 +68,65 @@ if (!empty($_POST)) {
       $errors[] = 'Les 2 mots de passe ne sont pas identiques.';
     }
   }
-  if ((empty($_POST['mdp'])) && (empty($_POST['mdp-confirm']))) {
-    if (!isset($_GET['id'])) {
-      $errors[] = 'Le mot de passe est obligatoire.';
-    }
-  }
 
-  // Si aucune erreur, MAJ en cas de modification / Ajout à la bdd en cas de création
+
+  // Si aucune erreur : MAJ en cas de modification / Ajout à la bdd en cas de création
   if (empty($errors)) {
-    $encodePassword = password_hash ($mdp, PASSWORD_BCRYPT);
+    $reqGet = $reqMdp = '';
+
+    if ((!empty($_POST['mdp'])) || (!empty($_POST['mdp-confirm']))) {
+      $encodePassword = password_hash ($mdp, PASSWORD_BCRYPT);
+      $reqMdp = ', mdp = :mdp ';
+    }
 
     if (isset($_GET['id'])) {
-      $req = 'UPDATE membre SET civilite = :civilite, pseudo = :pseudo, nom = :nom, prenom = :prenom, telephone = :telephone, email = :email, mdp = :mdp, role = :role WHERE id = '. $_GET['id'];
-      $stmt = $pdo->prepare($req);
-
-    } else {
-      $req = 'INSERT INTO membre (civilite, pseudo, nom, prenom, telephone, email, mdp, role) VALUES (:civilite, :pseudo, :nom, :prenom, :telephone, :email, :mdp, :role)';
-      $stmt = $pdo->prepare($req);
+      $reqGet = ', role = :role ';
     }
 
+    $req = 'UPDATE membre SET civilite = :civilite, pseudo = :pseudo, '
+    .'nom = :nom, prenom = :prenom, telephone = :telephone, email = :email '
+    . $reqMdp . $reqGet .'WHERE id = :id';
+
+    $stmt = $pdo->prepare($req);
+    $stmt->bindValue(':id', $idMembre);
     $stmt->bindValue(':civilite', $civilite);
     $stmt->bindValue(':pseudo', $pseudo);
     $stmt->bindValue(':nom', $nom);
     $stmt->bindValue(':prenom', $prenom);
     $stmt->bindValue(':telephone', $telephone);
     $stmt->bindValue(':email', $email);
-    $stmt->bindValue(':mdp', $encodePassword);
-    $stmt->bindValue(':role', $role);
+
+    if (!empty($reqMdp)) {
+      $stmt->bindValue(':mdp', $encodePassword);
+    }
+    if (!empty($reqGet)) {
+      $stmt->bindValue(':role', $role);
+    }
+
     $stmt->execute();
     $success = true;
 
-    setFlashMessage("Le membre $pseudo a bien été enregistré.");
-    header('Location: membre-edit.php');
-    die;
+    // setFlashMessage("Vos modifications ont bien été prises en compte.");
+    // header('Location: membre-edit.php');
+    // die;
   }
 }
 
+
 // Recueil des informations du vendeur
 $req = <<<EOS
-SELECT m.*, m.id idMembre, a.titre titreAnnonce, a.description_courte description_courte,  c.id idCommentaire, c.*
+SELECT m.*, m.id idMembre, a.titre titreAnnonce, a.description_courte description_courte, c.id idCommentaire, c.*, n.*, AVG(note) noteMoy
 FROM membre m
-JOIN annonce a ON a.membre_id = m.id
-JOIN commentaire c ON c.annonce_id = a.id
+LEFT JOIN annonce a ON a.membre_id = m.id
+LEFT JOIN commentaire c ON c.annonce_id = a.id
+LEFT JOIN notes n ON n.membre_id2 = m.id
 WHERE m.id =
 EOS
-.(int)$_SESSION['membre']['id'] ;
+.$idMembre;
+
 $stmt = $pdo->query($req);
 $membreTout = $stmt->fetchAll();
+// var_dump($idMembre);
 
 foreach ($membreTout as $ligne => $membre) {
   extract($membre);
@@ -119,6 +148,31 @@ include __DIR__.('/layout/top.php');
     </div>
   </div>
 
+  <!-- < ?php displayFlashMessage(); ?> -->
+
+  <?php
+  // Affichage des messages d'alerte en cas de tableau d'erreur non vide
+
+  // Messages en cas d'erreurs
+  if (!empty($errors)) :
+    ?>
+    <div class="alert alert-danger">
+      <p><strong>Le formulaire contient des erreurs</strong></p>
+      <?= implode ('<br>', $errors); ?>
+    </div>
+    <?php
+  endif;
+
+  // Message en cas de succès
+  if (isset($success)) :
+    ?>
+    <div class="alert alert-success">
+      <strong>Vos modifications ont bien été prises en compte.</strong>
+    </div>
+    <?php
+  endif;
+  ?>
+
   <div class="row">
     <div class="col-lg-6">
       <h2>Informations personnelles</h2>
@@ -127,21 +181,21 @@ include __DIR__.('/layout/top.php');
       </h3>
       <form class="profil" method="post">
         <!-- <div class="row"> -->
-          <!-- <div class="col-md-6"> -->
-          <div class="row">
+        <!-- <div class="col-md-6"> -->
+        <div class="row">
 
-            <!-- Select civilité -->
-            <div class="form-group col-sm-6">
-              <select name="civilite" class="form-control selectpicker" id="civilite">
-                <option value=''>Civilité</option>
-                <option value="Mme" <?= $civilite == 'Mme' ? 'selected' : ''; ?>>Madame</option>
-                <option value="M." <?= $civilite == 'M.' ? 'selected' : ''; ?>>Monsieur</option>
-              </select>
-            </div>
+          <!-- Select civilité -->
+          <div class="form-group col-sm-6">
+            <select name="civilite" class="form-control selectpicker" id="civilite">
+              <option value=''>Civilité</option>
+              <option value="Mme" <?= $civilite == 'Mme' ? 'selected' : ''; ?>>Madame</option>
+              <option value="M." <?= $civilite == 'M.' ? 'selected' : ''; ?>>Monsieur</option>
+            </select>
+          </div>
 
-            <!-- Select Statut -->
-            <?php
-            if (isUserAdmin()):
+          <!-- Select Statut -->
+          <?php
+          if (isUserAdmin()):
             ?>
 
             <div class="form-group col-sm-6">
@@ -152,74 +206,74 @@ include __DIR__.('/layout/top.php');
               </select>
             </div>
           <?php endif; ?>
+        </div>
+
+        <!-- Input pseudo -->
+        <div class="form-group col">
+          <div class="input-group">
+            <span class="input-group-addon" id="basic-addon1">Pseudo</span>
+            <input name="pseudo" value="<?= $pseudo ;?>" type="text" class="form-control" id="pseudo" placeholder="">
+          </div>
+        </div>
+
+
+        <!-- Input nom du membre -->
+        <div class="form-group col">
+          <div class="input-group">
+            <span class="input-group-addon" id="basic-addon1">Nom</span>
+            <input name="nom" value="<?= $nom ;?>" type="text" class="form-control" id="nom" aria-describedby="name" placeholder="">
+          </div>
+        </div>
+
+        <!-- Input prénom du membre -->
+        <div class="form-group col">
+          <div class="input-group">
+            <span class="input-group-addon" id="basic-addon1">Prenom</span>
+            <input name="prenom" value="<?= $prenom ;?>" type="text" class="form-control" id="prenom" aria-describedby="forname" placeholder="">
+          </div>
+        </div>
+        <!-- </div>
+
+        <div class="col-md-6"> -->
+
+        <!-- Input téléphone du membre -->
+        <div class="form-group col">
+          <div class="input-group">
+            <span class="input-group-addon" id="basic-addon1">Téléphone</span>
+            <input name="telephone" value="<?= $telephone ;?>" type="text" class="form-control" id="telephone" aria-describedby="telephone" placeholder="">
           </div>
 
-            <!-- Input pseudo -->
-            <div class="form-group col">
-              <div class="input-group">
-                <span class="input-group-addon" id="basic-addon1">Pseudo</span>
-                <input name="pseudo" value="<?= $pseudo ;?>" type="text" class="form-control" id="pseudo" placeholder="">
-              </div>
-            </div>
+        </div>
 
+        <!-- Input email du membre -->
+        <div class="form-group col">
+          <div class="input-group">
+            <span class="input-group-addon" id="basic-addon1">Email</span>
+            <input name="email" value="<?= $email ;?>" type="email" class="form-control" id="email" aria-describedby="email" placeholder="">
+          </div>
+        </div>
 
-            <!-- Input nom du membre -->
-            <div class="form-group col">
-              <div class="input-group">
-                <span class="input-group-addon" id="basic-addon1">Nom</span>
-                <input name="nom" value="<?= $nom ;?>" type="text" class="form-control" id="nom" aria-describedby="name" placeholder="">
-              </div>
-            </div>
+        <!-- Input mot de passe du membre -->
+        <div class="form-group col">
+          <div class="input-group">
+            <span class="input-group-addon" id="basic-addon1">Mot de passe</span>
+            <input name="mdp" value="" type="password" class="form-control" id="mdp" placeholder="">
+          </div>
+        </div>
 
-            <!-- Input prénom du membre -->
-            <div class="form-group col">
-              <div class="input-group">
-                <span class="input-group-addon" id="basic-addon1">Prenom</span>
-                <input name="prenom" value="<?= $prenom ;?>" type="text" class="form-control" id="prenom" aria-describedby="forname" placeholder="">
-              </div>
-            </div>
-          <!-- </div>
+        <!-- Input confirmation du mot de passe du membre -->
+        <div class="form-group col">
+          <div class="input-group">
+            <span class="input-group-addon" id="basic-addon1">Confirmation</span>
+            <input name="mdp-confirm" value="" type="password" class="form-control" id="mdp-confirm" placeholder="">
+          </div>
+        </div>
 
-          <div class="col-md-6"> -->
+        <div class="pull-right">
+          <button type="submit" class="btn btn-primary pull-right">Enregistrer</button>
+        </div>
 
-            <!-- Input téléphone du membre -->
-            <div class="form-group col">
-              <div class="input-group">
-                <span class="input-group-addon" id="basic-addon1">Téléphone</span>
-                <input name="telephone" value="<?= $telephone ;?>" type="text" class="form-control" id="telephone" aria-describedby="telephone" placeholder="">
-              </div>
-
-            </div>
-
-            <!-- Input email du membre -->
-            <div class="form-group col">
-              <div class="input-group">
-                <span class="input-group-addon" id="basic-addon1">Email</span>
-                <input name="email" value="<?= $email ;?>" type="email" class="form-control" id="email" aria-describedby="email" placeholder="">
-              </div>
-            </div>
-
-            <!-- Input mot de passe du membre -->
-            <div class="form-group col">
-              <div class="input-group">
-                <span class="input-group-addon" id="basic-addon1">Mot de passe</span>
-                <input name="mdp" value="" type="password" class="form-control" id="mdp" placeholder="">
-              </div>
-            </div>
-
-            <!-- Input confirmation du mot de passe du membre -->
-            <div class="form-group col">
-              <div class="input-group">
-                <span class="input-group-addon" id="basic-addon1">Confirmation</span>
-                <input name="mdp-confirm" value="" type="password" class="form-control" id="mdp-confirm" placeholder="">
-              </div>
-            </div>
-
-            <div class="pull-right">
-              <button type="submit" class="btn btn-primary pull-right">Enregistrer</button>
-            </div>
-
-          <!-- </div> -->
+        <!-- </div> -->
         <!-- </div> -->
       </form>
 
@@ -227,10 +281,17 @@ include __DIR__.('/layout/top.php');
 
     <div class="col-lg-6">
       <h3>Note</h3>
-      <p></p>
+        <div class="progress">
+          <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="<?= $noteMoy; ?>"
+          aria-valuemin="0" aria-valuemax="5" style="width:<?= $noteMoy/5*100; ?>%">
+          Note moyenne : <?= (float)$noteMoy; ?> / 5
+        </div>
+      </div>
 
-    </div>
+    <p></p>
+
   </div>
+</div>
 
 </div>
 

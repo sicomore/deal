@@ -16,6 +16,10 @@ include __DIR__.('/layout/top.php');
   </div>
 
   <div class="row">
+    <?php
+    var_dump($_SESSION['membre']['id']);
+    var_dump($_SESSION['membre']['pseudo']); 
+     ?>
   </div>
 
   <div class="row">

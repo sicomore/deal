@@ -20,9 +20,11 @@ if (!empty($_POST)) {
   if (empty($_POST['pseudo'])) {
     $errors[] = 'Le pseudo est obligatoire.';
   } else {
-    $req = 'SELECT COUNT(*) FROM membre WHERE pseudo = '.$pdo->quote($_POST['pseudo']);
+    $pseudoFiltre = $pdo->quote(strtolower($_POST['pseudo']));
+    $req = 'SELECT COUNT(*) FROM membre WHERE pseudo = ' . $pseudoFiltre;
     $stmt = $pdo->query($req);
     $nb = $stmt->fetchColumn();
+    var_dump($nb);
     if ($nb != 0) {
       $errors[] = 'Cet pseudo est déjà utilisé.';
     }
@@ -65,7 +67,6 @@ if (!empty($_POST)) {
     $stmt->bindValue(':telephone', $telephone);
     $stmt->execute();
     $success = true;
-    // Affiche le message de confirmation dans HTML
   }
 }
 
@@ -107,89 +108,89 @@ include __DIR__.('/layout/top.php');
   endif;
   ?>
 
-<!--================= FORMULAIRE D'INSCRIPTION =================-->
+  <!--================= FORMULAIRE D'INSCRIPTION =================-->
 
-<div class="col-sm-10 col-sm-offset-1">
-  <form class="inscription" method="post">
-    <div class="row">
-
-      <div class="form-group col-auto">
-        <input name="pseudo" value="<?= $pseudo ;?>" type="text" class="form-control" id="pseudo" placeholder="Votre pseudo" autofocus>
-      </div>
-
+  <div class="col-sm-10 col-sm-offset-1">
+    <form class="inscription" method="post">
       <div class="row">
-        <div class="btn-group col-sm-2" data-toggle="buttons">
-          <label class="btn btn-default civilite <?php if ($civilite == 'Mme') {echo 'active';} ?>">
-            <input type="radio" name="civilite" value="Mme" id="femme" <?php if ($civilite == 'Mme') {echo 'checked';}; ?>> Mme
-          </label>
-          <label class="btn btn-default civilite <?php if ($civilite == 'M.') {echo 'active';} ?>">
-            <input type="radio" name="civilite" value="M." id="homme"<?php if ($civilite == 'M.') {echo 'checked';}; ?>> M.
-          </label>
+
+        <div class="form-group col-auto">
+          <input name="pseudo" value="<?= $pseudo ;?>" type="text" class="form-control" id="pseudo" placeholder="Votre pseudo" autofocus>
         </div>
 
-    <div class="form-group col-sm-5">
-      <input name="nom" value="<?= $nom ;?>" type="text" class="form-control" id="nom" aria-describedby="name" placeholder="Votre nom">
-    </div>
-    <div class="form-group col-sm-5">
-      <input name="prenom" value="<?= $prenom ;?>" type="text" class="form-control" id="prenom" aria-describedby="forname" placeholder="Votre prénom">
-    </div>
+        <div class="row">
+          <div class="btn-group col-sm-2" data-toggle="buttons">
+            <label class="btn btn-default civilite <?php if ($civilite == 'Mme') {echo 'active';} ?>">
+              <input type="radio" name="civilite" value="Mme" id="femme" <?php if ($civilite == 'Mme') {echo 'checked';}; ?>> Mme
+            </label>
+            <label class="btn btn-default civilite <?php if ($civilite == 'M.') {echo 'active';} ?>">
+              <input type="radio" name="civilite" value="M." id="homme"<?php if ($civilite == 'M.') {echo 'checked';}; ?>> M.
+            </label>
+          </div>
+
+          <div class="form-group col-sm-5">
+            <input name="nom" value="<?= $nom ;?>" type="text" class="form-control" id="nom" aria-describedby="name" placeholder="Votre nom">
+          </div>
+          <div class="form-group col-sm-5">
+            <input name="prenom" value="<?= $prenom ;?>" type="text" class="form-control" id="prenom" aria-describedby="forname" placeholder="Votre prénom">
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group col-sm-4">
+            <input name="telephone" value="<?= $telephone ;?>" type="text" class="form-control" id="telephone" aria-describedby="telephone" placeholder="Votre téléphone">
+          </div>
+          <div class="form-group col-sm-8">
+            <input name="email" value="<?= $email ;?>" type="email" class="form-control" id="email" aria-describedby="email" placeholder="Votre email">
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="form-group col-sm-6">
+            <input name="mdp" value="" type="password" class="form-control" id="mdp" placeholder="Entrez un mot de passe">
+          </div>
+          <div class="form-group col-sm-6">
+            <input name="mdp-confirm" value="" type="password" class="form-control" id="mdp" placeholder="Confirmez votre mot de passe">
+          </div>
+        </div>
+
+        <div class="pull-right">
+          <a href="index.php" class="btn btn-default" type="cancel">Annuler</a>
+          <button type="submit" class="btn btn-primary pull-right">Valider</button>
+        </div>
+
+      </div>
+    </form>
   </div>
-  <div class="row">
-    <div class="form-group col-sm-4">
-      <input name="telephone" value="<?= $telephone ;?>" type="text" class="form-control" id="telephone" aria-describedby="telephone" placeholder="Votre téléphone">
-    </div>
-    <div class="form-group col-sm-8">
-      <input name="email" value="<?= $email ;?>" type="email" class="form-control" id="email" aria-describedby="email" placeholder="Votre email">
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="form-group col-sm-6">
-      <input name="mdp" value="" type="password" class="form-control" id="mdp" placeholder="Entrez un mot de passe">
-    </div>
-    <div class="form-group col-sm-6">
-      <input name="mdp-confirm" value="" type="password" class="form-control" id="mdp" placeholder="Confirmez votre mot de passe">
-    </div>
-  </div>
-
-  <div class="pull-right">
-    <a href="index.php" class="btn btn-default" type="cancel">Annuler</a>
-    <button type="submit" class="btn btn-primary pull-right">Valider</button>
-  </div>
-
-</div>
-</form>
-</div>
 
 
-<!-- ================= MODAL DE SUCCES D'INSCRIPTION ================= -->
+  <!-- ================= MODAL DE SUCCES D'INSCRIPTION ================= -->
 
-<!-- <div class="modal fade" id="modal-inscription" tabindex="-1" role="dialog" aria-labelledby="ModalLabel">
+  <!-- <div class="modal fade" id="modal-inscription" tabindex="-1" role="dialog" aria-labelledby="ModalLabel">
   <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
-        </button>
-        < ?php
-        if (isset($success)) :
-          ?>
-          <div class="alert alert-success">
-          <strong>Votre inscription a bien été enregistrée.</strong>
-        </div> -->
-        <!-- <h4 class="modal-title alert-success" id="ModalLabel">Votre inscription a bien été enregistrée.</h4>
-    </div>
-    <div class="modal-body row">
-      <div class="col-sm-6">
-        <a class="btn btn-primary" href="< ?=SITE_PATH;?>admin/annonce-edit.php">Déposer une annonce</a>
-      </div>
-      <div class="col-sm-5 col-sm-offset-1">
-        <a class="btn btn-default" href="< ?=SITE_PATH;?>index.php">Retour à l'accueil</a>
-      </div>
-    </div>
-    < ?php
-  endif;
-  ?>
-  </div>
+  <div class="modal-content">
+  <div class="modal-header">
+  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+</button>
+< ?php
+if (isset($success)) :
+?>
+<div class="alert alert-success">
+<strong>Votre inscription a bien été enregistrée.</strong>
+</div> -->
+<!-- <h4 class="modal-title alert-success" id="ModalLabel">Votre inscription a bien été enregistrée.</h4>
+</div>
+<div class="modal-body row">
+<div class="col-sm-6">
+<a class="btn btn-primary" href="< ?=SITE_PATH;?>admin/annonce-edit.php">Déposer une annonce</a>
+</div>
+<div class="col-sm-5 col-sm-offset-1">
+<a class="btn btn-default" href="< ?=SITE_PATH;?>index.php">Retour à l'accueil</a>
+</div>
+</div>
+< ?php
+endif;
+?>
+</div>
 </div>
 </div> -->
 
