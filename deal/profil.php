@@ -102,35 +102,35 @@ if (!empty($_POST)) {
     if (!empty($reqGet)) {
       $stmt->bindValue(':role', $role);
     }
-
     $stmt->execute();
     $success = true;
-
-    // setFlashMessage("Vos modifications ont bien été prises en compte.");
-    // header('Location: membre-edit.php');
-    // die;
   }
 }
 
 
 // Recueil des informations du vendeur
 $req = <<<EOS
-SELECT m.*, m.id idMembre, a.titre titreAnnonce, a.description_courte description_courte, c.id idCommentaire, c.*, n.*, AVG(note) noteMoy
+SELECT m.id idMembre, pseudo, m.nom nom, prenom, email, a.id annonceId, a.titre titreAnnonce, a.photo photo,
+description_courte, description_longue, ville, adresse, code_postal, co.id idCommentaire, commentaire, r.nom nomRegion
 FROM membre m
-LEFT JOIN annonce a ON a.membre_id = m.id
-LEFT JOIN commentaire c ON c.annonce_id = a.id
-LEFT JOIN notes n ON n.membre_id2 = m.id
+JOIN annonce a ON a.membre_id = m.id
+JOIN categorie ca ON ca.id = a.categorie_id
+JOIN region r ON r.id = a.region_id
+LEFT JOIN commentaire co ON co.annonce_id = a.id
 WHERE m.id =
 EOS
 .$idMembre;
 
+// Requête pour les infos du membre
 $stmt = $pdo->query($req);
-$membreTout = $stmt->fetchAll();
-// var_dump($idMembre);
+$infosToutes = $stmt->fetchAll();
+// var_dump($infosToutes);
 
-foreach ($membreTout as $ligne => $membre) {
-  extract($membre);
-}
+// Complément de requête pour les commentaires
+$req .= ' GROUP BY annonceId';
+$stmt = $pdo->query($req);
+$infosMembre = $stmt->fetchAll();
+
 
 // ----------------- Traitement de l'affichage -----------------------
 // ----------------- Traitement de l'affichage -----------------------
@@ -174,7 +174,7 @@ include __DIR__.('/layout/top.php');
   ?>
 
   <div class="row">
-    <div class="col-lg-6">
+    <div class="col-md-4">
       <h2>Informations personnelles</h2>
       <h3>
         ID membre : <?= $idMembre; ?>
@@ -279,19 +279,31 @@ include __DIR__.('/layout/top.php');
 
     </div>
 
-    <div class="col-lg-6">
+    <div class="col-md-8">
       <h3>Note</h3>
-        <div class="progress">
-          <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="<?= $noteMoy; ?>"
+      <div class="progress">
+        <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="<?= $noteMoy; ?>"
           aria-valuemin="0" aria-valuemax="5" style="width:<?= $noteMoy/5*100; ?>%">
           Note moyenne : <?= (float)$noteMoy; ?> / 5
         </div>
       </div>
+      <h3>Annonces</h3>
+      <div class="row">
+        <?php
+        foreach ($infosMembre as $ligne => $infoMembre) :
+        ?>
+        <div class="col-sm-3">
+          <img src="<?= SITE_PATH.'photos/'.$infoMembre['photo']; ?>" alt="">
 
-    <p></p>
+        </div>
+      <?php endforeach; ?>
 
+      </div>
+
+      <p></p>
+
+    </div>
   </div>
-</div>
 
 </div>
 
