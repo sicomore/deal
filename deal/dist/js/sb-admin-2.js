@@ -5,12 +5,11 @@
 */
 $(function() {
   $('#side-menu').metisMenu();
-});
 
-//Loads the correct sidebar on window load,
-//collapses the sidebar on window resize.
-// Sets the min-height of #page-wrapper to window size
-$(function() {
+  //Loads the correct sidebar on window load,
+  //collapses the sidebar on window resize.
+  // Sets the min-height of #page-wrapper to window size
+
   $(window).bind("load resize", function() {
     var topOffset = 50;
     var width = (this.window.innerWidth > 0) ? this.window.innerWidth : this.screen.width;
@@ -30,9 +29,6 @@ $(function() {
   });
 
   var url = window.location;
-  // var element = $('ul.nav a').filter(function() {
-  //     return this.href == url;
-  // }).addClass('active').parent().parent().addClass('in').parent();
   var element = $('ul.nav a').filter(function() {
     return this.href == url;
   }).addClass('active').parent();
@@ -45,13 +41,60 @@ $(function() {
     }
   }
 
-  $(function () {
-    $('[data-toggle="popover"]').popover({ trigger: "hover" });
-  });
-  });
+  $('[data-toggle="popover"]').popover({ trigger: "hover" });
+
 
   // Récupération de la valeur de la note attribuée
   $('.rating a').on('click', function() {
-  var valeur = $(this).attr('value');
-  $('.rating input').val(valeur);
-});
+    var valeur = $(this).attr('value');
+    $('.rating input').val(valeur);
+  });
+
+
+  // Table des annonces responsive dans annonces.php
+  // $('#tableAnnonces').DataTable({
+  //   responsive: true
+  // });
+
+
+  // Tri des annonces
+  // function affichage(choix) {
+  //   if (choix !='') {
+  //     // console.log(choix);
+  //     for (var i = 0; i < select.length; i++) {
+  //       var titre = select.eq(i).attr('title');
+  //       var toutesFiches = select.eq(i);
+  //       if (titre != choix) {
+  //         if (choix == 'default') {
+  //           toutesFiches.fadeIn(500);
+  //         } else {
+  //           toutesFiches.hide(1000);
+  //         }
+  //       } else {
+  //         toutesFiches.fadeIn(500);
+  //       }
+  //     }
+  //   }
+  // }
+
+
+  $('#tri_annonces').val([name = "tri_annonces"]).change( function(event) {
+    event.preventDefault();
+
+    $.ajax({
+
+      url: 'include/select-tri.php?tri_annonces=',
+      method: 'GET',
+      data: $("#tri_annonces option:selected").val().toLowerCase(),
+      // $(this).serialize(),
+      // {tri_annonces: },
+      dataType: 'json',
+      success: function(annonces, success) {
+        console.log('Connexion : '+success);
+        console.log(annonces);
+
+      }
+    });
+  });
+
+});  //end DOM Ready

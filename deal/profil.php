@@ -5,11 +5,13 @@ if (!isUserConnected() || !isUserAdmin() && isset($_GET['id'])) {
   header('Location: index.php');
   die;
 }
+
 if (isset($_GET['id'])) {
   $idMembre = (int)$_GET['id'];
 } else {
   $idMembre = $_SESSION['membre']['id'];
 }
+
 $civilite = $role = $pseudo = $nom = $prenom = $email = $telephone = '';
 
 if (!empty($_POST)) {
@@ -34,6 +36,7 @@ if (!empty($_POST)) {
   if (empty($_POST['civilite'])) {
     $errors[] = 'Choisir une civilité.';
   }
+  // Vérification du statut possible pour un utilisateur admin
   if (isUserAdmin()) {
     if (empty($_POST['role'])) {
       $errors[] = 'Choisir un statut pour le membre.';
@@ -56,8 +59,7 @@ if (!empty($_POST)) {
     $errors[] = 'L\'email est invalide.';
   }
 
-  // Vérification des mots de passe
-  // Possibilité de ne pas changer en cas de modification de profil
+  // Vérification des mots de passe : Possibilité de ne pas changer en cas de modification de profil
   if ((!empty($_POST['mdp'])) XOR (!empty($_POST['mdp-confirm']))) {
     $errors[] = 'Le mot de passe doit être renseigné 2 fois.';
   }
@@ -69,16 +71,17 @@ if (!empty($_POST)) {
     }
   }
 
-
-  // Si aucune erreur : MAJ en cas de modification / Ajout à la bdd en cas de création
+  // Si aucune erreur, MAJ en cas de modification
   if (empty($errors)) {
     $reqGet = $reqMdp = '';
 
+    // Si le mot de passe a été renseigné, ajout dans la requête de mise à jour de la bdd
     if ((!empty($_POST['mdp'])) || (!empty($_POST['mdp-confirm']))) {
       $encodePassword = password_hash ($mdp, PASSWORD_BCRYPT);
       $reqMdp = ', mdp = :mdp ';
     }
 
+    // S'il s'agit d'une modification de profil par un admin, attribution possible d'un statut admin ou user
     if (isset($_GET['id'])) {
       $reqGet = ', role = :role ';
     }
@@ -108,29 +111,90 @@ if (!empty($_POST)) {
 }
 
 
-// Recueil des informations du vendeur
+// Recueil des informations du vendeur à afficher
 $req = <<<EOS
-SELECT m.id idMembre, pseudo, m.nom nom, prenom, email, a.id annonceId, a.titre titreAnnonce, a.photo photo,
-description_courte, description_longue, ville, adresse, code_postal, co.id idCommentaire, commentaire, r.nom nomRegion
+SELECT m.id idMembre, m.pseudo pseudoVendeur, m.nom nom, m.prenom prenom, m.email email, a.id idAnnonce, a.titre titreAnnonce, a.photo photo,
+description_courte, description_longue, ville, adresse, code_postal, ca.titre titreCategorie, r.nom nomRegion
 FROM membre m
 JOIN annonce a ON a.membre_id = m.id
 JOIN categorie ca ON ca.id = a.categorie_id
 JOIN region r ON r.id = a.region_id
-LEFT JOIN commentaire co ON co.annonce_id = a.id
-WHERE m.id =
-EOS
-.$idMembre;
+WHERE m.id = ?
+EOS;
+$stmt = $pdo->prepare($req);
+$stmt->execute([$idMembre]);
+$infosAnnonce = $stmt->fetchAll();
 
-// Requête pour les infos du membre
+$req = '
+SELECT a.id, a.titre, c.commentaire, m.id as mid, m.pseudo as mpseudo, c.date_enregistrement
+FROM annonce a
+JOIN commentaire c ON a.id = c.annonce_id AND c.date_enregistrement > (SELECT date_enregistrement FROM commentaire WHERE )
+JOIN membre m ON m.id = c.membre_id AND m.id != ' . $_SESSION["membre"]["id"] .'
+ORDER BY a.titre ASC, c.date_enregistrement ASC
+';
+
+
+var_dump($_SESSION);
+$stmt = $pdo->prepare($req);
+$stmt->execute([$idMembre]);
+var_dump($stmt->fetchAll());
+
+$req = <<<EOS
+SELECT a.id, c.commentaire, c.date_enregistrement, c.membre_id mbCommente
+FROM commentaire c
+JOIN annonce a ON a.id = c.annonce_id
+WHERE c.membre_id != a.membre_id
+AND c.date_enregistrement >
+  (SELECT max(c.date_enregistrement)
+  FROM commentaire c
+JOIN annonce a ON a.membre_id = c.membre_id
+WHERE a.id = c.annonce_id)
+EOS;
+
+// Recueil des infos pour les commentaires
+// $req = <<<EOS
+// SELECT m.id idMembre, m.pseudo pseudoVendeur, a.id idAnnonce, co.id idCommentaire, commentaire, co.date_enregistrement dateCommentaire, me.pseudo pseudoClient
+// FROM membre m
+// JOIN annonce a ON a.membre_id = m.id
+// LEFT JOIN commentaire co ON co.annonce_id = a.id
+// LEFT JOIN membre me ON co.membre_id = me.id
+// WHERE m.id = ?
+// ORDER BY idCommentaire DESC
+// EOS;
+
+$stmt = $pdo->prepare($req);
+$stmt->execute([$idMembre]);
+$infosCommentaires = $stmt->fetchAll();
+
+// $req = <<<EOS
+// SELECT m.id idMembre, m.pseudo pseudoVendeur, m.nom nom, m.prenom prenom, m.email email, a.id idAnnonce, a.titre titreAnnonce, a.photo photo,
+// description_courte, description_longue, ville, adresse, code_postal, ca.titre titreCategorie, co.id idCommentaire, commentaire, co.date_enregistrement dateCommentaire, me.id idClient, me.pseudo pseudoClient, r.nom nomRegion
+// FROM membre m
+// JOIN annonce a ON a.membre_id = m.id
+// JOIN categorie ca ON ca.id = a.categorie_id
+// JOIN region r ON r.id = a.region_id
+// LEFT JOIN commentaire co ON co.annonce_id = a.id
+// LEFT JOIN membre me ON co.membre_id = me.id
+// WHERE m.id =
+// EOS
+// .$idMembre;
+
+// Requête pour les commentaires
+// $stmt = $pdo->query($req);
+// $infosCommentaires = $stmt->fetchAll();
+// var_dump($infosCommentaires);
+
+// Requête pour les infos du membre seulement
+// $req .= ' GROUP BY idAnnonce';
+// $stmt = $pdo->query($req);
+// $infosMembre = $stmt->fetchAll();
+// var_dump($infosMembre);
+
+// Requête pour obtenir la note moyenne du vendeur
+$req = 'SELECT AVG(note) FROM notes n JOIN membre m ON n.membre_id2 = m.id
+WHERE m.id = ' . $idMembre;
 $stmt = $pdo->query($req);
-$infosToutes = $stmt->fetchAll();
-// var_dump($infosToutes);
-
-// Complément de requête pour les commentaires
-$req .= ' GROUP BY annonceId';
-$stmt = $pdo->query($req);
-$infosMembre = $stmt->fetchAll();
-
+$noteMoy = $stmt->fetchColumn();
 
 // ----------------- Traitement de l'affichage -----------------------
 // ----------------- Traitement de l'affichage -----------------------
@@ -174,11 +238,12 @@ include __DIR__.('/layout/top.php');
   ?>
 
   <div class="row">
-    <div class="col-md-4">
-      <h2>Informations personnelles</h2>
-      <h3>
+    <h2>Informations personnelles</h2>
+    <div class="col-md-6" id="infosPersos">
+      <!-- <div class="row"> -->
+      <h4>
         ID membre : <?= $idMembre; ?>
-      </h3>
+      </h4>
       <form class="profil" method="post">
         <!-- <div class="row"> -->
         <!-- <div class="col-md-6"> -->
@@ -197,7 +262,6 @@ include __DIR__.('/layout/top.php');
           <?php
           if (isUserAdmin()):
             ?>
-
             <div class="form-group col-sm-6">
               <select name="role" class="form-control selectpicker" id="role">
                 <option value=''>Statut</option>
@@ -242,7 +306,6 @@ include __DIR__.('/layout/top.php');
             <span class="input-group-addon" id="basic-addon1">Téléphone</span>
             <input name="telephone" value="<?= $telephone ;?>" type="text" class="form-control" id="telephone" aria-describedby="telephone" placeholder="">
           </div>
-
         </div>
 
         <!-- Input email du membre -->
@@ -272,40 +335,100 @@ include __DIR__.('/layout/top.php');
         <div class="pull-right">
           <button type="submit" class="btn btn-primary pull-right">Enregistrer</button>
         </div>
-
-        <!-- </div> -->
-        <!-- </div> -->
       </form>
-
+      <!-- </div> -->
     </div>
 
-    <div class="col-md-8">
-      <h3>Note</h3>
-      <div class="progress">
-        <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="<?= $noteMoy; ?>"
-          aria-valuemin="0" aria-valuemax="5" style="width:<?= $noteMoy/5*100; ?>%">
-          Note moyenne : <?= (float)$noteMoy; ?> / 5
+
+    <div class="col-md-6">
+      <div class="row" id="rating">
+        <h3 class="col-sm-2">Note</h3>
+        <div class="col-sm-10 progress">
+          <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="<?= $noteMoy; ?>"
+            aria-valuemin="0" aria-valuemax="5" style="width:<?= $noteMoy/5*100; ?>%">
+            Note moyenne : <?= round($noteMoy,1); ?> / 5
+          </div>
         </div>
       </div>
-      <h3>Annonces</h3>
-      <div class="row">
-        <?php
-        foreach ($infosMembre as $ligne => $infoMembre) :
-        ?>
-        <div class="col-sm-3">
-          <img src="<?= SITE_PATH.'photos/'.$infoMembre['photo']; ?>" alt="">
+    </div>
 
+  </div>
+
+  <div class="container-fluid">
+    <h3>Mes annonces</h3>
+    <?php foreach ($infosAnnonce as $champ => $infoAnnonce) : ?>
+      <div class="row" id="listeAnnonces">
+        <div class="row">
+
+          <div class="col-sm-4">
+            <img src="<?= SITE_PATH.'photos/'.$infoAnnonce['photo']; ?>" alt="photo de <?= $infoAnnonce['titreAnnonce']; ?>" style="max-width: 180px">
+          </div>
+
+          <div class="col-sm-8">
+            <h4 class=""><?= $infoAnnonce['titreAnnonce']; ?></h4>
+            <h5 class="">Annonce : <?= $infoAnnonce['idAnnonce']; ?></h5>
+            <h5 class="">Catégorie : <?= $infoAnnonce['titreCategorie']; ?></h5>
+            <p class=""><?= $infoAnnonce['description_courte']; ?></p>
+            <em class=""><h5>Adresse : <?= $infoAnnonce['adresse'].' '. $infoAnnonce['code_postal'].' '. $infoAnnonce['ville']; ?></h5></em>
+          </div>
+        </div>
+        <?php
+        foreach ($infosCommentaires as $champ => $infoCommentaire) :
+          if (isset($infoCommentaire['idCommentaire'])) :
+            if ($infoCommentaire['idAnnonce'] == $infoAnnonce['idAnnonce']) :
+              ?>
+              <!-- <div class="row"> -->
+                <div class="row" id="commentairesAnnonces">
+                  <div class="panel panel-default">
+                    <div class="panel-heading col-sm-4">
+                      <strong>
+                        Commentaire laissé par <a href="<?= SITE_PATH.'profil.php?id='.$infoAnnonce['idClient'] ;?>">
+                          <?= $infoCommentaire['pseudoClient'] ;?></a> le <?= strftime('%d/%m/%Y à %Hh%M', strtotime($infoCommentaire['dateCommentaire'])) ;?>
+                        </strong>
+                      </div>
+                      <div class="panel-body col-sm-8">
+                        <div>
+                          <?= $infoCommentaire['commentaire'] ;?>
+                        </div>
+                        <?php
+                        if (isUserConnected()):
+                          ?>
+                          <div class="">
+                            <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#flipFlop">
+                              Répondre au commentaire
+                            </button>
+                          </div>
+                        <?php endif; ?>
+                      </div>
+                    </div>
+                  </div>
+                <!-- </div> -->
+
+                <?php
+              endif;
+            endif;
+          endforeach; ?>
         </div>
       <?php endforeach; ?>
 
-      </div>
+      <!--========== Présetation sous forme de liste ==========-->
 
-      <p></p>
-
+      <!-- <div class="row" id="listeAnnonces">
+      <div class="col-sm-3">
+      <img src="< ?= SITE_PATH.'photos/'.$infoAnnonce['photo']; ?>" alt="photo de < ?= $infoAnnonce['titreAnnonce']; ?>" style="max-width: 180px">
     </div>
+
+    <div class="col-sm-10">
+    <h4 class="col-sm-8">< ?= $infoAnnonce['titreAnnonce']; ?></h4>
+    <h5 class="col-sm-4 pull-right">Catégorie : < ?= $infoAnnonce['titreCategorie']; ?></h5>
+    <p class="col-sm-12">< ?= $infoAnnonce['description_courte']; ?></p>
+    <em class="col-sm-12"><h5>Adresse : < ?= $infoAnnonce['adresse'].' '. $infoAnnonce['code_postal'].' '. $infoAnnonce['ville']; ?></h5></em>
   </div>
+</div> -->
+</div>
 
 </div>
+
 
 <?php
 include __DIR__.('/layout/bottom.php');

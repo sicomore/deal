@@ -155,7 +155,6 @@ if (!empty($_POST)) {
   $stmt = $pdo->query($req);
   $annonces = $stmt->fetch();
   extract($annonces);
-  var_dump($annonces);
   $categorie = $annonces['categorie_id'];
   $photoActuelle = $annonces['photo'];
   $region = $annonces['region_id'];

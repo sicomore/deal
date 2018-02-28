@@ -5,16 +5,13 @@ $tri_annonces = '';
 
 extract($_POST);
 if (empty($_POST)) {
-  $tri_annonces = 'a.id desc';
+  // $tri_annonces = 'a.id desc';
 }
-
+// $tri_annonces = 'a.id desc';
 var_dump($tri_annonces);
-$req = 'SELECT a.*, m.pseudo, c.titre titre_categorie, r.nom nom_region FROM annonce a JOIN categorie c ON c.id = categorie_id JOIN membre m ON m.id = a.membre_id JOIN region r ON r.id = region_id ORDER BY '. $tri_annonces
-. ' LIMIT 5'
-;
-$stmt = $pdo->query($req);
-$annonces = $stmt->fetchAll();
-// var_dump($annonces);
+// $req = 'SELECT a.*, m.pseudo, c.titre titre_categorie, r.nom nom_region FROM annonce a JOIN categorie c ON c.id = categorie_id JOIN membre m ON m.id = a.membre_id JOIN region r ON r.id = region_id ORDER BY '. $tri_annonces. ' LIMIT 5';
+// $stmt = $pdo->query($req);
+// $annonces = $stmt->fetchAll();
 
 
 // ----------------- Traitement de l'affichage -----------------------
@@ -63,29 +60,25 @@ include __DIR__.'/layout/top.php';
       </select>
     </div>
 
-    <div class="col-sm-3">
-      <form class="form-group" method="post">
+    <div class="col-sm-3 form-group">
+      <form class="" method="post" id="tri-form">
         <label for="">Trier par ...</label>
-        <div class="input-group">
-          <select class="form-control" name="tri_annonces" id="tri_annonces">
-            <optgroup label="Date de parution">
-              <!-- <option value="< ?php selected($tri_annonces, 'a.id desc'); ?>>les plus récentes</option> -->
-              <option value= <?= ($tri_annonces == 'a.id desc') ? '"a.id desc" selected' : '"a.id desc"'; ?> >les plus récentes</option>
-              <option value= <?= ($tri_annonces == 'a.id') ? '"a.id" selected' : '"a.id"'; ?> >les plus anciennes</option>
-            </optgroup>
-            <optgroup label="Prix">
-              <option value= <?= ($tri_annonces == 'a.prix') ? '"a.prix" selected' : '"a.prix"'; ?> > prix croissant</i></option>
-              <option value= <?= ($tri_annonces == 'a.prix desc') ? '"a.prix desc" selected' : '"a.prix desc"'; ?> > prix décroissant</option>
-            </optgroup>
-            <optgroup label="Catégorie">
-              <option value= <?= ($tri_annonces == 'c.titre') ? '"c.titre" selected' : '"c.titre"'; ?> >catégorie croissante</option>
-              <option value= <?= ($tri_annonces == 'c.titre desc') ? '"c.titre desc" selected' : '"c.titre desc"'; ?> >catégorie décroissante</option>
-            </optgroup>
-          </select>
-          <span class="input-group-btn">
-            <button class="btn btn-primary form-group-btn pull-right" type="submit">Trier</button>
-          </span>
-        </div>
+        <select class="form-control" name="tri_annonces" id="tri_annonces">
+          <optgroup label="Date de parution">
+            <!-- <option value="< ?php selected($tri_annonces, 'a.id desc'); ?>>les plus récentes</option> -->
+            <option value= <?= ($tri_annonces == 'a.id_desc') ? '"a.id_desc" selected' : '"a.id_desc"'; ?> >les plus récentes</option>
+            <option value= <?= ($tri_annonces == 'a.id') ? '"a.id" selected' : '"a.id"'; ?> >les plus anciennes</option>
+          </optgroup>
+          <optgroup label="Prix">
+            <option value= <?= ($tri_annonces == 'a.prix') ? '"a.prix" selected' : '"a.prix"'; ?> > prix croissant</i></option>
+            <option value= <?= ($tri_annonces == 'a.prix_desc') ? '"a.prix_desc" selected' : '"a.prix_desc"'; ?> > prix décroissant</option>
+          </optgroup>
+          <optgroup label="Catégorie">
+            <option value= <?= ($tri_annonces == 'c.titre') ? '"c.titre" selected' : '"c.titre"'; ?> >catégorie croissante</option>
+            <option value= <?= ($tri_annonces == 'c.titre_desc') ? '"c.titre_desc" selected' : '"c.titre_desc"'; ?> >catégorie décroissante</option>
+          </optgroup>
+        </select>
+        <!-- <button class="btn btn-primary" type="submit">Trier</button> -->
       </form>
     </div>
   </div>

@@ -94,8 +94,12 @@ if (!empty($avis) || !empty($note)) {
 }
 
 // Requête pour afficher les "Autres annonces" autre que celle affichée
-$req = 'SELECT a.*, a.titre titre_annonce FROM annonce a JOIN categorie c ON c.id = a.categorie_id WHERE a.id != '.$_GET['id'].' AND c.id = (SELECT categorie_id FROM annonce WHERE id = '.$_GET['id'].') LIMIT 4';
-$stmt = $pdo->query($req);
+$req = <<<EOS
+SELECT a.*, a.titre titre_annonce FROM annonce a JOIN categorie c ON c.id = a.categorie_id WHERE a.id != ? AND c.id = (SELECT categorie_id FROM annonce WHERE id = ?) LIMIT 4
+EOS;
+$stmt = $pdo->prepare($req);
+$stmt->bindValue(1, $_GET['id']);
+$stmt->bindValue(2, $_GET['id']);
 $toutesAnnonces = $stmt->fetchAll();
 
 
@@ -179,7 +183,7 @@ include __DIR__.('/layout/top.php');
 </div>
 <!--=========================== Fin du modal ===========================-->
 
-<div id="page-wrapper">
+<div class="container-fluid" id="page-wrapper">
 
   <?php
   displayFlashMessage();
@@ -263,78 +267,96 @@ include __DIR__.('/layout/top.php');
 
           <iframe  src="https://www.google.com/maps/embed/v1/place?key=<?= API_KEY; ?>&q= <?= $annonce['adresse']; ?>,
             <?= $annonce['code_postal']; ?>
-            <?= $annonce['ville'];  ?>" style="width: 100%"></iframe>
-          </div>
+            <?= $annonce['ville'];  ?>" style="width: 100%">
+          </iframe>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div class="row" id="commentaires">
+    <h3>Commentaires laissés pour cette annonce</h3>
+
+    <?php
+    if (empty($commentTous)) :
+      ?>
+      <div class="col-xs-3">
+        <p>Aucun commentaire laissé pour cette annonce</p>
+        <p>Soyez le premier à en laisser un !</p>
+      </div>
+      <div class="col-xs-3">
+        <div class="pull-right" data-toggle="<?= $popover; ?>" data-placement="top" data-content="Pour laisser un commentaire, veuillez-vous connecter.">
+        <button type="button" class="btn btn-primary <?= $disabled; ?>" data-toggle="modal" data-target="#flipFlop">
+          <i class="fa fa-arrow-right"></i> Laisser un commentaire
+        </button>
+        </div>
+      </div>
+      <?php
+      else :
+        foreach ($commentAffiches as $commentAffiche):
+          ?>
+          <!-- <div class="row"> -->
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <b><a href="<?= SITE_PATH.'profil.php?id='.$commentAffiche['membre_id'] ;?>">
+                <?= $commentAffiche['pseudo']?></a> a laissé un message le <?= strftime('%d/%m/%Y à %Hh%M', strtotime($commentAffiche['date_enregistrement'])); ?></b>
+              </div>
+              <div class="panel-body">
+                <?= $commentAffiche['commentaire'] ;?>
+                <?php
+                if (isUserConnected()):
+                  ?>
+                  <div class="pull-right">
+                    <button type="button" class="btn btn-primary <?= $disabled; ?>" data-toggle="modal" data-target="#flipFlop">
+                      Répondre au commentaire
+                    </button>
+                    <!-- <button type="button" name="reponse" formaction="">
+                    Répondre
+                  </button> -->
+                </div>
+              <?php endif; ?>
+            </div>
+          </div>
+
+          <?php
+        endforeach;
+      endif;
+      ?>
+      <!-- </div> -->
     </div>
 
     <div class="row" id="autres">
       <h3>Autres annonces (Catégorie : <?= $annonce['titre_categorie']; ?>)</h3>
-      <?php foreach ($toutesAnnonces as $toutesAnnonce): ?>
-        <div class="col-sm-3" style="text-align: center">
-          <a href="<?= SITE_PATH.'annonce-fiche.php?id='.$toutesAnnonce['id'] ;?>">
-            <img src="<?= SITE_PATH.'photos/'.$toutesAnnonce['photo'];?>" alt="Photo de <?=$toutesAnnonce['titre_annonce'];?>" style="max-height: 150px">
-            <p><b> <?= $toutesAnnonce['titre_annonce']; ?></b></p>
-            <p><b><?= $toutesAnnonce['prix']; ?> €</b></p>
-          </a>
+      <?php
+      if (empty($toutesAnnonces)) :
+        ?>
+        <div class="col-xs-3">
+          <p>Aucune autre annonce n'est disponible dans cette catégorie</p>
         </div>
-      <?php endforeach; ?>
-    </div>
-
-    <div class="row" id="commentaires">
-      <h3>Commentaires laissés pour cette annonce</h3>
-
-
-        <?php
-        if (empty($commentTous)) :
-          ?>
-          <div class="col-xs-3">
-
-          <p>Aucun commentaire laissé pour cette annonce</p>
-          <p>Soyez le premier à en laisser un !</p>
-        </div>
-          <div class="col-xs-3">
-          <button type="button" class="btn btn-primary <?= $disabled; ?>" data-toggle="modal" data-target="#flipFlop">
-            Laisser un commentaire
+        <div class="col-xs-3">
+          <div class="pull-right" data-toggle="<?= $popover; ?>" data-placement="top" data-content="Pour déposer une annonce, veuillez-vous connecter.">
+          <button href="<?= SITE_PATH.'admin/annonce-edit.php';?>" type="button" class="btn btn-primary <?= $disabled; ?>">
+            <i class="fa fa-arrow-right"></i> Déposer une annonce
           </button>
+          </div>
         </div>
-          <?php
-          else :
-            foreach ($commentAffiches as $commentAffiche):
-              ?>
-              <div class="container">
-              <div class="panel panel-default">
-                <div class="panel-heading">
-                  <b><a href="<?= SITE_PATH.'profil.php?id='.$commentAffiche['membre_id'] ;?>">
-                    <?= $commentAffiche['pseudo']?></a> a laissé un message le <?= strftime('%d/%m/%Y à %Hh%M', strtotime($commentAffiche['date_enregistrement'])); ?></b>
-                  </div>
-                  <div class="panel-body">
-                    <?= $commentAffiche['commentaire'] ;?>
-                    <?php
-                    if (isUserConnected()):
-                      ?>
-                      <div class="pull-right">
-                        <button type="button" class="btn btn-primary <?= $disabled; ?>" data-toggle="modal" data-target="#flipFlop">
-                          Répondre au commentaire
-                        </button>
-                        <!-- <button type="button" name="reponse" formaction="">
-                        Répondre
-                      </button> -->
-                    </div>
-                  <?php endif; ?>
-                </div>
-              </div>
 
-              <?php
-          endforeach;
-        endif;
-          ?>
-        </div>
+      <?php else : ?>
+
+        <?php foreach ($toutesAnnonces as $toutesAnnonce): ?>
+          <div class="col-sm-3" style="text-align: center">
+            <a href="<?= SITE_PATH.'annonce-fiche.php?id='.$toutesAnnonce['id'] ;?>">
+              <img src="<?= SITE_PATH.'photos/'.$toutesAnnonce['photo'];?>" alt="Photo de <?=$toutesAnnonce['titre_annonce'];?>" style="max-height: 150px">
+              <p><b> <?= $toutesAnnonce['titre_annonce']; ?></b></p>
+              <p><b><?= $toutesAnnonce['prix']; ?> €</b></p>
+            </a>
+          </div>
+        <?php endforeach; ?>
       </div>
+    <?php endif; ?>
 
-    </div>
+  </div> <!-- Fin container -->
 
-    <?php
-    include __DIR__.('/layout/bottom.php');
-    ?>
+  <?php
+  include __DIR__.('/layout/bottom.php');
+  ?>

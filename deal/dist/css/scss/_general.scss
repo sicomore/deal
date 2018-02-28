@@ -30,8 +30,8 @@ p {
   display: -ms-flexbox;
   display: flex;
   -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
 }
 
 .table.table-bordered.table-striped {
@@ -52,12 +52,66 @@ p {
   }
 }
 
+#listeAnnonces {
+  border-bottom: 1px $gray-light solid;
+  // display: -ms-flex;
+  // display: -webkit-box;
+  // display: -ms-flexbox;
+  // display: flex;
+  // -webkit-box-align: center;
+  // -ms-flex-align: center;
+  // align-items: center;
+
+  div:first-child {
+    display: -ms-flex;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+
+    div:first-child {
+      text-align: center;
+
+      img {
+        max-width: 180px;
+        max-height: 180px;
+      }
+    }
+  }
+}
+
+// Media Query -----------------------------------------
+
 @media(min-width:768px) {
   #page-wrapper {
     position: inherit;
     // margin: 0 0 0 250px;
     padding: 0 30px;
     border-left: 1px solid darken($gray-lightest, 6.5%);
+  }
+}
+
+// Accueil ----------------------------------------------
+
+#annonces-accueil {
+  .row {
+    display: -ms-flex;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+
+    .well {
+      margin: auto;
+    }
   }
 }
 
@@ -80,6 +134,24 @@ p {
       color: $brand-primary;
       cursor: pointer;
     }
+  }
+}
+
+#infosPersos {
+  margin-bottom: 40px;
+}
+
+#rating {
+  display: -ms-flex;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+
+  .progress {
+    margin: auto;
   }
 }
 // Navigation -------------------------------------------------

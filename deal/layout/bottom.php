@@ -5,8 +5,8 @@
 
   <ul class="list-inline">
     <li class="list-inline-item"><a class="btn" href="<?= SITE_PATH.'index.php' ?>">Accueil</a></li>
-    <li class="list-inline-item"><a class="btn" href="#">Qui sommes-nous</a></li>
-    <li class="list-inline-item"><a class="btn" href="<?= SITE_PATH.'admin/annonces.php'; ?> ">Annonces</a></li>
+    <li class="list-inline-item"><a class="btn" href="#">Mentions légales</a></li>
+    <li class="list-inline-item"><a class="btn" href="<?= SITE_PATH.'admin/annonces.php'; ?> ">C.G.U.</a></li>
     <li class="list-inline-item"><a class="btn" href="#">Contact</a></li>
   </ul>
 </footer>
