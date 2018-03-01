@@ -7,6 +7,11 @@ body {
   background-color: $gray-lightest;
 }
 
+.well h3 {
+  margin: auto;
+  text-align: center;
+}
+
 p {
   margin: auto;
 }
@@ -115,6 +120,23 @@ p {
   }
 }
 
+#filtres {
+  display: -ms-flex;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-pack: distribute;
+  justify-content: space-around;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.fa.fa-star, .fa.fa-star-half {
+  color: #1E67E3;
+}
+
+
 // Rating -----------------------------------------------
 
 .rating {
@@ -149,11 +171,17 @@ p {
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  font-size: 2em;
 
-  .progress {
-    margin: auto;
+  h3 {
+    margin: auto 0;
   }
+
+  // .progress {
+  //   margin: auto;
+  // }
 }
+
 // Navigation -------------------------------------------------
 
 // --Topbar

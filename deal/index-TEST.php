@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__.'/include/init.php';
 
-$tri_annonces = '';
+$tri_annonces = $annonces = '';
 
 extract($_POST);
 if (empty($_POST)) {
@@ -84,7 +84,7 @@ include __DIR__.'/layout/top.php';
   </div>
 
   <div class="container">
-    <?php foreach ($annonces as $annonce) : ?>
+    <!-- < ?php foreach ($annonces as $annonce) : ?> -->
       <div class="row">
 
         <div class="panel panel-info" id="annonces-accueil">
@@ -128,7 +128,7 @@ include __DIR__.'/layout/top.php';
           </div>
         </div>
       </div>
-    <?php endforeach; ?>
+    <!-- < ?php endforeach; ?> -->
   </div>
 </div>
 

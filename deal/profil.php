@@ -112,89 +112,62 @@ if (!empty($_POST)) {
 
 
 // Recueil des informations du vendeur à afficher
+$req = 'SELECT * FROM membre m WHERE m.id = '. $idMembre;
+$stmt = $pdo->query($req);
+$infosMembre = $stmt->fetch();
+extract($infosMembre);
+
+// Recueil des informations des annonces à afficher
 $req = <<<EOS
-SELECT m.id idMembre, m.pseudo pseudoVendeur, m.nom nom, m.prenom prenom, m.email email, a.id idAnnonce, a.titre titreAnnonce, a.photo photo,
+SELECT a.id idAnnonce, a.titre titreAnnonce, a.photo photo,
 description_courte, description_longue, ville, adresse, code_postal, ca.titre titreCategorie, r.nom nomRegion
-FROM membre m
-JOIN annonce a ON a.membre_id = m.id
+FROM annonce a
 JOIN categorie ca ON ca.id = a.categorie_id
 JOIN region r ON r.id = a.region_id
-WHERE m.id = ?
+WHERE a.membre_id = ?
 EOS;
 $stmt = $pdo->prepare($req);
 $stmt->execute([$idMembre]);
 $infosAnnonce = $stmt->fetchAll();
-
-$req = '
-SELECT a.id, a.titre, c.commentaire, m.id as mid, m.pseudo as mpseudo, c.date_enregistrement
-FROM annonce a
-JOIN commentaire c ON a.id = c.annonce_id AND c.date_enregistrement > (SELECT date_enregistrement FROM commentaire WHERE )
-JOIN membre m ON m.id = c.membre_id AND m.id != ' . $_SESSION["membre"]["id"] .'
-ORDER BY a.titre ASC, c.date_enregistrement ASC
-';
-
-
-var_dump($_SESSION);
-$stmt = $pdo->prepare($req);
-$stmt->execute([$idMembre]);
-var_dump($stmt->fetchAll());
-
-$req = <<<EOS
-SELECT a.id, c.commentaire, c.date_enregistrement, c.membre_id mbCommente
-FROM commentaire c
-JOIN annonce a ON a.id = c.annonce_id
-WHERE c.membre_id != a.membre_id
-AND c.date_enregistrement >
-  (SELECT max(c.date_enregistrement)
-  FROM commentaire c
-JOIN annonce a ON a.membre_id = c.membre_id
-WHERE a.id = c.annonce_id)
-EOS;
+extract($infosAnnonce);
 
 // Recueil des infos pour les commentaires
-// $req = <<<EOS
-// SELECT m.id idMembre, m.pseudo pseudoVendeur, a.id idAnnonce, co.id idCommentaire, commentaire, co.date_enregistrement dateCommentaire, me.pseudo pseudoClient
-// FROM membre m
-// JOIN annonce a ON a.membre_id = m.id
-// LEFT JOIN commentaire co ON co.annonce_id = a.id
-// LEFT JOIN membre me ON co.membre_id = me.id
-// WHERE m.id = ?
-// ORDER BY idCommentaire DESC
-// EOS;
-
+$req = 'SELECT a.id idAnnonce, c.commentaire commentaire, c.membre_id idClient, m.pseudo pseudoClient, c.date_enregistrement dateCommentaire FROM annonce a '
+.'JOIN commentaire c ON c.annonce_id = a.id '
+.'JOIN membre m ON m.id = c.membre_id '
+.'WHERE a.membre_id = :idMembre '
+// .'AND a.id = :idAnnonce'
+;
 $stmt = $pdo->prepare($req);
-$stmt->execute([$idMembre]);
+$stmt->bindValue(':idMembre', $idMembre);
+$stmt->execute();
 $infosCommentaires = $stmt->fetchAll();
-
-// $req = <<<EOS
-// SELECT m.id idMembre, m.pseudo pseudoVendeur, m.nom nom, m.prenom prenom, m.email email, a.id idAnnonce, a.titre titreAnnonce, a.photo photo,
-// description_courte, description_longue, ville, adresse, code_postal, ca.titre titreCategorie, co.id idCommentaire, commentaire, co.date_enregistrement dateCommentaire, me.id idClient, me.pseudo pseudoClient, r.nom nomRegion
-// FROM membre m
-// JOIN annonce a ON a.membre_id = m.id
-// JOIN categorie ca ON ca.id = a.categorie_id
-// JOIN region r ON r.id = a.region_id
-// LEFT JOIN commentaire co ON co.annonce_id = a.id
-// LEFT JOIN membre me ON co.membre_id = me.id
-// WHERE m.id =
-// EOS
-// .$idMembre;
-
-// Requête pour les commentaires
-// $stmt = $pdo->query($req);
-// $infosCommentaires = $stmt->fetchAll();
 // var_dump($infosCommentaires);
 
-// Requête pour les infos du membre seulement
-// $req .= ' GROUP BY idAnnonce';
-// $stmt = $pdo->query($req);
-// $infosMembre = $stmt->fetchAll();
-// var_dump($infosMembre);
+// $req = <<<EOS
+// SELECT a.id, c.commentaire, c.date_enregistrement, c.membre_id mbCommente
+// FROM commentaire c
+// JOIN annonce a ON a.id = c.annonce_id
+// WHERE c.membre_id != a.membre_id
+// AND c.date_enregistrement >
+// (SELECT max(c.date_enregistrement)
+// FROM commentaire c
+// JOIN annonce a ON a.membre_id = c.membre_id
+// WHERE a.id = c.annonce_id)
+// EOS;
+
 
 // Requête pour obtenir la note moyenne du vendeur
 $req = 'SELECT AVG(note) FROM notes n JOIN membre m ON n.membre_id2 = m.id
 WHERE m.id = ' . $idMembre;
 $stmt = $pdo->query($req);
 $noteMoy = $stmt->fetchColumn();
+
+// Requête pour obtenir les avis des acheteurs
+$req = 'SELECT m.pseudo pseudo, n.avis avis FROM notes n JOIN membre m ON m.id = n.membre_id1 '
+.'WHERE n.membre_id2 = ' . $idMembre;
+$stmt = $pdo->query($req);
+$lesAvis = $stmt->fetchAll();
 
 // ----------------- Traitement de l'affichage -----------------------
 // ----------------- Traitement de l'affichage -----------------------
@@ -207,7 +180,7 @@ include __DIR__.('/layout/top.php');
   <div class="row">
     <div class="col-lg-12">
       <h1 class="page-header">
-        Profil de <?= getUserFullName(); ?>
+        Profil de <?= $prenom.' '.$nom; ?>
       </h1>
     </div>
   </div>
@@ -339,24 +312,49 @@ include __DIR__.('/layout/top.php');
       <!-- </div> -->
     </div>
 
-
     <div class="col-md-6">
       <div class="row" id="rating">
-        <h3 class="col-sm-2">Note</h3>
-        <div class="col-sm-10 progress">
-          <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="<?= $noteMoy; ?>"
-            aria-valuemin="0" aria-valuemax="5" style="width:<?= $noteMoy/5*100; ?>%">
-            Note moyenne : <?= round($noteMoy,1); ?> / 5
+        <h3 class="col-sm-6">Note du vendeur</h3>
+        <?php
+        $star = '';
+        for ($i=0; $i<round($noteMoy); $i++) {
+          $star .= '<i class="fa fa-star"></i>';
+        }
+        if ((round($noteMoy,1)*10)%10 != 0) {
+          $star .= '<i class="fa fa-star-half"></i>';
+        }
+        ?>
+        <div class="col-sm-6">
+          <div class="pull-right">
+            <?= $star; ?>
           </div>
         </div>
       </div>
-    </div>
 
+      <div class="row">
+        <div class="col-sm-12">
+          <h3>Avis des acheteurs</h3>
+        </div>
+        <?php foreach ($lesAvis as $avis) : ?>
+          <div class="col-sm-6">
+
+          <div class="panel panel-info">
+            <div class="panel-heading">
+              <h4 class="panel-title">Avis de : <?= $avis['pseudo']; ?></h4>
+            </div>
+            <div class="panel-body">
+              <?= $avis['avis']; ?>
+            </div>
+          </div>
+        </div>
+        <?php endforeach; ?>
+      </div>
+    </div>
   </div>
 
   <div class="container-fluid">
     <h3>Mes annonces</h3>
-    <?php foreach ($infosAnnonce as $champ => $infoAnnonce) : ?>
+    <?php foreach ($infosAnnonce as $infoAnnonce) : ?>
       <div class="row" id="listeAnnonces">
         <div class="row">
 
@@ -373,35 +371,35 @@ include __DIR__.('/layout/top.php');
           </div>
         </div>
         <?php
-        foreach ($infosCommentaires as $champ => $infoCommentaire) :
+        foreach ($infosCommentaires as $infoCommentaire) :
           if (isset($infoCommentaire['idCommentaire'])) :
             if ($infoCommentaire['idAnnonce'] == $infoAnnonce['idAnnonce']) :
               ?>
               <!-- <div class="row"> -->
-                <div class="row" id="commentairesAnnonces">
-                  <div class="panel panel-default">
-                    <div class="panel-heading col-sm-4">
-                      <strong>
-                        Commentaire laissé par <a href="<?= SITE_PATH.'profil.php?id='.$infoAnnonce['idClient'] ;?>">
-                          <?= $infoCommentaire['pseudoClient'] ;?></a> le <?= strftime('%d/%m/%Y à %Hh%M', strtotime($infoCommentaire['dateCommentaire'])) ;?>
-                        </strong>
+              <div class="row" id="commentairesAnnonces">
+                <div class="panel panel-default">
+                  <div class="panel-heading col-sm-4">
+                    <strong>
+                      Commentaire laissé par <a href="<?= SITE_PATH.'profil.php?id='.$infoCommentaire['idClient'] ;?>">
+                        <?= $infoCommentaire['pseudoClient'] ;?></a> le <?= strftime('%d/%m/%Y à %Hh%M', strtotime($infoCommentaire['dateCommentaire'])) ;?>
+                      </strong>
+                    </div>
+                    <div class="panel-body col-sm-8">
+                      <div>
+                        <?= $infoCommentaire['commentaire'] ;?>
                       </div>
-                      <div class="panel-body col-sm-8">
-                        <div>
-                          <?= $infoCommentaire['commentaire'] ;?>
+                      <?php
+                      if (isUserConnected()):
+                        ?>
+                        <div class="">
+                          <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#flipFlop">
+                            Répondre au commentaire
+                          </button>
                         </div>
-                        <?php
-                        if (isUserConnected()):
-                          ?>
-                          <div class="">
-                            <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#flipFlop">
-                              Répondre au commentaire
-                            </button>
-                          </div>
-                        <?php endif; ?>
-                      </div>
+                      <?php endif; ?>
                     </div>
                   </div>
+                </div>
                 <!-- </div> -->
 
                 <?php
