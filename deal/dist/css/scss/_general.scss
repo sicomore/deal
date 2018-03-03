@@ -7,11 +7,6 @@ body {
   background-color: $gray-lightest;
 }
 
-.well h3 {
-  margin: auto;
-  text-align: center;
-}
-
 p {
   margin: auto;
 }
@@ -29,7 +24,7 @@ p {
 }
 
 .page-header {
-  margin: auto;
+  margin: 3vh auto;
   display: -ms-flex;
   display: -webkit-box;
   display: -ms-flexbox;
@@ -109,6 +104,10 @@ p {
 
     .well {
       margin: auto;
+      h3 {
+        margin: auto;
+        text-align: center;
+      }
     }
   }
 }
@@ -126,7 +125,7 @@ p {
 }
 
 .fa.fa-star, .fa.fa-star-half {
-  color: #1E67E3;
+  color: $brand-primary;
 }
 
 #pagination {
@@ -135,33 +134,87 @@ p {
   display: -ms-flexbox;
   display: flex;
   -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
 }
 
+// Page commentaire-edit.php -------------------------------------------
 
-// Rating -----------------------------------------------
+form#commentaire > .row > div.col-sm-4 .form-group {
+  display: -ms-flex;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+// Rating --------------------------------------------------------------
+
+fieldset, label { margin: 0; padding: 0; }
+// body{ margin: 20px; }
+
+/****** Style Star Rating Widget *****/
 
 .rating {
-  direction: rtl;
-  width: auto;
-  a {
-    color: #aaa;
-    text-decoration: none;
-    font-size: 2em;
-    -webkit-transition: color .4s;
-    transition: color .4s;
-
-    &:hover,
-    &:focus,
-    &:hover ~ a,
-    &:focus ~ a {
-      color: $brand-primary;
-      cursor: pointer;
-    }
-  }
+  border: none;
+  float: left;
 }
 
+.rating > input { display: none; }
+.rating > label:before {
+  margin: 5px;
+  font-size: 1.25em;
+  font-family: FontAwesome;
+  display: inline-block;
+  content: "\f005";
+}
+
+.rating > .half:before {
+  content: "\f089";
+  position: absolute;
+}
+
+.rating > label {
+  color: #ddd;
+  float: right;
+}
+
+/***** CSS Magic to Highlight Stars on Hover *****/
+
+.rating > input:checked ~ label, /* show gold star when clicked */
+.rating:not(:checked) > label:hover, /* hover current star */
+.rating:not(:checked) > label:hover ~ label {
+  color: $brand-primary;
+  // color: #FFD700;
+} /* hover previous stars in list */
+
+.rating > input:checked + label:hover, /* hover current star when changing rating */
+.rating > input:checked ~ label:hover,
+.rating > label:hover ~ input:checked ~ label, /* lighten current selection */
+.rating > input:checked ~ label:hover ~ label {
+  color: $brand-info;
+  // color: #FFED85;
+}
+
+// .rating {
+//   direction: rtl;
+//   width: auto;
+//   a {
+//     color: #aaa;
+//     text-decoration: none;
+//     font-size: 2em;
+//     -webkit-transition: color .4s;
+//     transition: color .4s;
+//
+//     &:hover,
+//     &:focus,
+//     &:hover ~ a,
+//     &:focus ~ a {
+//       color: $brand-primary;
+//       cursor: pointer;
+//     }
+//   }
+// }
+//
 #infosPersos {
   margin-bottom: 40px;
 }
@@ -174,10 +227,13 @@ p {
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
-  font-size: 2em;
 
-  h3 {
-    margin: auto 0;
+  .note {
+    font-size: 2em;
+
+    h3 {
+      margin: auto 0;
+    }
   }
 
   // .progress {

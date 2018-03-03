@@ -139,20 +139,20 @@ include __DIR__.('/../layout/top.php');
   <!--===================== Tableau des membres =====================-->
 
   <table class="table table-bordered table-striped">
-    <th colspan="6">
-      Liste des annonces
+    <th colspan="10">
+      <h4>Membres</h4>
     </th>
     <tr>
-      <th>ID membre</th>
-      <th>Pseudo</th>
-      <th>Nom</th>
-      <th>Prénom</th>
-      <th>Email</th>
-      <th>Téléphone</th>
-      <th>Civilité</th>
-      <th>Statut</th>
-      <th>Date d'inscription</th>
-      <th>Options</th>
+      <th class="col-xs-1">ID membre</th>
+      <th class="col-xs-auto">Pseudo</th>
+      <th class="col-xs-auto">Nom</th>
+      <th class="col-xs-auto">Prénom</th>
+      <th class="col-xs-auto">Email</th>
+      <th class="col-xs-auto">Téléphone</th>
+      <th class="col-xs-auto">Civilité</th>
+      <th class="col-xs-auto">Statut</th>
+      <th class="col-xs-auto">Date d'inscription</th>
+      <th class="col-xs-1">Options</th>
     </tr>
 
     <?php

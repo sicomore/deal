@@ -60,12 +60,12 @@ if (!empty($avis) || !empty($note)) {
 
   $req .= ' WHERE membre_id2 = '.$annonce['membre_id'].' AND membre_id1 = '. $_SESSION['membre']['id'];
   $stmt = $pdo->query($req);
-  $noteJamaisLaissee = $stmt->fetchColumn();
+  $noteLaissee = $stmt->fetchColumn();
 
   // Enregistrement de la note et de l'avis dans la table Note
   // membre_id1 = le notant
   // membre_id2 = le noté
-  if ($noteJamaisLaissee == 0) {
+  if ($noteLaissee == 0) {
     $req = 'INSERT INTO notes(note, avis, membre_id1, membre_id2, date_enregistrement) VALUES (:note, :avis, :membre_id1, :membre_id2, now())';
     $stmt = $pdo->prepare($req);
     $stmt->bindValue(':note', $note);
@@ -153,14 +153,24 @@ include __DIR__.('/layout/top.php');
                 <label for="">A propos du vendeur ...</label>
                 <p>Attribuez une note ou un avis au vendeur</p>
                 <h5>Note</h5>
-                <div class="rating pull-left">
+
+                <fieldset class="rating">
+                  <input type="radio" id="star5" name="note" value="5" /><label class = "full" for="star5" title="5 étoiles"></label>
+                  <input type="radio" id="star4" name="note" value="4" /><label class = "full" for="star4" title="4 étoiles"></label>
+                  <input type="radio" id="star3" name="note" value="3" /><label class = "full" for="star3" title="3 étoiles"></label>
+                  <input type="radio" id="star2" name="note" value="2" /><label class = "full" for="star2" title="2 étoiles"></label>
+                  <input type="radio" id="star1" name="note" value="1" /><label class = "full" for="star1" title="1 étoiles"></label>
+                </fieldset>
+
+
+                <!-- <div class="rating pull-left">
                   <a href="#" value="5" title="Donner 5 étoiles">☆</a>
                   <a href="#" value="4" title="Donner 4 étoiles">☆</a>
                   <a href="#" value="3" title="Donner 3 étoiles">☆</a>
                   <a href="#" value="2" title="Donner 2 étoiles">☆</a>
                   <a href="#" value="1" title="Donner 1 étoile">☆</a>
                   <input type="text" name="note" value="" hidden>
-                </div>
+                </div> -->
               </div>
             </div>
 
@@ -286,9 +296,9 @@ include __DIR__.('/layout/top.php');
       </div>
       <div class="col-xs-3">
         <div class="pull-right" data-toggle="<?= $popover; ?>" data-placement="top" data-content="Pour laisser un commentaire, veuillez-vous connecter.">
-        <button type="button" class="btn btn-primary <?= $disabled; ?>" data-toggle="modal" data-target="#flipFlop">
-          <i class="fa fa-arrow-right"></i> Laisser un commentaire
-        </button>
+          <button type="button" class="btn btn-primary <?= $disabled; ?>" data-toggle="modal" data-target="#flipFlop">
+            <i class="fa fa-arrow-right"></i> Laisser un commentaire
+          </button>
         </div>
       </div>
       <?php
@@ -335,9 +345,9 @@ include __DIR__.('/layout/top.php');
         </div>
         <div class="col-xs-3">
           <div class="pull-right" data-toggle="<?= $popover; ?>" data-placement="top" data-content="Pour déposer une annonce, veuillez-vous connecter.">
-          <button href="<?= SITE_PATH.'admin/annonce-edit.php';?>" type="button" class="btn btn-primary <?= $disabled; ?>">
-            <i class="fa fa-arrow-right"></i> Déposer une annonce
-          </button>
+            <button href="<?= SITE_PATH.'admin/annonce-edit.php';?>" type="button" class="btn btn-primary <?= $disabled; ?>">
+              <i class="fa fa-arrow-right"></i> Déposer une annonce
+            </button>
           </div>
         </div>
 

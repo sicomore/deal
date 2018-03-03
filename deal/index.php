@@ -150,9 +150,9 @@ include __DIR__.'/layout/top.php';
 
         <!-- < ?php
         foreach ($membres as $membre) :
-          $selected = ($membre['id'] == $membreSelect) ? 'selected' : '';
-          echo '<option value="'.$membre['id'].'" '.$selected.'>'.$membre['pseudo'].
-          '</option>';
+        $selected = ($membre['id'] == $membreSelect) ? 'selected' : '';
+        echo '<option value="'.$membre['id'].'" '.$selected.'>'.$membre['pseudo'].
+        '</option>';
         endforeach;
         ?>
       </select>
@@ -180,8 +180,8 @@ include __DIR__.'/layout/top.php';
         <button class="btn btn-primary form-group-btn pull-right" type="submit"><i class="fa fa-sort"></i> Trier</button>
       </span>
     </div>
-  </form>
-</div>
+  </div>
+</form>
 </div>
 
 

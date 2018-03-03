@@ -2,21 +2,29 @@
 require_once __DIR__ .'/../include/init.php';
 adminSecurity();
 
-$req = 'SELECT COUNT(*) FROM annonce WHERE categorie_id =' . (int)$_GET['id'];
+$req = 'SELECT count(*) FROM annonce WHERE categorie_id = '. (int)$_GET['id'];
 $stmt = $pdo->query($req);
-$cat = $stmt->fetchColumn();
+$nb = $stmt->fetchColumn();
 
-if (empty($cat)) {
-  $req = 'DELETE FROM categorie WHERE id = '.(int)$_GET['id'];
-  $pdo->exec($req);
+$req = 'SELECT titre FROM categorie WHERE id ='.(int)$_GET['id'];
+$stmt = $pdo->query($req);
+$cat = $stmt->fetch();
 
-  $req = 'SELECT titre FROM categorie WHERE id ='.(int)$_GET['id'];
-  $stmt = $pdo->query($req);
-  $cat = $stmt->fetch();
+if (!$nb) {
+  if (!$cat) {
+    setFlashMessage('Cette catégorie n\'existe pas ou plus.<br>Choisissez dans la liste.', 'error');
 
-  setFlashMessage("La catégorie '.$cat.' a bien été supprimée.");
+  } else {
+    $req = 'DELETE FROM categorie WHERE id = '.(int)$_GET['id'];
+    $pdo->exec($req);
+
+    setFlashMessage('La catégorie '.$cat['titre'].' a bien été supprimée.');
+  }
+
 } else {
-  setFlashMessage("La catégorie '.$cat.' ne peut être supprimée car elle contient des produits.", 'error');
+  setFlashMessage('La catégorie '.$cat['titre'].' ne peut être supprimée car elle contient des annonces.', 'error');
 }
+displayFlashMessage();
+
 header('Location: categorie.php');
 die;

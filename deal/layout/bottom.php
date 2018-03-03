@@ -1,13 +1,12 @@
-</div>
-<!-- /#wrapper -->
+</div> <!-- .container-fluid #wrapper -->
 
 <footer class="container-fluid">
 
   <ul class="list-inline">
     <li class="list-inline-item"><a class="btn" href="<?= SITE_PATH.'index.php' ?>">Accueil</a></li>
-    <li class="list-inline-item"><a class="btn" href="#">Mentions légales</a></li>
-    <li class="list-inline-item"><a class="btn" href="<?= SITE_PATH.'admin/annonces.php'; ?> ">C.G.U.</a></li>
-    <li class="list-inline-item"><a class="btn" href="#">Contact</a></li>
+    <li class="list-inline-item"><a class="btn" href="<?= SITE_PATH.'mentions-legales.php' ?>">Mentions légales</a></li>
+    <li class="list-inline-item"><a class="btn" href="<?= SITE_PATH.'cgu.php'; ?> ">C.G.U.</a></li>
+    <li class="list-inline-item"><a class="btn" href="<?= SITE_PATH.'contact.php'; ?>">Contact</a></li>
   </ul>
 </footer>
 
@@ -21,10 +20,19 @@
 <!-- Metis Menu Plugin JavaScript -->
 <script src="<?=SITE_PATH;?>vendor/metisMenu/metisMenu.min.js"></script>
 
+<!-- < ?php if (__FILE__ == SITE_PATH.'admin/annonces.php') :  ?> -->
+
+<!-- DataTables JavaScript -->
+<!-- <script src="< ?=SITE_PATH;?>vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="< ?=SITE_PATH;?>vendor/datatables-plugins/dataTables.bootstrap.min.js"></script>
+<script src="< ?=SITE_PATH;?>vendor/datatables-responsive/dataTables.responsive.js"></script> -->
+
+<!-- < ?php endif; ?> -->
+
 <!-- Morris Charts JavaScript -->
-<script src="<?=SITE_PATH;?>vendor/raphael/raphael.min.js"></script>
-<script src="<?=SITE_PATH;?>vendor/morrisjs/morris.min.js"></script>
-<script src="<?=SITE_PATH;?>data/morris-data.js"></script>
+<!-- <script src="< ?=SITE_PATH;?>vendor/raphael/raphael.min.js"></script>
+<script src="< ?=SITE_PATH;?>vendor/morrisjs/morris.min.js"></script>
+<script src="< ?=SITE_PATH;?>data/morris-data.js"></script> -->
 
 <!-- Custom Theme JavaScript -->
 <script src="<?=SITE_PATH;?>dist/js/sb-admin-2.js"></script>

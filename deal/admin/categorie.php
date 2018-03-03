@@ -12,24 +12,32 @@ $categories = $stmt->fetchAll();
 
 include __DIR__ .'/../layout/top.php';
 ?>
-<h1>Gestion des Catégories</h1>
-<?php
-displayFlashMessage();
-?>
 
-<p><a href="categorie-edit.php">Ajouter une catégorie</a></p>
+<div id="page-wrapper">
 
-<!-- Lister toutes les catégories dans un tableau HTML -->
-<table class="table table-bordered table-striped">
-  <th colspan="4">
-    Catégories
-  </th>
-  <tr>
-    <th class="col-xs-1">ID</th>
-    <th class="col-xs-auto">Nom</th>
-    <th class="col-xs-auto">Mots Clés</th>
-    <th class="col-xs-3">Options</th>
-  </tr>
+  <div class="row">
+    <div class="col-xs-12">
+      <h1 class="page-header">Gestion des Catégories</h1>
+    </div>
+      <div class="col-xs-12">
+        <a href="categorie-edit.php" class="btn btn-primary">Ajouter une catégorie</a>
+    </div>
+  </div>
+
+  <?php displayFlashMessage(); ?>
+
+
+  <!-- Lister toutes les catégories dans un tableau HTML -->
+  <table class="table table-bordered table-striped">
+    <th colspan="4">
+      <h4>Catégories</h4>
+    </th>
+    <tr>
+      <th class="col-xs-1">ID</th>
+      <th class="col-xs-auto">Nom</th>
+      <th class="col-xs-auto">Mots Clés</th>
+      <th class="col-xs-1">Options</th>
+    </tr>
 
     <?php
     foreach ($categories as $categorie) :
@@ -47,7 +55,8 @@ displayFlashMessage();
     endforeach;
     ?>
 
-</table>
+  </table>
+</div>
 
 <?php
 include __DIR__ .'/../layout/bottom.php';

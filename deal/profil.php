@@ -139,10 +139,10 @@ FROM annonce a
 JOIN commentaire c ON c.annonce_id = a.id
 JOIN membre m ON m.id = c.membre_id
 WHERE c.date_enregistrement >
-		(SELECT max(c.date_enregistrement)
-            FROM commentaire c
-            JOIN annonce a ON a.membre_id = c.membre_id
-            WHERE a.id = c.annonce_id)
+(SELECT max(c.date_enregistrement)
+FROM commentaire c
+JOIN annonce a ON a.membre_id = c.membre_id
+WHERE a.id = c.annonce_id)
 AND c.membre_id != a.membre_id
 AND a.id = (SELECT a.id FROM annonce WHERE membre_id = 31)';
 
@@ -328,114 +328,131 @@ include __DIR__.('/layout/top.php');
 
     <div class="col-md-6">
       <div class="row" id="rating">
-        <h3 class="col-sm-6">Note du vendeur</h3>
+        <h3 class="col-sm-6 note">Note du vendeur</h3>
         <?php
-        $star = '';
-        for ($i=0; $i<round($noteMoy); $i++) {
-          $star .= '<i class="fa fa-star"></i>';
-        }
-        if ((round($noteMoy,1)*10)%10 != 0) {
-          $star .= '<i class="fa fa-star-half"></i>';
-        }
-        ?>
-        <div class="col-sm-6">
-          <div class="pull-right">
-            <?= $star; ?>
+        if (!$noteMoy) {
+          echo '<p>Ce vendeur n\'a reçu aucune note</p>';
+        } else {
+
+          $star = '';
+          for ($i=0; $i<round($noteMoy); $i++) {
+            $star .= '<i class="fa fa-star note"></i>';
+          }
+          if ((round($noteMoy,1)*10)%10 != 0) {
+            $star .= '<i class="fa fa-star-half note"></i>';
+          }
+          ?>
+          <div class="col-sm-6">
+            <div class="pull-right">
+              <?= $star; ?>
+            </div>
           </div>
-        </div>
+        <?php } ?>
       </div>
 
       <div class="row">
         <div class="col-sm-12">
           <h3>Avis des acheteurs</h3>
         </div>
-        <?php foreach ($lesAvis as $avis) : ?>
+        <?php if (!$lesAvis) : ?>
+          <div class="col-sm-12 well">
+            <p>Ce vendeur n'a reçu aucun avis</p>
+          </div>
+        <?php else :
+          foreach ($lesAvis as $avis) : ?>
           <div class="col-sm-6">
 
-          <div class="panel panel-info">
-            <div class="panel-heading">
-              <h4 class="panel-title">Avis de : <?= $avis['pseudo']; ?></h4>
-            </div>
-            <div class="panel-body">
-              <?= $avis['avis']; ?>
+            <div class="panel panel-info">
+              <div class="panel-heading">
+                <h4 class="panel-title">Avis de : <?= $avis['pseudo']; ?></h4>
+              </div>
+              <div class="panel-body">
+                <?= $avis['avis']; ?>
+              </div>
             </div>
           </div>
-        </div>
         <?php endforeach; ?>
-      </div>
+      <?php endif; ?>
     </div>
   </div>
+</div>
 
-  <div class="container-fluid">
-    <h3>Mes annonces</h3>
-    <?php foreach ($infosAnnonce as $infoAnnonce) : ?>
-      <div class="row" id="listeAnnonces">
-        <div class="row">
+<div class="container-fluid">
+  <h3>Mes annonces</h3>
+  <?php if (!$infosAnnonce) : ?>
+    <div class="col-sm-12 well">
+      <p>Ce vendeur n'a publié aucune annonce</p>
+    </div>
+  <?php else :
+    foreach ($infosAnnonce as $infoAnnonce) : ?>
+    <div class="row" id="listeAnnonces">
+      <div class="row">
 
-          <div class="col-sm-4">
-            <img src="<?= SITE_PATH.'photos/'.$infoAnnonce['photo']; ?>" alt="photo de <?= $infoAnnonce['titreAnnonce']; ?>" style="max-width: 180px">
-          </div>
-
-          <div class="col-sm-8">
-            <h4 class=""><?= $infoAnnonce['titreAnnonce']; ?></h4>
-            <h5 class="">Annonce : <?= $infoAnnonce['idAnnonce']; ?></h5>
-            <h5 class="">Catégorie : <?= $infoAnnonce['titreCategorie']; ?></h5>
-            <p class=""><?= $infoAnnonce['description_courte']; ?></p>
-            <em class=""><h5>Adresse : <?= $infoAnnonce['adresse'].' '. $infoAnnonce['code_postal'].' '. $infoAnnonce['ville']; ?></h5></em>
-          </div>
+        <div class="col-sm-4">
+          <img src="<?= SITE_PATH.'photos/'.$infoAnnonce['photo']; ?>" alt="photo de <?= $infoAnnonce['titreAnnonce']; ?>" style="max-width: 180px">
         </div>
-        <?php
-        foreach ($infosCommentaires as $infoCommentaire) :
-          if (isset($infoCommentaire['idCommentaire'])) :
-            if ($infoCommentaire['idAnnonce'] == $infoAnnonce['idAnnonce']) :
-              ?>
-              <!-- <div class="row"> -->
-              <div class="row" id="commentairesAnnonces">
-                <div class="panel panel-default">
-                  <div class="panel-heading col-sm-4">
-                    <strong>
-                      Commentaire laissé par <a href="<?= SITE_PATH.'profil.php?id='.$infoCommentaire['idClient'] ;?>">
-                        <?= $infoCommentaire['pseudoClient'] ;?></a> le <?= strftime('%d/%m/%Y à %Hh%M', strtotime($infoCommentaire['dateCommentaire'])) ;?>
-                      </strong>
+
+        <div class="col-sm-8">
+          <h4 class=""><?= $infoAnnonce['titreAnnonce']; ?></h4>
+          <h5 class="">Annonce : <?= $infoAnnonce['idAnnonce']; ?></h5>
+          <h5 class="">Catégorie : <?= $infoAnnonce['titreCategorie']; ?></h5>
+          <p class=""><?= $infoAnnonce['description_courte']; ?></p>
+          <em class=""><h5>Adresse : <?= $infoAnnonce['adresse'].' '. $infoAnnonce['code_postal'].' '. $infoAnnonce['ville']; ?></h5></em>
+        </div>
+      </div>
+      <?php
+      foreach ($infosCommentaires as $infoCommentaire) :
+        if (isset($infoCommentaire['idCommentaire'])) :
+          if ($infoCommentaire['idAnnonce'] == $infoAnnonce['idAnnonce']) :
+            ?>
+            <!-- <div class="row"> -->
+            <div class="row" id="commentairesAnnonces">
+              <div class="panel panel-default">
+                <div class="panel-heading col-sm-4">
+                  <strong>
+                    Commentaire laissé par <a href="<?= SITE_PATH.'profil.php?id='.$infoCommentaire['idClient'] ;?>">
+                      <?= $infoCommentaire['pseudoClient'] ;?></a> le <?= strftime('%d/%m/%Y à %Hh%M', strtotime($infoCommentaire['dateCommentaire'])) ;?>
+                    </strong>
+                  </div>
+                  <div class="panel-body col-sm-8">
+                    <div>
+                      <?= $infoCommentaire['commentaire'] ;?>
                     </div>
-                    <div class="panel-body col-sm-8">
-                      <div>
-                        <?= $infoCommentaire['commentaire'] ;?>
+                    <?php
+                    if (isUserConnected()):
+                      ?>
+                      <div class="">
+                        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#flipFlop">
+                          Répondre au commentaire
+                        </button>
                       </div>
-                      <?php
-                      if (isUserConnected()):
-                        ?>
-                        <div class="">
-                          <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#flipFlop">
-                            Répondre au commentaire
-                          </button>
-                        </div>
-                      <?php endif; ?>
-                    </div>
+                    <?php endif; ?>
                   </div>
                 </div>
-                <!-- </div> -->
+              </div>
 
-                <?php
-              endif;
+              <?php
             endif;
-          endforeach; ?>
-        </div>
-      <?php endforeach; ?>
+          endif;
+        endforeach; ?>
+      </div>
+    <?php endforeach; ?>
+  <?php endif; ?>
 
-      <!--========== Présetation sous forme de liste ==========-->
 
-      <!-- <div class="row" id="listeAnnonces">
-      <div class="col-sm-3">
-      <img src="< ?= SITE_PATH.'photos/'.$infoAnnonce['photo']; ?>" alt="photo de < ?= $infoAnnonce['titreAnnonce']; ?>" style="max-width: 180px">
-    </div>
+    <!--========== Présetation sous forme de liste ==========-->
 
-    <div class="col-sm-10">
-    <h4 class="col-sm-8">< ?= $infoAnnonce['titreAnnonce']; ?></h4>
-    <h5 class="col-sm-4 pull-right">Catégorie : < ?= $infoAnnonce['titreCategorie']; ?></h5>
-    <p class="col-sm-12">< ?= $infoAnnonce['description_courte']; ?></p>
-    <em class="col-sm-12"><h5>Adresse : < ?= $infoAnnonce['adresse'].' '. $infoAnnonce['code_postal'].' '. $infoAnnonce['ville']; ?></h5></em>
+    <!-- <div class="row" id="listeAnnonces">
+    <div class="col-sm-3">
+    <img src="< ?= SITE_PATH.'photos/'.$infoAnnonce['photo']; ?>" alt="photo de < ?= $infoAnnonce['titreAnnonce']; ?>" style="max-width: 180px">
   </div>
+
+  <div class="col-sm-10">
+  <h4 class="col-sm-8">< ?= $infoAnnonce['titreAnnonce']; ?></h4>
+  <h5 class="col-sm-4 pull-right">Catégorie : < ?= $infoAnnonce['titreCategorie']; ?></h5>
+  <p class="col-sm-12">< ?= $infoAnnonce['description_courte']; ?></p>
+  <em class="col-sm-12"><h5>Adresse : < ?= $infoAnnonce['adresse'].' '. $infoAnnonce['code_postal'].' '. $infoAnnonce['ville']; ?></h5></em>
+</div>
 </div> -->
 </div>
 

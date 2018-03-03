@@ -15,7 +15,7 @@ if (!empty($_POST)) {
   } else {
     $reqS = 'SELECT COUNT(*) FROM categorie WHERE titre = '.$pdo->quote($_POST['titre']);
 
-    //On modifie la catégorie que l'on est en train de modifier
+    //On modifie la catégorie sélectionnée
     if (isset($_GET['id'])) {
       $reqS .= ' AND id != '. (int)$_GET['id'];
     }
@@ -70,36 +70,44 @@ if (!empty($_POST)) {
 include __DIR__ .'/../layout/top.php';
 ?>
 
-<h1>Edition des catégories</h1>
+<div id="page-wrapper">
 
-<form method="post">
   <div class="row">
-    <div class="col-sm-3 form-group form-inline">
-      <label for="">Titre</label>
-      <input type="text" name="titre" value="<?= $titre ?>" class="form-control">
+    <div class="col-lg-12">
+      <h1 class="page-header">Edition des catégories</h1>
     </div>
-    <div class="col-sm-6 form-group form-inline">
-      <label for="">Mots Clés</label>
+  </div>
+
+  <?php
+  if (!empty($errors)) :
+    ?>
+    <div class="alert alert-danger">
+      <p><strong>Le formulaire contient des erreurs</strong></p>
+      <?= implode ('<br>', $errors); ?>
+    </div>
+    <?php
+  endif;
+  ?>
+
+  <form method="post">
+    <div class="row">
+      <div class="col-sm-3 form-group form-inline">
+        <label for="">Titre</label>
+        <input type="text" name="titre" value="<?= $titre ?>" class="form-control">
+      </div>
+      <div class="col-sm-6 form-group form-inline">
+        <label for="">Mots Clés</label>
         <input type="text" name="mots_cles" value="<?= $mots_cles; ?>" col="10" class="form-control">
         <!-- <textarea name="mots_cles" value="< ?= $mots_cles; ?>" rows="1" col="10" class="form-control"><?= $mots_cles; ?></textarea> -->
+      </div>
+      <div class="col-sm-3">
+        <button class="btn btn-primary pull-right" type="submit" name="button">Enregistrer</button>
+        <a href="categorie.php" class="btn btn-default pull-right" type="cancel">Annuler</a>
+      </div>
     </div>
-    <div class="col-sm-3">
-      <button class="btn btn-primary pull-right" type="submit" name="button">Enregistrer</button>
-      <a href="categorie.php" class="btn btn-default pull-right" type="cancel">Annuler</a>
-    </div>
-  </div>
-</form>
+  </form>
 
-<?php
-if (!empty($errors)) :
-  ?>
-  <div class="alert alert-danger">
-    <p><strong>Le formulaire contient des erreurs</strong></p>
-    <?= implode ('<br>', $errors); ?>
-  </div>
-  <?php
-endif;
-?>
+</div>
 
 <?php
 include __DIR__ .'/../layout/bottom.php';
