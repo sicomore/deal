@@ -132,12 +132,26 @@ $infosAnnonce = $stmt->fetchAll();
 extract($infosAnnonce);
 
 // Recueil des infos pour les commentaires
-$req = 'SELECT a.id idAnnonce, c.commentaire commentaire, c.membre_id idClient, m.pseudo pseudoClient, c.date_enregistrement dateCommentaire FROM annonce a '
-.'JOIN commentaire c ON c.annonce_id = a.id '
-.'JOIN membre m ON m.id = c.membre_id '
-.'WHERE a.membre_id = :idMembre '
-// .'AND a.id = :idAnnonce'
-;
+
+$req = 'SELECT a.id idAnnonce, c.commentaire commentaire, c.membre_id idClient, m.pseudo pseudoClient,
+c.date_enregistrement dateCommentaire
+FROM annonce a
+JOIN commentaire c ON c.annonce_id = a.id
+JOIN membre m ON m.id = c.membre_id
+WHERE c.date_enregistrement >
+		(SELECT max(c.date_enregistrement)
+            FROM commentaire c
+            JOIN annonce a ON a.membre_id = c.membre_id
+            WHERE a.id = c.annonce_id)
+AND c.membre_id != a.membre_id
+AND a.id = (SELECT a.id FROM annonce WHERE membre_id = 31)';
+
+// $req = 'SELECT a.id idAnnonce, c.commentaire commentaire, c.membre_id idClient, m.pseudo pseudoClient, c.date_enregistrement dateCommentaire FROM annonce a '
+// .'JOIN commentaire c ON c.annonce_id = a.id '
+// .'JOIN membre m ON m.id = c.membre_id '
+// .'WHERE a.membre_id = :idMembre '
+// // .'AND a.id = :idAnnonce'
+// ;
 $stmt = $pdo->prepare($req);
 $stmt->bindValue(':idMembre', $idMembre);
 $stmt->execute();
@@ -211,8 +225,8 @@ include __DIR__.('/layout/top.php');
   ?>
 
   <div class="row">
-    <h2>Informations personnelles</h2>
     <div class="col-md-6" id="infosPersos">
+      <h2>Informations personnelles</h2>
       <!-- <div class="row"> -->
       <h4>
         ID membre : <?= $idMembre; ?>
@@ -265,7 +279,7 @@ include __DIR__.('/layout/top.php');
         <!-- Input prénom du membre -->
         <div class="form-group col">
           <div class="input-group">
-            <span class="input-group-addon" id="basic-addon1">Prenom</span>
+            <span class="input-group-addon" id="basic-addon1">Prénom</span>
             <input name="prenom" value="<?= $prenom ;?>" type="text" class="form-control" id="prenom" aria-describedby="forname" placeholder="">
           </div>
         </div>
