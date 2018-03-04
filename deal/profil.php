@@ -18,7 +18,7 @@ if (!empty($_POST)) {
   sanitizePost();
   extract($_POST);
 
-  // Toutes les vérifications des champs du formulaire
+  // Toutes les vérifications des champs du formulaire "Informations personnelles " --------
   if (empty($_POST['pseudo'])) {
     $errors[] = 'Le pseudo est obligatoire.';
   } else {
@@ -132,44 +132,26 @@ $infosAnnonce = $stmt->fetchAll();
 extract($infosAnnonce);
 
 // Recueil des infos pour les commentaires
-
-$req = 'SELECT a.id idAnnonce, c.commentaire commentaire, c.membre_id idClient, m.pseudo pseudoClient,
-c.date_enregistrement dateCommentaire
-FROM annonce a
-JOIN commentaire c ON c.annonce_id = a.id
+$req = <<<HD
+SELECT c.id idCommentaire, c.annonce_id idAnnonce, c.commentaire, c.date_enregistrement dateCommentaire, a.membre_id idVendeur, c.membre_id idClient, m.pseudo pseudoClient
+FROM commentaire c
 JOIN membre m ON m.id = c.membre_id
-WHERE c.date_enregistrement >
+JOIN annonce a ON a.id = c.annonce_id
+WHERE c.membre_id != :idVendeur
+AND (c.date_enregistrement >
 (SELECT max(c.date_enregistrement)
 FROM commentaire c
-JOIN annonce a ON a.membre_id = c.membre_id
-WHERE a.id = c.annonce_id)
-AND c.membre_id != a.membre_id
-AND a.id = (SELECT a.id FROM annonce WHERE membre_id = 31)';
-
-// $req = 'SELECT a.id idAnnonce, c.commentaire commentaire, c.membre_id idClient, m.pseudo pseudoClient, c.date_enregistrement dateCommentaire FROM annonce a '
-// .'JOIN commentaire c ON c.annonce_id = a.id '
-// .'JOIN membre m ON m.id = c.membre_id '
-// .'WHERE a.membre_id = :idMembre '
-// // .'AND a.id = :idAnnonce'
-// ;
-$stmt = $pdo->prepare($req);
-$stmt->bindValue(':idMembre', $idMembre);
-$stmt->execute();
-$infosCommentaires = $stmt->fetchAll();
-// var_dump($infosCommentaires);
-
-// $req = <<<EOS
-// SELECT a.id, c.commentaire, c.date_enregistrement, c.membre_id mbCommente
-// FROM commentaire c
-// JOIN annonce a ON a.id = c.annonce_id
-// WHERE c.membre_id != a.membre_id
-// AND c.date_enregistrement >
-// (SELECT max(c.date_enregistrement)
-// FROM commentaire c
-// JOIN annonce a ON a.membre_id = c.membre_id
-// WHERE a.id = c.annonce_id)
-// EOS;
-
+WHERE c.annonce_id = :idAnnonce AND c.membre_id = :idVendeur))
+UNION
+SELECT c.id idCommentaire, c.annonce_id idAnnonce, c.commentaire, c.date_enregistrement dateCommentaire, a.membre_id idVendeur, c.membre_id idClient, m.pseudo pseudoClient
+FROM commentaire c
+JOIN membre m ON m.id = c.membre_id
+JOIN annonce a ON a.id = c.annonce_id
+WHERE a.membre_id = :idVendeur AND c.annonce_id = :idAnnonce
+AND a.membre_id NOT IN (SELECT membre_id FROM commentaire WHERE annonce_id = :idAnnonce)
+ORDER BY dateCommentaire DESC
+HD;
+$stmtComment = $pdo->prepare($req);
 
 // Requête pour obtenir la note moyenne du vendeur
 $req = 'SELECT AVG(note) FROM notes n JOIN membre m ON n.membre_id2 = m.id
@@ -183,11 +165,59 @@ $req = 'SELECT m.pseudo pseudo, n.avis avis FROM notes n JOIN membre m ON m.id =
 $stmt = $pdo->query($req);
 $lesAvis = $stmt->fetchAll();
 
+// Requête pour insérer en BDD la réponse à un commentaire Client
+if (!empty($commentaire)) {
+  $commentaire = strip_tags(nl2br($commentaire));
+  $req = 'INSERT INTO commentaire(commentaire, membre_id, annonce_id) VALUES (:commentaire, :membre_id, :annonce_id)';
+  $stmt = $pdo->prepare($req);
+  $stmt->bindValue(':commentaire', $commentaire);
+  $stmt->bindValue(':membre_id', $idMembre);
+  $stmt->bindValue(':annonce_id', $annonce['id']);
+  $stmt->execute();
+  $success = true;
+
+}
+
+
 // ----------------- Traitement de l'affichage -----------------------
 // ----------------- Traitement de l'affichage -----------------------
 
 include __DIR__.('/layout/top.php');
 ?>
+
+<!--==================== Modal pour répondre au commentaire =====================-->
+
+<div class="modal fade" id="flipFlop" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+
+    <div class="modal-content">
+      <div class="modal-header">
+
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="modalLabel">Répondre au commentaire</h4>
+      </div>
+
+      <form method="post">
+        <div class="modal-body">
+          <div class="form-group">
+            <h5>Commentaire</h5>
+            <textarea name="commentaire" class="form-control" rows="5" id="commentaire" placeholder="Laisser un commentaire ou poser une question au vendeur à propos de l'annonce"></textarea>
+          </div>
+
+          <div class="row modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Annuler</button>
+            <button type="submit" class="btn btn-primary">Envoyer</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!--=========================== Fin du modal ===========================-->
+
 
 <div id="page-wrapper">
 
@@ -378,7 +408,9 @@ include __DIR__.('/layout/top.php');
 </div>
 
 <div class="container-fluid">
+  <div class="row">
   <h3>Mes annonces</h3>
+</div>
   <?php if (!$infosAnnonce) : ?>
     <div class="col-sm-12 well">
       <p>Ce vendeur n'a publié aucune annonce</p>
@@ -400,7 +432,14 @@ include __DIR__.('/layout/top.php');
           <em class=""><h5>Adresse : <?= $infoAnnonce['adresse'].' '. $infoAnnonce['code_postal'].' '. $infoAnnonce['ville']; ?></h5></em>
         </div>
       </div>
+
       <?php
+      $stmtComment->bindValue(':idVendeur', $idMembre);
+      $stmtComment->bindValue(':idAnnonce', $infoAnnonce['idAnnonce']);
+      $stmtComment->execute();
+      $infosCommentaires = $stmtComment->fetchAll();
+      // var_dump($infosCommentaires);
+
       foreach ($infosCommentaires as $infoCommentaire) :
         if (isset($infoCommentaire['idCommentaire'])) :
           if ($infoCommentaire['idAnnonce'] == $infoAnnonce['idAnnonce']) :
@@ -419,7 +458,7 @@ include __DIR__.('/layout/top.php');
                       <?= $infoCommentaire['commentaire'] ;?>
                     </div>
                     <?php
-                    if (isUserConnected()):
+                    if (isUserConnected() && $infoCommentaire['idVendeur'] == $_SESSION['membre']['id']) :
                       ?>
                       <div class="">
                         <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#flipFlop">
@@ -440,18 +479,18 @@ include __DIR__.('/layout/top.php');
   <?php endif; ?>
 
 
-    <!--========== Présetation sous forme de liste ==========-->
+  <!--========== Présetation sous forme de liste ==========-->
 
-    <!-- <div class="row" id="listeAnnonces">
-    <div class="col-sm-3">
-    <img src="< ?= SITE_PATH.'photos/'.$infoAnnonce['photo']; ?>" alt="photo de < ?= $infoAnnonce['titreAnnonce']; ?>" style="max-width: 180px">
-  </div>
+  <!-- <div class="row" id="listeAnnonces">
+  <div class="col-sm-3">
+  <img src="< ?= SITE_PATH.'photos/'.$infoAnnonce['photo']; ?>" alt="photo de < ?= $infoAnnonce['titreAnnonce']; ?>" style="max-width: 180px">
+</div>
 
-  <div class="col-sm-10">
-  <h4 class="col-sm-8">< ?= $infoAnnonce['titreAnnonce']; ?></h4>
-  <h5 class="col-sm-4 pull-right">Catégorie : < ?= $infoAnnonce['titreCategorie']; ?></h5>
-  <p class="col-sm-12">< ?= $infoAnnonce['description_courte']; ?></p>
-  <em class="col-sm-12"><h5>Adresse : < ?= $infoAnnonce['adresse'].' '. $infoAnnonce['code_postal'].' '. $infoAnnonce['ville']; ?></h5></em>
+<div class="col-sm-10">
+<h4 class="col-sm-8">< ?= $infoAnnonce['titreAnnonce']; ?></h4>
+<h5 class="col-sm-4 pull-right">Catégorie : < ?= $infoAnnonce['titreCategorie']; ?></h5>
+<p class="col-sm-12">< ?= $infoAnnonce['description_courte']; ?></p>
+<em class="col-sm-12"><h5>Adresse : < ?= $infoAnnonce['adresse'].' '. $infoAnnonce['code_postal'].' '. $infoAnnonce['ville']; ?></h5></em>
 </div>
 </div> -->
 </div>

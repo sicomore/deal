@@ -200,7 +200,7 @@ include __DIR__.('/../layout/top.php');
         </div>
         <div class="col-auto form-group">
           <label for="">Description longue</label>
-          <input type="text" name="description_longue" value="<?= $description_longue ?>" placeholder="Description détaillée de votre annonce" class="form-control">
+          <textarea name="description_longue" value="<?= $description_longue; ?>" placeholder="Description détaillée de votre annonce" class="form-control"><?= $description_longue; ?></textarea>
         </div>
         <div class="col-auto form-group">
           <label for="">Prix</label>

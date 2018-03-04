@@ -23,32 +23,30 @@ $stmt = $pdo->query($req);
 $annonce = $stmt->fetch();
 
 // Requête d'affichage des commentaires de l'annonce
-$reqCommentaires = <<<EOS
-SELECT c.*, m.pseudo pseudo
-FROM commentaire c
-JOIN membre m ON m.id = c.membre_id
-WHERE annonce_id =
-EOS
-.(int)$_GET['id'];
+$reqCommentaires = 'SELECT c.*, m.pseudo pseudo, a.membre_id idVendeur '
+.'FROM commentaire c JOIN membre m ON m.id = c.membre_id '
+.'JOIN annonce a ON a.id = c.annonce_id '
+.'WHERE annonce_id = '.(int)$_GET['id']
+.' ORDER BY c.id DESC';
 $stmt = $pdo->query($reqCommentaires);
 $commentTous = $stmt->fetchAll();
-foreach ($commentTous as $key => $comment) {
-}
+foreach ($commentTous as $comment) {
 
-// Requête pour affichage des commentaires sur l'annonce
-$reqCommentaires .= ' ORDER BY c.id DESC LIMIT 5';
-$stmt = $pdo->query($reqCommentaires);
-$commentAffiches = $stmt->fetchAll();
+  // Requête d'affichage des 5 premiers commentaires de l'annonce
+  // $reqCommentaires .= ' ORDER BY c.id DESC LIMIT 5';
+  // $stmt = $pdo->query($reqCommentaires);
+  // $commentAffiches = $stmt->fetchAll();
 
-// Enregistrement du commentaire dans la table éponyme
-if (!empty($commentaire) && $commentaire != $comment['commentaire']) {
-  $req = 'INSERT INTO commentaire(commentaire, membre_id, annonce_id) VALUES (:commentaire, :membre_id, :annonce_id)';
-  $stmt = $pdo->prepare($req);
-  $stmt->bindValue(':commentaire', $commentaire);
-  $stmt->bindValue(':membre_id', $_SESSION['membre']['id']);
-  $stmt->bindValue(':annonce_id', $annonce['id']);
-  $stmt->execute();
-  $success = true;
+  // Enregistrement du commentaire dans la table éponyme
+  if (!empty($commentaire) && $commentaire != $comment['commentaire']) {
+    $req = 'INSERT INTO commentaire(commentaire, membre_id, annonce_id) VALUES (:commentaire, :membre_id, :annonce_id)';
+    $stmt = $pdo->prepare($req);
+    $stmt->bindValue(':commentaire', $commentaire);
+    $stmt->bindValue(':membre_id', $_SESSION['membre']['id']);
+    $stmt->bindValue(':annonce_id', $annonce['id']);
+    $stmt->execute();
+    $success = true;
+  }
 }
 
 // Requête sur la table notes
@@ -125,6 +123,7 @@ include __DIR__.('/layout/top.php');
 ?>
 
 <!--======== Modal pour laisser un commentaire, une note et un avis ========-->
+
 <div class="modal fade" id="flipFlop" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
 
@@ -164,33 +163,34 @@ include __DIR__.('/layout/top.php');
 
 
                 <!-- <div class="rating pull-left">
-                  <a href="#" value="5" title="Donner 5 étoiles">☆</a>
-                  <a href="#" value="4" title="Donner 4 étoiles">☆</a>
-                  <a href="#" value="3" title="Donner 3 étoiles">☆</a>
-                  <a href="#" value="2" title="Donner 2 étoiles">☆</a>
-                  <a href="#" value="1" title="Donner 1 étoile">☆</a>
-                  <input type="text" name="note" value="" hidden>
-                </div> -->
-              </div>
-            </div>
-
-            <div class="col-xs-12">
-              <div class="form-group">
-                <h5>Avis</h5>
-                <textarea name="avis" class="form-control" rows="5" id="avis" placeholder="Laisser un avis sur le vendeur"></textarea>
-              </div>
+                <a href="#" value="5" title="Donner 5 étoiles">☆</a>
+                <a href="#" value="4" title="Donner 4 étoiles">☆</a>
+                <a href="#" value="3" title="Donner 3 étoiles">☆</a>
+                <a href="#" value="2" title="Donner 2 étoiles">☆</a>
+                <a href="#" value="1" title="Donner 1 étoile">☆</a>
+                <input type="text" name="note" value="" hidden>
+              </div> -->
             </div>
           </div>
 
-          <div class="row modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Annuler</button>
-            <button type="submit" class="btn btn-primary">Envoyer</button>
+          <div class="col-xs-12">
+            <div class="form-group">
+              <h5>Avis</h5>
+              <textarea name="avis" class="form-control" rows="5" id="avis" placeholder="Laisser un avis sur le vendeur"></textarea>
+            </div>
           </div>
         </div>
-      </form>
-    </div>
+
+        <div class="row modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Annuler</button>
+          <button type="submit" class="btn btn-primary">Envoyer</button>
+        </div>
+      </div>
+    </form>
   </div>
 </div>
+</div>
+
 <!--=========================== Fin du modal ===========================-->
 
 <div class="container-fluid" id="page-wrapper">
@@ -287,9 +287,7 @@ include __DIR__.('/layout/top.php');
   <div class="row" id="commentaires">
     <h3>Commentaires laissés pour cette annonce</h3>
 
-    <?php
-    if (empty($commentTous)) :
-      ?>
+    <?php if (empty($commentTous)) : ?>
       <div class="col-xs-3">
         <p>Aucun commentaire laissé pour cette annonce</p>
         <p>Soyez le premier à en laisser un !</p>
@@ -303,7 +301,7 @@ include __DIR__.('/layout/top.php');
       </div>
       <?php
       else :
-        foreach ($commentAffiches as $commentAffiche):
+        foreach ($commentTous as $commentAffiche):
           ?>
           <!-- <div class="row"> -->
           <div class="panel panel-default">
@@ -313,8 +311,9 @@ include __DIR__.('/layout/top.php');
               </div>
               <div class="panel-body">
                 <?= $commentAffiche['commentaire'] ;?>
+
                 <?php
-                if (isUserConnected()):
+                if (isUserConnected() && $commentAffiche['idVendeur'] == $_SESSION['membre']['id']):
                   ?>
                   <div class="pull-right">
                     <button type="button" class="btn btn-primary <?= $disabled; ?>" data-toggle="modal" data-target="#flipFlop">
@@ -343,13 +342,13 @@ include __DIR__.('/layout/top.php');
         <div class="col-xs-3">
           <p>Aucune autre annonce n'est disponible dans cette catégorie</p>
         </div>
-        <div class="col-xs-3">
+        <!-- <div class="col-xs-3">
           <div class="pull-right" data-toggle="<?= $popover; ?>" data-placement="top" data-content="Pour déposer une annonce, veuillez-vous connecter.">
             <button href="<?= SITE_PATH.'admin/annonce-edit.php';?>" type="button" class="btn btn-primary <?= $disabled; ?>">
               <i class="fa fa-arrow-right"></i> Déposer une annonce
             </button>
           </div>
-        </div>
+        </div> -->
 
       <?php else : ?>
 

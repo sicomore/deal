@@ -91,14 +91,14 @@ include __DIR__ .'/../layout/top.php';
 
   <form method="post">
     <div class="row">
-      <div class="col-sm-3 form-group form-inline">
+      <div class="col-sm-3 form-group">
         <label for="">Titre</label>
         <input type="text" name="titre" value="<?= $titre ?>" class="form-control">
       </div>
-      <div class="col-sm-6 form-group form-inline">
+      <div class="col-sm-6 form-group ">
         <label for="">Mots Clés</label>
-        <input type="text" name="mots_cles" value="<?= $mots_cles; ?>" col="10" class="form-control">
-        <!-- <textarea name="mots_cles" value="< ?= $mots_cles; ?>" rows="1" col="10" class="form-control"><?= $mots_cles; ?></textarea> -->
+        <!-- <input type="text" name="mots_cles" value="<?= $mots_cles; ?>" col="10" class="form-control"> -->
+        <textarea name="mots_cles" value="<?= $mots_cles; ?>" placeholder="Liste des mots clés (séparés par une virgule)" class="form-control"><?= $mots_cles; ?></textarea>
       </div>
       <div class="col-sm-3">
         <button class="btn btn-primary pull-right" type="submit" name="button">Enregistrer</button>
