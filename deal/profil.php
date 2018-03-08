@@ -262,8 +262,6 @@ include __DIR__.('/layout/top.php');
         ID membre : <?= $idMembre; ?>
       </h4>
       <form class="profil" method="post">
-        <!-- <div class="row"> -->
-        <!-- <div class="col-md-6"> -->
         <div class="row">
 
           <!-- Select civilité -->

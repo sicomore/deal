@@ -3,13 +3,11 @@ require_once __DIR__.'/include/init.php';
 
 $errors = [];
 $civilite = $pseudo = $nom = $prenom = $email = $telephone = '';
-// initialise un valeur aux futures variables créées par extract
 
 
 if (!empty($_POST)) {
   sanitizePost();
   extract($_POST);
-  // Extrait les valeurs à partir du tableau $_POST recueilli et renseigne les variables dédiées pour être retournée dans les values du formulaire afin de les garder en mémoire
 
   if (empty($_POST['civilite'])) {
     $errors[] = 'Choisir une civilité.';
@@ -24,7 +22,7 @@ if (!empty($_POST)) {
     $req = 'SELECT COUNT(*) FROM membre WHERE pseudo = ' . $pseudoFiltre;
     $stmt = $pdo->query($req);
     $nb = $stmt->fetchColumn();
-    var_dump($nb);
+    // var_dump($nb);
     if ($nb != 0) {
       $errors[] = 'Cet pseudo est déjà utilisé.';
     }
@@ -32,7 +30,6 @@ if (!empty($_POST)) {
   if (empty($_POST['email'])) {
     $errors[] = 'L\'email est obligatoire.';
   } elseif (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
-    // Passe la variable dans un filtre (filter_var) qui vérifie ou valide des données en fonction d'un type de filtre
     $errors[] = 'L\'email est invalide.';
   } else {
     $req = 'SELECT COUNT(*) FROM membre WHERE email = '.$pdo->quote($_POST['email']);
@@ -71,9 +68,9 @@ if (!empty($_POST)) {
 }
 
 
-
-// ----------------- Traitement de l'affichage -----------------------
-// ----------------- Traitement de l'affichage -----------------------
+// ------------------------------ Traitement de l'affichage ------------------------------------
+// ------------------------------ Traitement de l'affichage ------------------------------------
+// ------------------------------ Traitement de l'affichage ------------------------------------
 
 include __DIR__.('/layout/top.php');
 
@@ -87,66 +84,61 @@ include __DIR__.('/layout/top.php');
     </div>
   </div>
 
+  <?php if (isset($success)) : ?>
+    <div class="alert alert-success">
+      <strong>Votre inscription a bien été enregistrée.</strong>
+      <button class="btn btn-primary" type="button">
+        <span class="badge"><a href="index.php">Retour à l'accueil</a></span>
+      </button>
+    </div>
+  <?php endif; ?>
 
-  <?php
-  // Affichage des messages d'alerte en cas de tableau d'erreur non vide
-  if (!empty($errors)) : // structure du "if" qui débute
-    ?>
+  <?php if (!empty($errors)) : ?>
     <div class="alert alert-danger">
       <p><strong>Le formulaire contient des erreurs</strong></p>
       <?= implode ('<br>', $errors); ?>
     </div>
-    <?php
-  endif; // fin de la structure du "if"
-
-  if (isset($success)) :
-    ?>
-    <div class="alert alert-success">
-      <strong>Votre inscription a bien été enregistrée.</strong>
-    </div>
-    <?php
-  endif;
-  ?>
+  <?php endif; ?>
 
   <!--================= FORMULAIRE D'INSCRIPTION =================-->
 
-  <div class="col-sm-10 col-sm-offset-1">
+  <div class="col-sm-8 col-sm-offset-2">
     <form class="inscription" method="post">
       <div class="row">
 
         <div class="form-group col-auto">
-          <input name="pseudo" value="<?= $pseudo ;?>" type="text" class="form-control" id="pseudo" placeholder="Votre pseudo" autofocus>
+          <input name="pseudo" value="<?= $pseudo ;?>" type="text" class="form-control" id="pseudo" placeholder="Votre pseudo (ex: 'janest')" autofocus>
         </div>
 
         <div class="row">
           <div class="btn-group col-sm-2" data-toggle="buttons">
-            <label class="btn btn-default civilite <?php if ($civilite == 'Mme') {echo 'active';} ?>">
-              <input type="radio" name="civilite" value="Mme" id="femme" <?php if ($civilite == 'Mme') {echo 'checked';}; ?>> Mme
+            <label class="btn btn-default civilite <?= ($civilite == 'Mme') ? 'active' : ''; ?>">
+              <input type="radio" name="civilite" value="Mme" id="femme" <?= ($civilite == 'Mme') ? 'checked' : '' ;?>> Mme
             </label>
-            <label class="btn btn-default civilite <?php if ($civilite == 'M.') {echo 'active';} ?>">
-              <input type="radio" name="civilite" value="M." id="homme"<?php if ($civilite == 'M.') {echo 'checked';}; ?>> M.
+            <label class="btn btn-default civilite <?= ($civilite == 'M.') ? 'active' : ''; ?>">
+              <input type="radio" name="civilite" value="M." id="homme"<?= ($civilite == 'M.') ? 'checked' : '' ;?>> M.
             </label>
           </div>
 
           <div class="form-group col-sm-5">
-            <input name="nom" value="<?= $nom ;?>" type="text" class="form-control" id="nom" aria-describedby="name" placeholder="Votre nom">
+            <input name="nom" value="<?= $nom ;?>" type="text" class="form-control" id="nom" aria-describedby="name" placeholder="Votre nom (ex: 'Anest')">
           </div>
           <div class="form-group col-sm-5">
-            <input name="prenom" value="<?= $prenom ;?>" type="text" class="form-control" id="prenom" aria-describedby="forname" placeholder="Votre prénom">
+            <input name="prenom" value="<?= $prenom ;?>" type="text" class="form-control" id="prenom" aria-describedby="forname" placeholder="Votre prénom (ex: 'Julien')">
           </div>
         </div>
         <div class="row">
-          <div class="form-group col-sm-4">
-            <input name="telephone" value="<?= $telephone ;?>" type="text" class="form-control" id="telephone" aria-describedby="telephone" placeholder="Votre téléphone">
+          <div class="form-group col-sm-5">
+            <input name="telephone" value="<?= $telephone ;?>" type="text" class="form-control" id="telephone" aria-describedby="telephone" placeholder="Votre téléphone (ex: '0654321098')">
           </div>
-          <div class="form-group col-sm-8">
-            <input name="email" value="<?= $email ;?>" type="email" class="form-control" id="email" aria-describedby="email" placeholder="Votre email">
+          <div class="form-group col-sm-7">
+            <input name="email" value="<?= $email ;?>" type="email" class="form-control" id="email" aria-describedby="email" placeholder="Votre email (ex: 'janest@mail.com')">
           </div>
         </div>
 
         <div class="row">
           <div class="form-group col-sm-6">
-            <input name="mdp" value="" type="password" class="form-control" id="mdp" placeholder="Entrez un mot de passe">
+            <input name="mdp" value="" type="password" class="form-control" id="mdp" placeholder="Entrez un mot de passe (6 caractères min.)">
           </div>
           <div class="form-group col-sm-6">
             <input name="mdp-confirm" value="" type="password" class="form-control" id="mdp" placeholder="Confirmez votre mot de passe">
@@ -155,7 +147,7 @@ include __DIR__.('/layout/top.php');
 
         <div class="pull-right">
           <a href="index.php" class="btn btn-default" type="cancel">Annuler</a>
-          <button type="submit" class="btn btn-primary pull-right">Valider</button>
+          <button type="submit" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modal-inscription">Valider</button>
         </div>
 
       </div>
@@ -171,13 +163,10 @@ include __DIR__.('/layout/top.php');
   <div class="modal-header">
   <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
 </button>
-< ?php
-if (isset($success)) :
-?>
 <div class="alert alert-success">
 <strong>Votre inscription a bien été enregistrée.</strong>
-</div> -->
-<!-- <h4 class="modal-title alert-success" id="ModalLabel">Votre inscription a bien été enregistrée.</h4>
+</div>
+<h4 class="modal-title alert-success" id="ModalLabel">Votre inscription a bien été enregistrée.</h4>
 </div>
 <div class="modal-body row">
 <div class="col-sm-6">
@@ -187,9 +176,7 @@ if (isset($success)) :
 <a class="btn btn-default" href="< ?=SITE_PATH;?>index.php">Retour à l'accueil</a>
 </div>
 </div>
-< ?php
-endif;
-?>
+< ?php endif; ?>
 </div>
 </div>
 </div> -->

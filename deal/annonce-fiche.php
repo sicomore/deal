@@ -11,7 +11,7 @@ extract($_POST);
 
 // Requête de toutes les informations concernant l'annonce et le vendeur
 $req = <<<EOS
-SELECT m.pseudo pseudo, a.*, r.nom region, c.titre titre_categorie
+SELECT m.pseudo pseudo, telephone, a.*, r.nom region, c.titre titre_categorie
 FROM annonce a
 JOIN membre m ON m.id = a.membre_id
 JOIN region r ON r.id = a.region_id
@@ -113,11 +113,17 @@ $src = (!empty($annonce['photo']))
 : PHOTO_DEFAUT
 ;
 
+// Accès aux commentaires, avis et note uniquement si connecté
+if (!isUserConnected()) {
+  $disabled = 'disabled';
+  $popover = 'popover';
+} else {
+  $disabled = $popover = '';
+}
 
 
-
-// ----------------- Traitement de l'affichage -----------------------
-// ----------------- Traitement de l'affichage -----------------------
+// ------------------------- Traitement de l'affichage -------------------------------
+// ------------------------- Traitement de l'affichage -------------------------------
 
 include __DIR__.('/layout/top.php');
 ?>
@@ -161,37 +167,70 @@ include __DIR__.('/layout/top.php');
                   <input type="radio" id="star1" name="note" value="1" /><label class = "full" for="star1" title="1 étoiles"></label>
                 </fieldset>
 
+              </div>
+            </div>
 
-                <!-- <div class="rating pull-left">
-                <a href="#" value="5" title="Donner 5 étoiles">☆</a>
-                <a href="#" value="4" title="Donner 4 étoiles">☆</a>
-                <a href="#" value="3" title="Donner 3 étoiles">☆</a>
-                <a href="#" value="2" title="Donner 2 étoiles">☆</a>
-                <a href="#" value="1" title="Donner 1 étoile">☆</a>
-                <input type="text" name="note" value="" hidden>
-              </div> -->
+            <div class="col-xs-12">
+              <div class="form-group">
+                <h5>Avis</h5>
+                <textarea name="avis" class="form-control" rows="5" id="avis" placeholder="Laisser un avis sur le vendeur"></textarea>
+              </div>
             </div>
           </div>
 
-          <div class="col-xs-12">
-            <div class="form-group">
-              <h5>Avis</h5>
-              <textarea name="avis" class="form-control" rows="5" id="avis" placeholder="Laisser un avis sur le vendeur"></textarea>
-            </div>
+          <div class="row modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Annuler</button>
+            <button type="submit" class="btn btn-primary">Envoyer</button>
           </div>
         </div>
-
-        <div class="row modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Annuler</button>
-          <button type="submit" class="btn btn-primary">Envoyer</button>
-        </div>
-      </div>
-    </form>
+      </form>
+    </div>
   </div>
 </div>
+
+<!--==================== Fin du modal commentaires, notes, avis ====================-->
+
+<!--======================== Modal de numéro de tél et mail ========================-->
+
+<div class="modal fade" id="telMail" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="modalLabel">Contacter le vendeur</h4>
+      </div>
+
+      <form method="post">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Par téléphone</label>
+            <h4><?= $annonce['telephone']; ?></h4>
+          </div>
+
+          <hr>
+          <div class="row">
+            <div class="col-xs-12">
+              <div class="form-group">
+                <label for="message">Par mail</label>
+                <textarea name="message" class="form-control" rows="5" id="message" placeholder="Laisser un message au vendeur"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="row modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Annuler</button>
+            <button type="submit" class="btn btn-success">Envoyer</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 
-<!--=========================== Fin du modal ===========================-->
+<!--=========================== Fin du modal tél et mail ===========================-->
 
 <div class="container-fluid" id="page-wrapper">
 
@@ -219,24 +258,19 @@ include __DIR__.('/layout/top.php');
       <p>Catégorie : <?= $annonce['titre_categorie'];  ?></p>
     </div>
 
-    <?php
-    if (!isUserConnected()) {
-      $disabled = 'disabled';
-      $popover = 'popover';
-    } else {
-      $disabled = '';
-      $popover = '';
-    }
-    ?>
-
-    <div class="col-sm-7 pull-right">
+    <div class="col-sm-7">
       <!-- Bouton Déposer un commentaire accessible uniquement pour membre connecté -->
-      <div class="pull-right" data-toggle="<?= $popover; ?>" data-placement="left" data-content="Pour laisser un commentaire, veuillez-vous connecter.">
-        <button type="button" class="btn btn-primary <?= $disabled; ?>" data-toggle="modal" data-target="#flipFlop">
+      <div class="btn-group btn-group-vertical pull-right" data-toggle="<?= $popover; ?>" data-placement="left" data-content="Pour laisser un commentaire, veuillez-vous connecter.">
+        <a class="btn btn-primary <?= $disabled; ?>" data-toggle="modal" data-target="#flipFlop">
           Déposer un commentaire ou une note
-        </button>
+        </a>
+        <!-- Bouton contacter le vendeur uniquement pour membre connecté -->
+        <a class="btn btn-success <?= $disabled; ?>" data-toggle="modal" data-target="#telMail">
+          Contacter le vendeur
+        </a>
       </div>
     </div>
+
   </div>
 
   <div class="row" id="description">
@@ -343,29 +377,29 @@ include __DIR__.('/layout/top.php');
           <p>Aucune autre annonce n'est disponible dans cette catégorie</p>
         </div>
         <!-- <div class="col-xs-3">
-          <div class="pull-right" data-toggle="<?= $popover; ?>" data-placement="top" data-content="Pour déposer une annonce, veuillez-vous connecter.">
-            <button href="<?= SITE_PATH.'admin/annonce-edit.php';?>" type="button" class="btn btn-primary <?= $disabled; ?>">
-              <i class="fa fa-arrow-right"></i> Déposer une annonce
-            </button>
-          </div>
-        </div> -->
+        <div class="pull-right" data-toggle="<?= $popover; ?>" data-placement="top" data-content="Pour déposer une annonce, veuillez-vous connecter.">
+        <button href="<?= SITE_PATH.'admin/annonce-edit.php';?>" type="button" class="btn btn-primary <?= $disabled; ?>">
+        <i class="fa fa-arrow-right"></i> Déposer une annonce
+      </button>
+    </div>
+  </div> -->
 
-      <?php else : ?>
+<?php else : ?>
 
-        <?php foreach ($toutesAnnonces as $toutesAnnonce): ?>
-          <div class="col-sm-3" style="text-align: center">
-            <a href="<?= SITE_PATH.'annonce-fiche.php?id='.$toutesAnnonce['id'] ;?>">
-              <img src="<?= SITE_PATH.'photos/'.$toutesAnnonce['photo'];?>" alt="Photo de <?=$toutesAnnonce['titre_annonce'];?>" style="max-height: 150px">
-              <p><b> <?= $toutesAnnonce['titre_annonce']; ?></b></p>
-              <p><b><?= $toutesAnnonce['prix']; ?> €</b></p>
-            </a>
-          </div>
-        <?php endforeach; ?>
-      </div>
-    <?php endif; ?>
+  <?php foreach ($toutesAnnonces as $toutesAnnonce): ?>
+    <div class="col-sm-3" style="text-align: center">
+      <a href="<?= SITE_PATH.'annonce-fiche.php?id='.$toutesAnnonce['id'] ;?>">
+        <img src="<?= SITE_PATH.'photos/'.$toutesAnnonce['photo'];?>" alt="Photo de <?=$toutesAnnonce['titre_annonce'];?>" style="max-height: 150px">
+        <p><b> <?= $toutesAnnonce['titre_annonce']; ?></b></p>
+        <p><b><?= $toutesAnnonce['prix']; ?> €</b></p>
+      </a>
+    </div>
+  <?php endforeach; ?>
+</div>
+<?php endif; ?>
 
-  </div> <!-- Fin container -->
+</div> <!-- Fin container -->
 
-  <?php
-  include __DIR__.('/layout/bottom.php');
-  ?>
+<?php
+include __DIR__.('/layout/bottom.php');
+?>

@@ -41,14 +41,42 @@ $(function() {
     }
   }
 
+
+  // Déclenchement des popover pour les boutons avec droit d'admin
   $('[data-toggle="popover"]').popover({ trigger: "hover" });
 
+  // Déclenchement des tooltips dans page annonces.php
+  $('[data-toggle="tooltip"]').tooltip();
 
   // Récupération de la valeur de la note attribuée
   $('.rating a').on('click', function() {
     var valeur = $(this).attr('value');
     $('.rating input').val(valeur);
   });
+
+
+  $('#triSelect').val([name = "triSelect"]).change( function(event) {
+    event.preventDefault();
+
+    // console.log('ça marche !');
+
+    $.ajax({
+
+      url: 'include/select-tri.php?triSelect=',
+      method: 'GET',
+      data: $("#triSelect option:selected").val().toLowerCase(),
+      // $(this).serialize(),
+      // {tri_annonces: },
+      dataType: 'json',
+      success: function(annonces, success) {
+        console.log('Connexion : '+success);
+        console.log('retour réussi !');
+        // console.log(annonces);
+
+      }
+    });
+  });
+
 
 
   // Table des annonces responsive dans annonces.php
@@ -76,25 +104,5 @@ $(function() {
   //     }
   //   }
   // }
-
-
-  $('#tri_annonces').val([name = "tri_annonces"]).change( function(event) {
-    event.preventDefault();
-
-    $.ajax({
-
-      url: 'include/select-tri.php?tri_annonces=',
-      method: 'GET',
-      data: $("#tri_annonces option:selected").val().toLowerCase(),
-      // $(this).serialize(),
-      // {tri_annonces: },
-      dataType: 'json',
-      success: function(annonces, success) {
-        console.log('Connexion : '+success);
-        console.log(annonces);
-
-      }
-    });
-  });
 
 });  //end DOM Ready

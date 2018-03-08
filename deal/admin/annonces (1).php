@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ .'/../include/init.php';
-adminSecurity();
+// adminSecurity();
 
 $triSelect = 'a.id desc';
 
@@ -16,40 +16,6 @@ $tris = $stmt->fetchAll();
 $req = 'SELECT a.*, m.pseudo, c.titre titre_categorie, r.nom nom_region FROM annonce a JOIN categorie c ON c.id = categorie_id JOIN membre m ON m.id = a.membre_id JOIN region r ON r.id = region_id ORDER BY '. $triSelect;
 $stmt = $pdo->query($req);
 $annonces = $stmt->fetchAll();
-
-// Affichage des annonces (Pagination)
-$annoncesParPage = 5;
-$nbTotalAnnonces = $stmt->rowCount();
-$nbPages = ceil($nbTotalAnnonces/$annoncesParPage);
-
-if(isset($_GET['p']) && !empty($_GET['p'])) {
-  $pageChoisie = (int)$_GET['p'];
-  if($pageChoisie > $nbPages) {
-    $pageChoisie = $nbPages;
-  }
-} else {
-  $pageChoisie = 1;
-}
-
-if ($nbTotalAnnonces < 1) {
-  $pageChoisie = 1;
-  setFlashMessage('Aucune annonce disponible pour cette sélection', 'info');
-}
-
-$premiereAnnonce = ($pageChoisie-1) * $annoncesParPage;
-
-// Limitation des annonces à 5 par page
-$req .= ' LIMIT '.$premiereAnnonce.', '.$annoncesParPage;
-$stmt = $pdo->query($req);
-$annonces = $stmt->fetchAll();
-
-
-
-
-
-// =============================== Traitement de l'affichage ===============================
-// =============================== Traitement de l'affichage ===============================
-// =============================== Traitement de l'affichage ===============================
 
 include __DIR__ .'/../layout/top.php';
 ?>
@@ -76,7 +42,7 @@ include __DIR__ .'/../layout/top.php';
               <?php
               foreach ($tris as $tri) :
                 $selected = ($tri['tri'] == $triSelect) ? 'selected' : '';
-                echo '<option value="'.$tri['tri'].'" '.$selected.'>'.$tri['options'].
+                echo '<option value="'.$tri['tri'].'" '.$selected.'>'.$tri['option'].
                 '</option>';
               endforeach;
               ?>
@@ -88,18 +54,18 @@ include __DIR__ .'/../layout/top.php';
         </form>
       </div>
 
-      <div class="panel-body liste_annonces">
+      <div class="panel-body">
 
         <table width="100%" class="table table-striped table-bordered table-hover" id="dataTables-example">
           <thead>
             <tr>
-              <th>N°</th>
+              <th>ID</th>
               <th>Photo</th>
               <th>Titre</th>
               <th>Catégorie</th>
               <th>Description courte</th>
               <th>Description longue</th>
-              <th>Prix (€)</th>
+              <th>Prix</th>
               <th>Adresse</th>
               <th>Code Postal</th>
               <th>Ville</th>
@@ -127,15 +93,15 @@ include __DIR__ .'/../layout/top.php';
                 <td><?= $annonce['pseudo'] ?></td>
                 <td><?= strftime('%d/%m/%Y',strtotime($annonce['date_enregistrement'])); ?></td>
                 <td>
-                  <a href="<?= SITE_PATH; ?>annonce-fiche.php?id=<?= $annonce['id'] ?>" class="btn btn-primary" title="Voir l'annonce" data-toggle="tooltip" data-placement="left">
-                    <i class="fa fa-search"></i>
+                  <a href="<?= SITE_PATH; ?>annonce-fiche.php?id=<?= $annonce['id'] ?>" class="btn btn-primary">
+                    Voir la fiche
                   </a>
                   <?php if (isUserAdmin()) : ?>
-                    <a href="<?= SITE_PATH ?>admin/annonce-edit.php?id=<?= $annonce['id'] ?>" class="btn btn-warning" title="Modifier l'annonce" data-toggle="tooltip" data-placement="left">
-                      <i class="fa fa-edit"></i>
+                    <a href="<?= SITE_PATH ?>admin/annonce-edit.php?id=<?= $annonce['id'] ?>" class="btn btn-warning">
+                      Modifier
                     </a>
-                    <a href="<?= SITE_PATH ?>admin/annonce-delete.php?id=<?= $annonce['id'] ?>" class="btn btn-danger" title="Supprimer l'annonce" data-toggle="tooltip" data-placement="left">
-                      <i class="fa fa-trash"></i>
+                    <a href="<?= SITE_PATH ?>admin/annonce-delete.php?id=<?= $annonce['id'] ?>" class="btn btn-danger">
+                      Supprimer
                     </a>
                   <?php endif; ?>
                 </td>
@@ -146,38 +112,8 @@ include __DIR__ .'/../layout/top.php';
         </table>
       </div>
 
+      <?php include __DIR__ .'/../layout/bottom.php'; ?>
     </div> <!-- end panel -->
-
-    <nav aria-label="page navigation" id="pagination">
-      <form method="get">
-        <ul class="pagination pagination-lg">
-          <li <?= (($pageChoisie-1)<=0) ? 'class="disabled"' : '' ; ?>>
-            <a href="annonces.php?p=<?= (($pageChoisie-1)<=0) ? 1 : $pageChoisie-1 ; ?>" aria-label="Previous">
-              <span aria-hidden="true">&laquo;</span>
-            </a>
-          </li>
-          <?php
-          for($i = 1; $i <= $nbPages; $i++) {
-
-            if($i == $pageChoisie) {
-
-              echo '<li class="active" name="'.$i.'"><a href="annonces.php?p='.$i.'">'.$i.'</a></li>';
-            }	else {
-              echo '<li name="'.$i.'"><a href="annonces.php?p='.$i.'">'.$i.'</a></li>';
-              // echo '<li name="'.$i.'"><a href="annonces.php?p='.$i.'">'.$i.'</a></li>';
-            }
-          }
-          ?>
-          <li <?= ($pageChoisie >= $nbPages) ? 'class="disabled"' : '' ; ?>>
-            <a href="annonces.php?p=<?= ($pageChoisie > $nbPages) ? '' : $pageChoisie+1; ?>" aria-label="Next">
-              <span aria-hidden="true">&raquo;</span>
-            </a>
-          </li>
-        </ul>
-      </form>
-    </nav>
-
+    <!-- </div> -->
   </div>
 </div> <!-- end container -->
-
-<?php include __DIR__ .'/../layout/bottom.php'; ?>

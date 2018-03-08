@@ -147,6 +147,27 @@ form#commentaire > .row > div.col-sm-4 .form-group {
   display: flex;
 }
 
+// Page annonces.php -------------------------------------------
+.panel-body.liste_annonces {
+  img {
+    max-width: 90px;
+    // max-height: 120px;
+  }
+}
+
+// Page stats.php -------------------------------------------
+#stats .well {
+  font-size: 1.1em;
+  .badge {
+    font-size: 1em;
+
+  }
+  .titre-stats {
+    font-size: 1.3em;
+    font-weight: bold;
+  }
+}
+
 // Rating --------------------------------------------------------------
 
 fieldset, label { margin: 0; padding: 0; }
@@ -195,26 +216,6 @@ fieldset, label { margin: 0; padding: 0; }
   // color: #FFED85;
 }
 
-// .rating {
-//   direction: rtl;
-//   width: auto;
-//   a {
-//     color: #aaa;
-//     text-decoration: none;
-//     font-size: 2em;
-//     -webkit-transition: color .4s;
-//     transition: color .4s;
-//
-//     &:hover,
-//     &:focus,
-//     &:hover ~ a,
-//     &:focus ~ a {
-//       color: $brand-primary;
-//       cursor: pointer;
-//     }
-//   }
-// }
-//
 #infosPersos {
   margin-bottom: 40px;
 }

@@ -1,8 +1,8 @@
 <?php
 
 // if (isset($_POST['tri-annonces'])) {
-if (isset($_GET['tri_annonces'])) {
-  require __DIR__ . '/connexion-bdd.php';
+if (isset($_GET['triSelect'])) {
+  require_once __DIR__ . '/connexion-bdd.php';
 
   // $pseudo = $_POST['pseudo'];
   // $mdp = $_POST['mdp'];
