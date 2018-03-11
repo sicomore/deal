@@ -38,7 +38,7 @@ $annoncesAnciennes = $stmt->fetchAll();
 
 
 
-
+// ----------------- Traitement de l'affichage -----------------------
 // ----------------- Traitement de l'affichage -----------------------
 // ----------------- Traitement de l'affichage -----------------------
 
@@ -95,7 +95,10 @@ if (isset($success)) :
             <?php foreach ($annonceursActifs as $annonceurActif) : ?>
               <div class="well">
                 <span class="titre-stats"><?= $annonceurActif['pseudo'] ; ?></span>
-                <span class="badge pull-right"><?= $annonceurActif['nbAnnonces']; ?> annonces</span>
+                <span class="badge pull-right"><?= $annonceurActif['nbAnnonces']; ?> <?=
+                $accordAnnonce = ($annonceurActif['nbAnnonces'] == 1) ? 'annonce' : 'annonces';
+                ?>
+                </span>
               </div>
             <?php endforeach; ?>
           </div>
@@ -112,7 +115,18 @@ if (isset($success)) :
               <div class="well">
                 <span class="titre-stats"><?= $annonceurNote['pseudo'] ; ?></span>
                 <span class="badge pull-right"><?= $annonceurNote['nbAvis'] ; ?> avis</span>
-                <span class="badge pull-right">Note moyenne : <?= $annonceurNote['noteMoy'] ; ?></span>
+
+                <?php
+                $star = '';
+                for ($i=0; $i<round($annonceurNote['noteMoy']); $i++) {
+                  $star .= '<i class="fa fa-star note"></i>';
+                }
+                if ((round($annonceurNote['noteMoy'],1)*10)%10 != 0) {
+                  $star .= '<i class="fa fa-star-half note"></i>';
+                }
+                ?>
+                <span class="pull-right"> <?= $star; ?>&nbsp;&nbsp;</span>
+
               </div>
             <?php endforeach; ?>
           </div>
@@ -130,7 +144,11 @@ if (isset($success)) :
             <?php foreach ($categoriesRepresentees as $categorieRepresentee) : ?>
               <div class="well">
                 <span class="titre-stats"><?= $categorieRepresentee['titre'] ; ?></span>
-                <span class="badge pull-right"><?= $categorieRepresentee['nbAnnonces'] ; ?> annonces</span>
+                <span class="badge pull-right"><?= $categorieRepresentee['nbAnnonces'] ; ?>
+                  <?=
+                  $accordAnnonce = ($categorieRepresentee['nbAnnonces'] == 1) ? 'annonce' : 'annonces';
+                  ?>
+                </span>
               </div>
             <?php endforeach; ?>
           </div>

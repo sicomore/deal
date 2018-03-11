@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__.'/include/init.php';
 
-$categorieSelect = $regionSelect = $membreSelect = $reqC = $reqR = $reqM = '';
+$categorieSelect = $regionSelect = $membreSelect = $triSelect = $reqC = $reqR = $reqM = '';
 // $triPar = 'a.id DESC';
 // $_SESSION['select'] = [];
 
@@ -12,7 +12,7 @@ $categorieSelect = $regionSelect = $membreSelect = $reqC = $reqR = $reqM = '';
 // $categories = $stmt->fetchAll();
 // var_dump($_POST);
 
-if ($_POST) {
+if (!empty($_POST)) {
   extract($_POST);
   $_SESSION['select'] = $_POST;
 }
@@ -42,14 +42,24 @@ $tris = $stmt->fetchAll();
 
 $reqC = (!empty($_SESSION['select']['categorieSelect']) ? 'AND a.categorie_id = '
 .$_SESSION['select']['categorieSelect'].' ' : '');
-$reqR = (!empty($_SESSION['select']['regionSelect']) ? 'AND a.region_id = '
-.$_SESSION['select']['regionSelect'].' ' : '');
+$reqR = (!empty($regionSelect) ? 'AND a.region_id = '
+.$regionSelect.' ' : '');
 $reqM = (!empty($_SESSION['select']['membreSelect']) ? 'AND a.membre_id = '
 .$_SESSION['select']['membreSelect'].' ' : '');
-$triPar = (!empty($_SESSION['select']['triSelect']) ? $_SESSION['select']['triSelect'] : 'a.id DESC');
+$triPar = (!empty($triSelect) ? $triSelect : 'a.id DESC');
+// $reqC = (!empty($_SESSION['select']['categorieSelect']) ? 'AND a.categorie_id = '
+// .$_SESSION['select']['categorieSelect'].' ' : '');
+// $reqR = (!empty($_SESSION['select']['regionSelect']) ? 'AND a.region_id = '
+// .$_SESSION['select']['regionSelect'].' ' : '');
+// $reqM = (!empty($_SESSION['select']['membreSelect']) ? 'AND a.membre_id = '
+// .$_SESSION['select']['membreSelect'].' ' : '');
+// $triPar = (!empty($_SESSION['select']['triSelect']) ? $_SESSION['select']['triSelect'] : 'a.id DESC');
 
 
-$req = 'SELECT a.*, m.id idMembre, m.pseudo pseudo, c.id idCategorie, c.titre categorie, r.id idRegion, r.nom region FROM annonce a, categorie c, membre m, region r WHERE r.id = a.region_id AND m.id = a.membre_id AND c.id = a.categorie_id '
+// Affichage de la liste des annonces en fonction des select catégories, régions, membres et du tri
+$req = 'SELECT a.*, m.id idMembre, m.pseudo pseudo, c.id idCategorie, c.titre categorie, r.id idRegion, r.nom region '
+.'FROM annonce a, categorie c, membre m, region r '
+.'WHERE r.id = a.region_id AND m.id = a.membre_id AND c.id = a.categorie_id AND a.dispo = \'active\' '
 .$reqC.$reqR.$reqM
 // .$reqP
 .' ORDER BY '. $triPar;
@@ -99,6 +109,8 @@ include __DIR__.'/layout/top.php';
     </div>
   </div>
 
+  <?php displayFlashMessage(); ?>
+
   <div class="row">
     <div class="col-sm-9">
       <form class="form-group" method="post" id="filtres">
@@ -110,7 +122,7 @@ include __DIR__.'/layout/top.php';
             <option value="">Toutes les catégories</option>
             <?php
             foreach ($categories as $categorie) {
-              $selected = ($categorie['id'] == $_SESSION['select']['categorieSelect']) ? 'selected' : '';
+              $selected = ($categorie['id'] == $categorieSelect) ? 'selected' : '';
               echo '<option value="'.$categorie['id'].'" '.$selected.'>'.$categorie['titre'].
               // echo '<option value="'.$categorie['id'].'" '.$selected.'>'.$categorie['titre'].
               '</option>';
@@ -125,7 +137,7 @@ include __DIR__.'/layout/top.php';
             <option value="">Toutes les régions</option>
             <?php
             foreach ($regions as $region) :
-              $selected = ($region['id'] == $_SESSION['select']['regionSelect']) ? 'selected' : '';
+              $selected = ($region['id'] == $regionSelect) ? 'selected' : '';
               echo '<option value="'.$region['id'].'" '.$selected.'>'.$region['nom'].
               '</option>';
             endforeach;
@@ -139,7 +151,7 @@ include __DIR__.'/layout/top.php';
             <option value="">Tous les membres</option>
             <?php
             foreach ($membres as $membre) :
-              $selected = ($membre['id'] == $_SESSION['select']['membreSelect']) ? 'selected' : '';
+              $selected = ($membre['id'] == $membreSelect) ? 'selected' : '';
               echo '<option value="'.$membre['id'].'" '.$selected.'>'.$membre['pseudo'].
               '</option>';
             endforeach;
@@ -161,7 +173,7 @@ include __DIR__.'/layout/top.php';
             <?php
             $letri = [];
             foreach ($tris as $tri) :
-              $selected = ($tri['tri'] == $_SESSION['select']['triSelect']) ? 'selected' : '';
+              $selected = ($tri['tri'] == $triSelect) ? 'selected' : '';
               echo '<option value="'.$tri['tri'].'" '.$selected.'>'.$tri['options'].
               '</option>';
             endforeach;
@@ -197,9 +209,13 @@ include __DIR__.'/layout/top.php';
 
           <div class="panel-body">
             <div class="row">
+
               <div class="col-sm-2">
-                <img src='<?= PHOTO_WEB.$annonce['photo']; ?>' style="width: 100px;">
+                <a href="<?= PHOTO_WEB.$annonce['photo']; ?>" data-lightbox="lightbox">
+                  <img src="<?= PHOTO_WEB.$annonce['photo']; ?>">
+                </a>
               </div>
+
               <div class="col-sm-2">
                 <div class="well">
                   <h3><strong><?= round($annonce['prix'],2); ?> €</strong></h3>
@@ -212,6 +228,7 @@ include __DIR__.'/layout/top.php';
               </div>
             </div>
           </div>
+
           <div class="panel-footer">
             <div class="row">
               <div class="col-sm-4">

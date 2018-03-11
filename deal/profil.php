@@ -6,21 +6,25 @@ if (!isUserConnected() || !isUserAdmin() && isset($_GET['id'])) {
   die;
 }
 
+// var_dump($_POST);
+
 if (isset($_GET['id'])) {
   $idMembre = (int)$_GET['id'];
 } else {
   $idMembre = $_SESSION['membre']['id'];
 }
 
-$civilite = $role = $pseudo = $nom = $prenom = $email = $telephone = '';
+$civilite = $role = $pseudo = $nom = $prenom = $email = $idAnnonce = $telephone = '';
 
-if (!empty($_POST)) {
+if (!empty($_POST) && isset($_POST['infosSubmit'])) {
   sanitizePost();
   extract($_POST);
 
   // Toutes les vérifications des champs du formulaire "Informations personnelles " --------
   if (empty($_POST['pseudo'])) {
     $errors[] = 'Le pseudo est obligatoire.';
+  } elseif (!preg_match ('#^[A-Za-z0-9_-]{3,20}$#', $_POST['pseudo'])) {
+    $errors [] = 'Le pseudo doit contenir de 3 à 20 caractères';
   } else {
     $req = 'SELECT COUNT(*) FROM membre WHERE pseudo = :pseudo AND id != :id';
     $pseudoFiltre = strtolower($_POST['pseudo']);
@@ -110,6 +114,16 @@ if (!empty($_POST)) {
   }
 }
 
+// // MAJ de la disponibilité de l'annonce -----------------------------------------------
+// if (isset($_POST['dispoSubmit'])) {
+//   $req = 'UPDATE annonce SET dispo = :dispo WHERE id = :id';
+//   $stmt = $pdo->prepare($req);
+//   $stmt->bindValue(':dispo', $_POST['dispo']);
+//   $stmt->bindValue(':id', $_POST['dispoIdAnnonce']);
+//   $stmt->execute();
+//   $success = true;
+// }
+
 
 // Recueil des informations du vendeur à afficher
 $req = 'SELECT * FROM membre m WHERE m.id = '. $idMembre;
@@ -119,8 +133,8 @@ extract($infosMembre);
 
 // Recueil des informations des annonces à afficher
 $req = <<<EOS
-SELECT a.id idAnnonce, a.titre titreAnnonce, a.photo photo,
-description_courte, description_longue, ville, adresse, code_postal, ca.titre titreCategorie, r.nom nomRegion
+SELECT a.id idAnnonce, dispo, a.titre titreAnnonce, a.photo photo,
+description_courte, description_longue, ville, adresse, code_postal, a.membre_id idVendeur, ca.titre titreCategorie, r.nom nomRegion
 FROM annonce a
 JOIN categorie ca ON ca.id = a.categorie_id
 JOIN region r ON r.id = a.region_id
@@ -172,22 +186,23 @@ if (!empty($commentaire)) {
   $stmt = $pdo->prepare($req);
   $stmt->bindValue(':commentaire', $commentaire);
   $stmt->bindValue(':membre_id', $idMembre);
-  $stmt->bindValue(':annonce_id', $annonce['id']);
+  $stmt->bindValue(':annonce_id', $idAnnonce);
   $stmt->execute();
   $success = true;
-
 }
 
 
-// ----------------- Traitement de l'affichage -----------------------
-// ----------------- Traitement de l'affichage -----------------------
+
+// -------------------------- Traitement de l'affichage --------------------------------
+// -------------------------- Traitement de l'affichage --------------------------------
+// -------------------------- Traitement de l'affichage --------------------------------
 
 include __DIR__.('/layout/top.php');
 ?>
 
 <!--==================== Modal pour répondre au commentaire =====================-->
 
-<div class="modal fade" id="flipFlop" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+<div class="modal fade" id="modal_commentaire" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
 
     <div class="modal-content">
@@ -207,8 +222,9 @@ include __DIR__.('/layout/top.php');
           </div>
 
           <div class="row modal-footer">
+            <!-- <input type="hidden" name="idAnnonce" name="idAnnonce" value=""> -->
             <button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Annuler</button>
-            <button type="submit" class="btn btn-primary">Envoyer</button>
+            <button type="submit" name="commentSubmit" id="commentSubmit" class="btn btn-primary">Envoyer</button>
           </div>
         </div>
       </form>
@@ -229,7 +245,7 @@ include __DIR__.('/layout/top.php');
     </div>
   </div>
 
-  <!-- < ?php displayFlashMessage(); ?> -->
+  <?php displayFlashMessage(); ?>
 
   <?php
   // Affichage des messages d'alerte en cas de tableau d'erreur non vide
@@ -253,6 +269,9 @@ include __DIR__.('/layout/top.php');
     <?php
   endif;
   ?>
+
+  <div id="dispoMAJ"></div>
+
 
   <div class="row">
     <div class="col-md-6" id="infosPersos">
@@ -348,7 +367,7 @@ include __DIR__.('/layout/top.php');
         </div>
 
         <div class="pull-right">
-          <button type="submit" class="btn btn-primary pull-right">Enregistrer</button>
+          <button type="submit" name="infosSubmit" class="btn btn-primary pull-right">Enregistrer</button>
         </div>
       </form>
       <!-- </div> -->
@@ -407,28 +426,59 @@ include __DIR__.('/layout/top.php');
 
 <div class="container-fluid">
   <div class="row">
-  <h3>Mes annonces</h3>
-</div>
+    <h3>Mes annonces</h3>
+  </div>
+
   <?php if (!$infosAnnonce) : ?>
     <div class="col-sm-12 well">
       <p>Ce vendeur n'a publié aucune annonce</p>
     </div>
+
   <?php else :
     foreach ($infosAnnonce as $infoAnnonce) : ?>
     <div class="row" id="listeAnnonces">
       <div class="row">
 
-        <div class="col-sm-4">
-          <img src="<?= SITE_PATH.'photos/'.$infoAnnonce['photo']; ?>" alt="photo de <?= $infoAnnonce['titreAnnonce']; ?>" style="max-width: 180px">
+        <div class="col-sm-3">
+          <a href="<?= SITE_PATH.'photos/'.$infoAnnonce['photo']; ?>" data-lightbox="lightbox">
+            <img src="<?= SITE_PATH.'photos/'.$infoAnnonce['photo']; ?>" alt="photo de <?= $infoAnnonce['titreAnnonce']; ?>">
+          </a>
         </div>
 
-        <div class="col-sm-8">
+        <div class="col-sm-7">
           <h4 class=""><?= $infoAnnonce['titreAnnonce']; ?></h4>
-          <h5 class="">Annonce : <?= $infoAnnonce['idAnnonce']; ?></h5>
+          <h5 class="">N° Annonce : <?= $infoAnnonce['idAnnonce']; ?></h5>
           <h5 class="">Catégorie : <?= $infoAnnonce['titreCategorie']; ?></h5>
           <p class=""><?= $infoAnnonce['description_courte']; ?></p>
           <em class=""><h5>Adresse : <?= $infoAnnonce['adresse'].' '. $infoAnnonce['code_postal'].' '. $infoAnnonce['ville']; ?></h5></em>
+          <p><a href=" <?= SITE_PATH.'annonce-fiche.php?id='.$infoAnnonce['idAnnonce'] ;?>">Modifier l'annonce</a></p>
         </div>
+
+        <!-- Options d'activation / désactivation de l'annonce -->
+        <div class="col-auto">
+          <?php  if (isUserConnected() && $_SESSION['membre']['id'] == $infoAnnonce['idVendeur'] || isUserAdmin()) : ?>
+
+            <form class="form" method="post">
+              <input type="hidden" name="dispoIdAnnonce" value=" < ?= $infoAnnonce['idAnnonce']; ?> ">
+              <div class="radio">
+                <div class="btn-group btn-group-vertical">
+                  <div class="btn btn-success">
+                    <label>
+                      <input class="<?php echo $infoAnnonce['idAnnonce']; ?>" type="radio" name="dispo" value= <?= ($infoAnnonce['dispo'] == 'active') ? '"active" checked' : '"active"' ;?>>Annonce activée
+                    </label>
+                  </div>
+                  <div class="btn btn-danger">
+                    <label>
+                      <input class="<?php echo $infoAnnonce['idAnnonce']; ?>" type="radio" name="dispo" value=<?= ($infoAnnonce['dispo'] == 'inactive') ? '"inactive" checked' : '"inactive"' ;?>>Annonce désactivée
+                    </label>
+                  </div>
+                  <!-- <input class="btn btn-primary" name="dispoSubmit" type="submit" value"Valider"> -->
+                </div>
+              </div>
+            </form>
+          <?php endif; ?>
+        </div>
+
       </div>
 
       <?php
@@ -458,18 +508,18 @@ include __DIR__.('/layout/top.php');
                     <?php
                     if (isUserConnected() && $infoCommentaire['idVendeur'] == $_SESSION['membre']['id']) :
                       ?>
-                      <div class="">
-                        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#flipFlop">
+                      <form>
+                        <input type="hidden" name="idAnnonce" value="<?= $infoCommentaire['idAnnonce'] ;?>">
+                        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modal_commentaire" id="submitReponse" value="<?php echo $infoCommentaire['idAnnonce'] ;?>" data-idMembre="<?= $_SESSION['membre']['id'] ;?>">
                           Répondre au commentaire
                         </button>
-                      </div>
+                      </form>
                     <?php endif; ?>
                   </div>
                 </div>
               </div>
 
-              <?php
-            endif;
+            <?php endif;
           endif;
         endforeach; ?>
       </div>

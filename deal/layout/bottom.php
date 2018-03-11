@@ -36,6 +36,9 @@
 
 <!-- Custom Theme JavaScript -->
 <script src="<?=SITE_PATH;?>dist/js/sb-admin-2.js"></script>
+<script src="<?=SITE_PATH;?>dist/js/lightbox.js"></script>
+
+
 
 </body>
 

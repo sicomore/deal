@@ -17,6 +17,8 @@ if (!empty($_POST)) {
   }
   if (empty($_POST['pseudo'])) {
     $errors[] = 'Le pseudo est obligatoire.';
+  } elseif (!preg_match ('#^[A-Za-z0-9_-]{3,20}$#', $_POST['pseudo'])) {
+    $errors [] = 'Le pseudo doit contenir de 3 à 20 caractères';
   } else {
     $pseudoFiltre = $pdo->quote(strtolower($_POST['pseudo']));
     $req = 'SELECT COUNT(*) FROM membre WHERE pseudo = ' . $pseudoFiltre;
@@ -62,8 +64,25 @@ if (!empty($_POST)) {
     $stmt->bindValue(':email', $email);
     $stmt->bindValue(':mdp', $encodePassword);
     $stmt->bindValue(':telephone', $telephone);
-    $stmt->execute();
-    $success = true;
+    $result = $stmt->execute();
+    // $success = true;
+    if ($result == false) {
+      $errors[] = 'Un problème est survenu lors de l\'enregistrement de votre inscription. Merci de recommencer';
+    } else {
+      $req = 'SELECT id, pseudo, nom, prenom, role FROM membre WHERE pseudo ='.$pdo->quote($pseudo);
+      $stmt = $pdo->query($req);
+      $user = $stmt->fetch();
+
+      if ($user == false) {
+        $errors[] = 'Un problème est survenu lors de l\'enregistrement de votre inscription. Merci de recommencer';
+
+      } else {
+        setFlashMessage('Merci pour votre inscription. Elle a bien été validée.');
+        $_SESSION['membre'] = $user;
+        header('Location: index.php');
+        die;
+      }
+    }
   }
 }
 

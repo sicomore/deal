@@ -3,41 +3,54 @@ require_once __DIR__.'/include/init.php';
 
 $errors = [];
 $civilite = $nom = $prenom = $email = $sujet = $message = '';
-// initialise un valeur aux futures variables créées par extract
-
 
 if (!empty($_POST)) {
   sanitizePost();
   extract($_POST);
-  // Extrait les valeurs à partir du tableau $_POST recueilli et renseigne les variables dédiées pour être retournée dans les values du formulaire afin de les garder en mémoire
 
   if (empty($_POST['civilite'])) {
     $errors[] = 'Choisir une civilité.';
   }
+
   if (empty($_POST['nom'])) {
     $errors[] = 'Le nom est obligatoire.';
   }
-  // if (empty($_POST['pseudo'])) {
-  //   $errors[] = 'Le pseudo est obligatoire.';
-  // } else {
-  //   $pseudoFiltre = $pdo->quote(strtolower($_POST['pseudo']));
-  //   $req = 'SELECT COUNT(*) FROM membre WHERE pseudo = ' . $pseudoFiltre;
-  //   $stmt = $pdo->query($req);
-  //   $nb = $stmt->fetchColumn();
-  //   // var_dump($nb);
-  //   if ($nb != 0) {
-  //     $errors[] = 'Cet pseudo est déjà utilisé.';
-  //   }
-  // }
+
   if (empty($_POST['email'])) {
     $errors[] = 'L\'email est obligatoire.';
   } elseif (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
     $errors[] = 'L\'email est invalide.';
   }
+
+  if (empty($_POST['sujet'])) {
+    $errors[] = 'Merci de remplir le sujet de votre message.';
+  }
+
+  if (empty($_POST['message'])) {
+    $errors[] = 'Votre message semble vide. Merci de le vérifier.';
+  }
+
+  if (empty($errors)) {
+    $req = 'INSERT INTO message (civilite, nom, prenom, email, sujet, message) VALUES (:civilite, :nom, :prenom, :email, :sujet, :message)';
+    $stmt = $pdo->prepare($req);
+    $stmt->bindValue(':civilite', $_POST['civilite']);
+    $stmt->bindValue(':nom', $_POST['nom']);
+    $stmt->bindValue(':prenom', $_POST['prenom']);
+    $stmt->bindValue(':email', $_POST['email']);
+    $stmt->bindValue(':sujet', $_POST['sujet']);
+    $stmt->bindValue(':message', $_POST['message']);
+    $requete = $stmt->execute();
+
+    if (!$requete || ($stmt->rowCount() == 0)) {
+      $errors[] = 'Un problème est survenu au moment de l\'enregistrement de votre message et n\'a pu être enregistré.';
+    } else {
+      $success = true;
+    }
+  }
 }
 
 
-
+// ----------------- Traitement de l'affichage -----------------------
 // ----------------- Traitement de l'affichage -----------------------
 // ----------------- Traitement de l'affichage -----------------------
 
@@ -55,10 +68,8 @@ include __DIR__.('/layout/top.php');
 
   <?php if (isset($success)) : ?>
     <div class="alert alert-success">
-      <strong>Votre message a bien été envoyé.</strong>
-      <button class="btn btn-primary" type="button">
-        <span class="badge"><a href="index.php">Retour à l'accueil</a></span>
-      </button>
+      <strong>Votre message a bien été envoyé. Nous y répondrons au plus vite.</strong>
+      <a class="badge btn btn-info" href="index.php">Retour à l'accueil</a>
     </div>
   <?php endif; ?>
 
@@ -108,7 +119,7 @@ include __DIR__.('/layout/top.php');
       </div>
       <div class="row">
         <div class="form-group col-sm-12">
-          <textarea name="message" class="form-control" rows="8" cols="80" placeholder="Votre message"><?= $message ;?></textarea>
+          <textarea name="message" class="form-control" rows="8" cols="80" placeholder="Votre message *"><?= $message ;?></textarea>
         </div>
       </div>
 
@@ -124,6 +135,4 @@ include __DIR__.('/layout/top.php');
 </div>
 
 
-<?php
-include __DIR__.('/layout/bottom.php');
-?>
+<?php include __DIR__.('/layout/bottom.php'); ?>

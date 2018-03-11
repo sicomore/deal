@@ -23,6 +23,10 @@ p {
   background-color: white;
 }
 
+.navbar-form {
+  margin: 0;
+}
+
 .page-header {
   margin: 3vh auto;
   display: -ms-flex;
@@ -52,10 +56,11 @@ p {
   }
 }
 
+// Page profil.php ---------------------------------
 #listeAnnonces {
   border-bottom: 1px $gray-light solid;
 
-  div:first-child {
+  div.row:first-child {
     display: -ms-flex;
     display: -webkit-box;
     display: -ms-flexbox;
@@ -63,14 +68,17 @@ p {
     -webkit-box-align: center;
     -ms-flex-align: center;
     align-items: center;
+    padding-bottom: 20px;
 
     div:first-child {
-      text-align: center;
-
       img {
         max-width: 180px;
         max-height: 180px;
       }
+    }
+
+    div:last-child { // boutons de disponibilité de l'annonce
+      display: block;
     }
   }
 }
@@ -102,6 +110,10 @@ p {
     -ms-flex-align: center;
     align-items: center;
 
+    img {
+      max-width: 100px;
+    }
+
     .well {
       margin: auto;
       h3 {
@@ -111,6 +123,7 @@ p {
     }
   }
 }
+
 
 #filtres {
   display: -ms-flex;
@@ -155,6 +168,12 @@ form#commentaire > .row > div.col-sm-4 .form-group {
   }
 }
 
+// Page annonces.php -------------------------------------------
+#description {
+  img {
+    max-height: 250px;
+  }
+}
 // Page stats.php -------------------------------------------
 #stats .well {
   font-size: 1.1em;

@@ -78,31 +78,127 @@ $(function() {
   });
 
 
+  // Mise à jour de la disponibilité de l'annonce par AJAX sur page annonce-fiche.php -------------------
 
-  // Table des annonces responsive dans annonces.php
-  // $('#tableAnnonces').DataTable({
-  //   responsive: true
-  // });
+  // $('#dispoSubmit').on('click', function (event) {
+  $('input[name="dispo"]').on('click', function (event) {
+
+    event.preventDefault();
+
+    var active = $('input[name="dispo"]:checked').val();
+    var annonce_id = $(this).attr('class');
+    console.log(active);
+    console.log(annonce_id);
+
+    $.post(
+      'dist/xhr/disponibilite.php',
+      {
+        dispo : active,
+        idAnnonce: annonce_id
+      },
+      function (reponse) {
+        console.log(reponse);
+
+        $('#dispoMAJ').append(reponse);
+
+      },
+      'text'
+    );
+  });
 
 
-  // Tri des annonces
-  // function affichage(choix) {
-  //   if (choix !='') {
-  //     // console.log(choix);
-  //     for (var i = 0; i < select.length; i++) {
-  //       var titre = select.eq(i).attr('title');
-  //       var toutesFiches = select.eq(i);
-  //       if (titre != choix) {
-  //         if (choix == 'default') {
-  //           toutesFiches.fadeIn(500);
-  //         } else {
-  //           toutesFiches.hide(1000);
-  //         }
-  //       } else {
-  //         toutesFiches.fadeIn(500);
-  //       }
-  //     }
-  //   }
-  // }
+  // Réponse au commentaire dans la page profil.php -------------------
 
-});  //end DOM Ready
+var bouton = document.querySelectorAll('#submitReponse');
+for (i=0; i<bouton.length; i++) {
+  bouton[i].onclick = function () {
+    var idAnnonce = this.getAttribute('value');
+    var idMembre = this.getAttribute('data-idMembre');
+    console.log(idAnnonce);
+    console.log(idMembre);
+
+    $('#commentSubmit').click( function (event) {
+
+      var textarea = $('#commentaire').val();
+      console.log(textarea);
+
+      event.preventDefault();
+      $.post(
+        'dist/xhr/commentaireReponse.php',
+        {
+          commentaire : textarea,
+          idAnnonce: idAnnonce,
+          idMembre: idMembre
+        },
+        function (reponse) {
+          console.log(reponse);
+          $('button[class="close"]').trigger('click');
+          $('#dispoMAJ').append(reponse);
+        },
+        'text'
+      );
+
+
+    });
+
+
+  }
+}
+
+
+
+
+// Tri de la liste des annnonces dans la page annonces.php ----------------------------------------------
+
+  $('select[name="triSelect"]').on('change', function (event) {
+
+    event.preventDefault();
+
+    // var choix = $(this).val('option selected');
+    var choix = $("#triSelect option:selected").val();
+    console.log(choix);
+
+    $.post (
+      '../dist/xhr/triSelect.php',
+      {
+        triSelect : choix
+      },
+      function (reponse) {
+        console.log(reponse);
+        // $.getJSON( function (reponse) {
+        $.each(reponse, function (cle, valeur) {
+          $('#donnees').append(
+            '<tr>'+
+              '<td>'+valeur.id+'</td>'+
+              '<td></td>'+
+              '<td>'+valeur.titre+'</td>'+
+              '<td>'+valeur.titre_categorie+'</td>'+
+              '<td>'+valeur.description_courte+'</td>'+
+              '<td>'+valeur.description_longue+'</td>'+
+              '<td>'+valeur.prix+'</td>'+
+              '<td>'+valeur.adresse+'</td>'+
+              '<td>'+valeur.code_postal+'</td>'+
+              '<td>'+valeur.ville+'</td>'+
+              '<td>'+valeur.nom_region+'</td>'+
+              '<td>'+valeur.pseudo+'</td>'+
+              '<td>'+valeur.date_enregistrement+'</td>'+
+              '<td></td>'+
+            '</tr>');
+          });
+          // });
+
+        },
+        'json'
+      );
+    });
+
+
+
+    // Table des annonces responsive dans annonces.php
+    // $('#tableAnnonces').DataTable({
+    //   responsive: true
+    // });
+
+
+
+  });  //end DOM Ready

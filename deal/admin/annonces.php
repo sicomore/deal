@@ -109,12 +109,40 @@ include __DIR__ .'/../layout/top.php';
               <th>Options</th>
             </tr>
           </thead>
+          <tbody id="donnees">
+          </tbody>
+        </table>
+
+
+        <table width="100%" class="table table-striped table-bordered table-hover" id="dataTables-example">
+          <thead>
+            <tr>
+              <th>N°</th>
+              <th>Photo</th>
+              <th>Titre</th>
+              <th>Catégorie</th>
+              <th>Description courte</th>
+              <th>Description longue</th>
+              <th>Prix (€)</th>
+              <th>Adresse</th>
+              <th>Code Postal</th>
+              <th>Ville</th>
+              <th>Région</th>
+              <th>Membre</th>
+              <th>Date de parution</th>
+              <th>Options</th>
+            </tr>
+          </thead>
 
           <tbody>
             <?php foreach ($annonces as $annonce) : ?>
               <tr>
                 <td><?= $annonce['id'] ?></td>
-                <td><img src='<?= PHOTO_WEB.$annonce['photo']; ?>' style="width: 100px;"></td>
+                <td>
+                  <a href="<?= PHOTO_WEB.$annonce['photo']; ?>" data-lightbox="lightbox">
+                    <img src="<?= PHOTO_WEB.$annonce['photo']; ?>">
+                  </a>
+                </td>
                 <td><?= $annonce['titre'] ?></td>
                 <td><?= $annonce['titre_categorie'] ?></td>
                 <td><?= substr($annonce['description_courte'],0, 30); ?> ...</td>

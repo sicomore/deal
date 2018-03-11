@@ -29,7 +29,10 @@ if (!empty($_POST)) {
   // conditions pour les descriptions
   if (empty($_POST['description_courte'])) {
     $errors[] = 'Renseigner une courte description de l\'annonce';
+  } elseif (strlen($_POST['description_courte']) > 100) {
+    $errors[] = 'La courte description ne doit pas dépasser 100 caractères.';
   }
+
   if (empty($_POST['description_longue'])) {
     $errors[] = 'Renseigner une description détaillée de l\'annonce';
   }
@@ -146,7 +149,7 @@ if (!empty($_POST)) {
     }
 
     setFlashMessage("Votre annonce a bien été enregistrée.");
-    header('Location: '.SITE_PATH.'admin/annonces.php');
+    header('Location: '.SITE_PATH.'profil.php');
     die;
   }
 
@@ -200,12 +203,15 @@ include __DIR__.('/../layout/top.php');
         </div>
         <div class="col-auto form-group">
           <label for="">Description longue</label>
-          <textarea name="description_longue" value="<?= $description_longue; ?>" placeholder="Description détaillée de votre annonce" class="form-control"><?= $description_longue; ?></textarea>
+          <textarea name="description_longue" rows="8" value="<?= $description_longue; ?>" placeholder="Description détaillée de votre annonce" class="form-control"><?= $description_longue; ?></textarea>
         </div>
         <div class="col-auto form-group">
           <label for="">Prix</label>
           <input type="text" name="prix" value="<?= $prix ?>" placeholder="Prix figurant dans l'annonce" class="form-control">
         </div>
+      </div>
+
+        <div class="col-lg-6">
         <div class="col-auto form-group">
           <label for="">Catégorie</label>
           <select class="form-control" name="categorie">
@@ -220,9 +226,7 @@ include __DIR__.('/../layout/top.php');
             <?php endforeach; ?>
           </select>
         </div>
-      </div>
 
-      <div class="col-lg-6">
         <div class="form-group">
           <label for="">Photo</label>
           <input type="file" name="photo" value="" class="form-control-file">
