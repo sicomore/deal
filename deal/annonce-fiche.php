@@ -32,29 +32,29 @@ $reqCommentaires = 'SELECT c.id idCommentaire, c.commentaire commentaire, c.memb
 .'JOIN annonce a ON a.id = c.annonce_id '
 .'WHERE c.annonce_id = '.(int)$_GET['id'];
 
-// Complément requête pour vérifier que le commentaire n'est pas posté 2x par le mm membre
-if (!empty($_POST['commentaire'])) {
-  $reqDoublon = $reqCommentaires .' AND c.membre_id = '.$_SESSION['membre']['id'].' AND c.commentaire = '
-  .$pdo->quote($_POST['commentaire']);
-  $stmt = $pdo->query($reqDoublon);
-  $commentDoublon = $stmt->fetchAll();
-  $commentDoublon = $stmt->rowCount();
-}
+// // Complément requête pour vérifier que le commentaire n'est pas posté 2x par le mm membre
+// if (!empty($_POST['commentaire'])) {
+//   $reqDoublon = $reqCommentaires .' AND c.membre_id = '.$_SESSION['membre']['id'].' AND c.commentaire = '
+//   .$pdo->quote($_POST['commentaire']);
+//   $stmt = $pdo->query($reqDoublon);
+//   $stmt->fetchAll();
+//   $commentDoublon = $stmt->rowCount();
+// }
 
 $reqCommentaires .= ' ORDER BY c.id DESC';
 $stmt = $pdo->query($reqCommentaires);
 $commentTous = $stmt->fetchAll();
 
-// Enregistrement du commentaire dans la table éponyme
-if (!empty($_POST['commentaire']) && ($commentDoublon == 0)) {
-  $req = 'INSERT INTO commentaire(commentaire, membre_id, annonce_id) VALUES (:commentaire, :membre_id, :annonce_id)';
-  $stmt = $pdo->prepare($req);
-  $stmt->bindValue(':commentaire', $_POST['commentaire']);
-  $stmt->bindValue(':membre_id', $_SESSION['membre']['id']);
-  $stmt->bindValue(':annonce_id', $annonce['id']);
-  $stmt->execute();
-  $success = true;
-}
+// // Enregistrement du commentaire dans la table éponyme
+// if (!empty($_POST['commentaire']) && ($commentDoublon == 0)) {
+//   $req = 'INSERT INTO commentaire(commentaire, membre_id, annonce_id) VALUES (:commentaire, :membre_id, :annonce_id)';
+//   $stmt = $pdo->prepare($req);
+//   $stmt->bindValue(':commentaire', $_POST['commentaire']);
+//   $stmt->bindValue(':membre_id', $_SESSION['membre']['id']);
+//   $stmt->bindValue(':annonce_id', $annonce['id']);
+//   $stmt->execute();
+//   $success = true;
+// }
 
 
 // MAJ de la disponibilité de l'annonce -----------------------------------------------------------------
@@ -70,53 +70,47 @@ if (!empty($_POST['commentaire']) && ($commentDoublon == 0)) {
 
 
 // Requête sur la table notes ---------------------------------------------------------------------
-if (!empty($avis) || !empty($note)) {
-
-  $req = 'SELECT n.*, m.pseudo pseudo FROM notes n JOIN membre m ON m.id = n.membre_id1';
-  $stmt = $pdo->query($req);
-  $noteToutes = $stmt->fetchAll();
-
-  $req .= ' WHERE membre_id2 = '.$annonce['membre_id'].' AND membre_id1 = '. $_SESSION['membre']['id'];
-  $stmt = $pdo->query($req);
-  $noteLaissee = $stmt->fetchColumn();
-
-  // Enregistrement de la note et de l'avis dans la table Note
-  // membre_id1 = le notant
-  // membre_id2 = le noté
-  if ($noteLaissee == 0) {
-    $req = 'INSERT INTO notes(note, avis, membre_id1, membre_id2, date_enregistrement) '
-    .'VALUES (:note, :avis, :membre_id1, :membre_id2, now())';
-    $stmt = $pdo->prepare($req);
-    $stmt->bindValue(':note', $note);
-    $stmt->bindValue(':avis', $avis);
-    $stmt->bindValue(':membre_id1', $_SESSION['membre']['id']);
-    $stmt->bindValue(':membre_id2', $annonce['membre_id']);
-    $stmt->execute();
-    $success = true;
-
-    // Mise à jour de la table notes
-  } else {
-    if (empty($note)) {
-      $MAJ = ' avis = \''.$avis.'\',';
-      setFlashMessage('Votre avis sur le vendeur a bien été mis à jour.');
-
-    } elseif (empty($avis)) {
-      $MAJ = ' note = '.$note.',';
-      setFlashMessage('Votre note sur le vendeur a bien été mise à jour.');
-
-    } else {
-      $MAJ = ' note = '.$note.', avis = \''.$avis.'\',';
-      setFlashMessage('Votre note et votre avis sur le vendeur ont bien été enregistrés.');
-    }
-
-    $req = 'UPDATE notes SET '. $MAJ .' date_enregistrement = now() WHERE membre_id1 = :idClient AND membre_id2 = :idVendeur';
-    $stmt = $pdo->prepare($req);
-    $stmt->bindValue(':idMembre', $_SESSION['membre']['id']);
-    $stmt->bindValue(':idVendeur', $annonce['membre_id']);
-    $stmt->execute();
-    $success = true;
-  }
-}
+// if (!empty($avis) || !empty($note)) {
+//
+//   $req = 'SELECT * FROM notes WHERE membre_id2 = '.$annonce['membre_id'].' AND membre_id1 = '. $_SESSION['membre']['id'];
+//   $stmt = $pdo->query($req);
+//   $stmt->fetchAll();
+//
+//   // Enregistrement de la note et de l'avis dans la table Note
+//   // membre_id1 = le notant
+//   // membre_id2 = le noté
+//   if ($stmt->rowCount() < 1) {
+//
+//     $req = 'INSERT INTO notes(note, avis, membre_id1, membre_id2, date_enregistrement) '
+//     .'VALUES (:note, :avis, :membre_id1, :membre_id2, now())';
+//     $stmt = $pdo->prepare($req);
+//     $stmt->bindValue(':note', $note);
+//     $stmt->bindValue(':avis', $avis);
+//     $stmt->bindValue(':membre_id1', $_SESSION['membre']['id']);
+//     $stmt->bindValue(':membre_id2', $annonce['membre_id']);
+//     $stmt->execute();
+//     $success = true;
+//
+//     // Mise à jour de la table notes
+//   } else {
+//     if (empty($note)) {
+//       $MAJ = ' avis = '.$pdo->quote($avis).',';
+//
+//     } elseif (empty($avis)) {
+//       $MAJ = ' note = '.$note.',';
+//
+//     } else {
+//       $MAJ = ' note = '.$note.', avis = '.$pdo->quote($avis).',';
+//     }
+//
+//     $req = 'UPDATE notes SET'. $MAJ .' date_enregistrement = now() WHERE membre_id1 = :idClient AND membre_id2 = :idVendeur';
+//     $stmt = $pdo->prepare($req);
+//     $stmt->bindValue(':idClient', $_SESSION['membre']['id']);
+//     $stmt->bindValue(':idVendeur', $annonce['membre_id']);
+//     $stmt->execute();
+//     $success = true;
+//   }
+// }
 
 // Requête pour afficher les "Autres annonces" autre que celle affichée
 $req = <<<EOS
@@ -160,7 +154,7 @@ include __DIR__.('/layout/top.php');
 
 <!--======== Modal pour laisser un commentaire, une note et un avis ========-->
 
-<div class="modal fade" id="flipFlop" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+<div class="modal fade" id="modal_commentaire" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
 
     <div class="modal-content">
@@ -180,34 +174,34 @@ include __DIR__.('/layout/top.php');
             <textarea name="commentaire" class="form-control" rows="5" id="commentaire" placeholder="Déposer ou répondez à un commentaire à propos de l'annonce"></textarea>
           </div>
 
-          <?php  if (isUserConnected() && $_SESSION['membre']['id'] != $annonce['idVendeur'] || isUserAdmin()) : ?>
+          <?php  if (isUserConnected() && $_SESSION['membre']['id'] != $annonce['idVendeur']) : ?>
 
-          <hr>
-          <label>Attribuez une note ou un avis au vendeur</label>
-          <div class="form-group">
-            <h5>Note</h5>
+            <hr>
+            <label>Attribuez une note ou un avis au vendeur</label>
+            <div class="form-group">
+              <h5>Note</h5>
 
-            <div class="col-sm-12">
-              <fieldset class="rating">
-                <input type="radio" id="star5" name="note" value="5" /><label class = "full" for="star5" title="5 étoiles"></label>
-                <input type="radio" id="star4" name="note" value="4" /><label class = "full" for="star4" title="4 étoiles"></label>
-                <input type="radio" id="star3" name="note" value="3" /><label class = "full" for="star3" title="3 étoiles"></label>
-                <input type="radio" id="star2" name="note" value="2" /><label class = "full" for="star2" title="2 étoiles"></label>
-                <input type="radio" id="star1" name="note" value="1" /><label class = "full" for="star1" title="1 étoiles"></label>
-              </fieldset>
+              <div class="col-sm-12">
+                <fieldset class="rating">
+                  <input type="radio" id="star5" name="note" value="5" /><label class = "full" for="star5" title="5 étoiles"></label>
+                  <input type="radio" id="star4" name="note" value="4" /><label class = "full" for="star4" title="4 étoiles"></label>
+                  <input type="radio" id="star3" name="note" value="3" /><label class = "full" for="star3" title="3 étoiles"></label>
+                  <input type="radio" id="star2" name="note" value="2" /><label class = "full" for="star2" title="2 étoiles"></label>
+                  <input type="radio" id="star1" name="note" value="1" /><label class = "full" for="star1" title="1 étoiles"></label>
+                </fieldset>
+              </div>
             </div>
-          </div>
 
-          <div class="form-group">
-            <h5>Avis</h5>
-            <textarea name="avis" class="form-control" rows="5" id="avis" placeholder="Laisser un avis sur le vendeur"></textarea>
-          </div>
+            <div class="form-group">
+              <h5>Avis</h5>
+              <textarea name="avis" class="form-control" rows="5" id="avis" placeholder="Laisser un avis sur le vendeur"></textarea>
+            </div>
 
-        <?php endif; ?>
+          <?php endif; ?>
 
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Annuler</button>
-            <button type="submit" class="btn btn-primary">Envoyer</button>
+            <button type="submit" name="commentSubmit" id="commentSubmit" class="btn btn-primary">Envoyer</button>
           </div>
         </div>
       </form>
@@ -314,17 +308,18 @@ include __DIR__.('/layout/top.php');
         </form>
 
       <?php else : ?>
-        <!-- <div class="col-sm-4 pull-right"> -->
         <!-- Bouton Déposer un commentaire accessible uniquement pour membre connecté -->
-        <div class="btn-group btn-group-vertical pull-right" data-toggle="<?= $popover; ?>" data-placement="left" data-content="Pour laisser un commentaire ou contacter le membre, veuillez-vous connecter.">
-          <a class="btn btn-primary <?= $disabled; ?>" data-toggle="modal" data-target="#flipFlop">
-            Déposer un commentaire ou une note
-          </a>
-          <!-- Bouton contacter le vendeur uniquement pour membre connecté -->
-          <a class="btn btn-success <?= $disabled; ?>" data-toggle="modal" data-target="#telMail">
-            Contacter le vendeur
-          </a>
-        </div>
+        <form>
+          <div class="btn-group btn-group-vertical pull-right" data-toggle="<?= $popover; ?>" data-placement="left" data-content="Pour laisser un commentaire ou contacter le membre, veuillez-vous connecter.">
+            <a type="submit" class="btn btn-primary boutonComment <?= $disabled; ?>" data-toggle="modal" data-target="#modal_commentaire" value="<?php echo (int)$_GET['id'] ;?>" data-idMembre="<?= $_SESSION['membre']['id'] ;?>" data-idVendeur="<?= $annonce['idVendeur'] ;?>">
+              Déposer un commentaire ou une note
+            </a>
+            <!-- Bouton contacter le vendeur uniquement pour membre connecté -->
+            <a class="btn btn-success <?= $disabled; ?>" data-toggle="modal" data-target="#telMail">
+              Contacter le vendeur
+            </a>
+          </div>
+        </form>
 
       <?php endif; ?>
     </div>
@@ -390,11 +385,13 @@ include __DIR__.('/layout/top.php');
         <p>Soyez le premier à en laisser un !</p>
       </div>
       <div class="col-xs-3">
-        <div class="pull-right" data-toggle="<?= $popover; ?>" data-placement="top" data-content="Pour laisser un commentaire, veuillez-vous connecter.">
-          <button type="button" class="btn btn-primary <?= $disabled; ?>" data-toggle="modal" data-target="#flipFlop">
-            <i class="fa fa-arrow-right"></i> Laisser un commentaire
-          </button>
-        </div>
+        <form>
+          <div class="pull-right" data-toggle="<?= $popover; ?>" data-placement="top" data-content="Pour laisser un commentaire, veuillez-vous connecter.">
+            <a class="btn btn-primary boutonComment <?= $disabled; ?>" data-toggle="modal" data-target="#modal_commentaire" value="<?php echo (int)$_GET['id'] ;?>" data-idMembre="<?= $_SESSION['membre']['id'] ;?>" data-idVendeur="<?= $annonce['idVendeur'] ;?>">
+              <i class="fa fa-arrow-right"></i> Laisser un commentaire
+            </a>
+          </div>
+        </form>
       </div>
       <?php
       else :
@@ -412,48 +409,46 @@ include __DIR__.('/layout/top.php');
             <div class="panel-body">
               <?= $comment['commentaire'] ;?>
 
-              <?php if (isUserConnected() && $comment['idVendeur'] == $_SESSION['membre']['id']): ?>
+              <?php if (isUserConnected() && $_SESSION['membre']['id'] == $comment['idVendeur']): ?>
                 <div class="pull-right">
-                  <button type="button" class="btn btn-primary <?= $disabled; ?>" data-toggle="modal" data-target="#flipFlop">
+                  <a class="btn btn-primary boutonComment <?= $disabled; ?>" data-toggle="modal" data-target="#modal_commentaire" value="<?php echo (int)$_GET['id'] ;?>" data-idMembre="<?= $_SESSION['membre']['id'] ;?>" data-idVendeur="<?= $annonce['idVendeur'] ;?>">
+
                     Répondre au commentaire
-                  </button>
-                  <!-- <button type="button" name="reponse" formaction="">
-                  Répondre
-                </button> -->
-              </div>
-            <?php endif; ?>
+                  </a>
+                </div>
+              <?php endif; ?>
 
+            </div>
           </div>
-        </div>
 
-      <?php endforeach; endif; ?>
-    </div>
-
-    <div class="row" id="autres">
-      <h3>Autres annonces (Catégorie : <?= $annonce['titre_categorie']; ?>)</h3>
-      <?php
-      if (empty($toutesAnnonces)) :
-        ?>
-        <div class="col-xs-3">
-          <p>Aucune autre annonce n'est disponible dans cette catégorie</p>
-        </div>
-
-      <?php else : ?>
-
-        <?php foreach ($toutesAnnonces as $toutesAnnonce): ?>
-          <div class="col-sm-3" style="text-align: center">
-            <a href="<?= SITE_PATH.'annonce-fiche.php?id='.$toutesAnnonce['id'] ;?>">
-              <img src="<?= SITE_PATH.'photos/'.$toutesAnnonce['photo'];?>" alt="Photo de <?=$toutesAnnonce['titre_annonce'];?>" style="max-height: 150px">
-              <p><b> <?= $toutesAnnonce['titre_annonce']; ?></b></p>
-              <p><b><?= $toutesAnnonce['prix']; ?> €</b></p>
-            </a>
-          </div>
-        <?php endforeach; ?>
+        <?php endforeach; endif; ?>
       </div>
-    <?php endif; ?>
 
-  </div> <!-- Fin container -->
+      <div class="row" id="autres">
+        <h3>Autres annonces (Catégorie : <?= $annonce['titre_categorie']; ?>)</h3>
+        <?php
+        if (empty($toutesAnnonces)) :
+          ?>
+          <div class="col-xs-3">
+            <p>Aucune autre annonce n'est disponible dans cette catégorie</p>
+          </div>
 
-  <?php
-  include __DIR__.('/layout/bottom.php');
-  ?>
+        <?php else : ?>
+
+          <?php foreach ($toutesAnnonces as $toutesAnnonce): ?>
+            <div class="col-sm-3" style="text-align: center">
+              <a href="<?= SITE_PATH.'annonce-fiche.php?id='.$toutesAnnonce['id'] ;?>">
+                <img src="<?= SITE_PATH.'photos/'.$toutesAnnonce['photo'];?>" alt="Photo de <?=$toutesAnnonce['titre_annonce'];?>" style="max-height: 150px">
+                <p><b> <?= $toutesAnnonce['titre_annonce']; ?></b></p>
+                <p><b><?= $toutesAnnonce['prix']; ?> €</b></p>
+              </a>
+            </div>
+          <?php endforeach; ?>
+        </div>
+      <?php endif; ?>
+
+    </div> <!-- Fin container -->
+
+    <?php
+    include __DIR__.('/layout/bottom.php');
+    ?>

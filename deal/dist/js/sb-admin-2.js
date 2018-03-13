@@ -80,7 +80,6 @@ $(function() {
 
   // Mise à jour de la disponibilité de l'annonce par AJAX sur page annonce-fiche.php -------------------
 
-  // $('#dispoSubmit').on('click', function (event) {
   $('input[name="dispo"]').on('click', function (event) {
 
     event.preventDefault();
@@ -109,88 +108,126 @@ $(function() {
 
   // Réponse au commentaire dans la page profil.php -------------------
 
-var bouton = document.querySelectorAll('#submitReponse');
-for (i=0; i<bouton.length; i++) {
-  bouton[i].onclick = function () {
-    var idAnnonce = this.getAttribute('value');
-    var idMembre = this.getAttribute('data-idMembre');
-    console.log(idAnnonce);
-    console.log(idMembre);
+  var bouton = document.querySelectorAll('.boutonComment');
+  for (i=0; i<bouton.length; i++) {
+    bouton[i].onclick = function () {
+      var idAnnonce = this.getAttribute('value');
+      var idMembre = this.getAttribute('data-idMembre');
+      var idVendeur = this.getAttribute('data-idVendeur');
+      console.log(idAnnonce);
+      console.log(idMembre);
+      console.log(idVendeur);
 
-    $('#commentSubmit').click( function (event) {
+      $('#commentSubmit').click( function (event) {
 
-      var textarea = $('#commentaire').val();
-      console.log(textarea);
+        var textarea = $('#commentaire').val();
+        var note = $('input[name="note"]:checked').val();
+        var avis = $('#avis').val();
+        console.log(textarea);
+        console.log(note);
+        console.log(avis);
 
-      event.preventDefault();
-      $.post(
-        'dist/xhr/commentaireReponse.php',
-        {
-          commentaire : textarea,
-          idAnnonce: idAnnonce,
-          idMembre: idMembre
-        },
-        function (reponse) {
-          console.log(reponse);
-          $('button[class="close"]').trigger('click');
-          $('#dispoMAJ').append(reponse);
-        },
-        'text'
-      );
-
-
-    });
-
-
+        event.preventDefault();
+        $.post(
+          'dist/xhr/commentaireNoteAvis.php',
+          // 'dist/xhr/commentaireReponse.php',
+          {
+            idAnnonce: idAnnonce,
+            idMembre: idMembre,
+            idVendeur: idVendeur,
+            commentaire : textarea,
+            note: note,
+            avis: avis
+          },
+          function (reponse) {
+            console.log(reponse);
+            $('button[class="close"]').trigger('click');
+            $('#dispoMAJ').html(reponse);
+            $('#commentaire').val('');
+          },
+          'html'
+        );
+      });
+    }
   }
-}
 
 
 
 
-// Tri de la liste des annnonces dans la page annonces.php ----------------------------------------------
+  // Tri de la liste des annnonces dans la page annonces.php ----------------------------------------------
 
-  $('select[name="triSelect"]').on('change', function (event) {
+  // $('select[name="triSelect"]').on('change', function (event) {
+  //
+  //   event.preventDefault();
+  //
+  //   // var choix = $(this).val('option selected');
+  //   var choix = $("#triSelect option:selected").val();
+  //   console.log(choix);
+  //
+  //   $.post (
+  //     '../dist/xhr/triSelect.php',
+  //     {
+  //       triSelect : choix
+  //     },
+  //     function (reponse, success) {
+  //       console.log(reponse);
+  //       console.log(success);
+  //
+  //       },
+  //       'json'
+  //     );
+  //   });
 
-    event.preventDefault();
 
-    // var choix = $(this).val('option selected');
-    var choix = $("#triSelect option:selected").val();
-    console.log(choix);
-
-    $.post (
-      '../dist/xhr/triSelect.php',
-      {
-        triSelect : choix
-      },
-      function (reponse) {
-        console.log(reponse);
-        // $.getJSON( function (reponse) {
-        $.each(reponse, function (cle, valeur) {
-          $('#donnees').append(
-            '<tr>'+
-              '<td>'+valeur.id+'</td>'+
-              '<td></td>'+
-              '<td>'+valeur.titre+'</td>'+
-              '<td>'+valeur.titre_categorie+'</td>'+
-              '<td>'+valeur.description_courte+'</td>'+
-              '<td>'+valeur.description_longue+'</td>'+
-              '<td>'+valeur.prix+'</td>'+
-              '<td>'+valeur.adresse+'</td>'+
-              '<td>'+valeur.code_postal+'</td>'+
-              '<td>'+valeur.ville+'</td>'+
-              '<td>'+valeur.nom_region+'</td>'+
-              '<td>'+valeur.pseudo+'</td>'+
-              '<td>'+valeur.date_enregistrement+'</td>'+
-              '<td></td>'+
-            '</tr>');
-          });
-          // });
-
-        },
-        'json'
-      );
-    });
+    // Autocompletion dans la zone de recherche de la navbar --------------------------
+    // function evenement(event) {
+    //   $('#zone-de-chargement').html('');
+    //
+    //   if ($('#q').val().trim() !== '') {
+    //
+    //     console.log('Soumission du formulaire');
+    //     event.preventDefault();
+    //
+    //     jQuery.ajax({
+    //       url: 'xhr/langages.php', // L'URL du fichier texte.
+    //       method: 'GET', // La méthode est du GET.
+    //       data: {
+    //         q: $('#q').val()
+    //       }, // Pas de données à envoyer.
+    //       dataType: 'json', // Le type de données attendu.
+    //       success: function(donnees) {
+    //         // Fonction exécutée en cas de succés.
+    //         // Deboggage des données reçues dans la console.
+    //
+    //         if (donnees.length) {
+    //
+    //           // var suggestions = '<ul>';
+    //           // for (var i = 0; data[i]; i++) {
+    //           //   suggestions += '<li>' + data[i] + '</li>';
+    //           // }
+    //           // suggestions += '</ul>';
+    //           // $('#suggestions').html(suggestions);
+    //
+    //           var liste = $('#zone-de-chargement').append('<ul>');
+    //           for (var i = 0; i < donnees.length; i++) {
+    //             liste = liste.append('<li>' + donnees[i] + '</li>');
+    //           }
+    //           liste += '</ul>';
+    //           console.log(liste);
+    //         }  else {
+    //           $('#zone-de-chargement').html('<p><em>Aucun résultat<em></p>');
+    //         }
+    //       },
+    //       error : function (error) {
+    //         console.log(error);
+    //       }
+    //     });
+    //   }
+    // }
+    //
+    // jQuery('form').on('keyup', function (event) {
+    //   evenement(event);
+    // });
 
 
 

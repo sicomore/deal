@@ -15,12 +15,18 @@ p {
 
 #wrapper {
   width: 100%;
+  padding-bottom: 20px;
 }
 
 #page-wrapper {
+  // padding-bottom: 30px;
   padding: 0 15px;
   min-height: 568px;
   background-color: white;
+
+  &:last-child {
+    padding-bottom: 30px;
+  }
 }
 
 .navbar-form {
@@ -53,44 +59,6 @@ p {
     -ms-flex-flow: column nowrap;
     flex-flow: column nowrap;
 
-  }
-}
-
-// Page profil.php ---------------------------------
-#listeAnnonces {
-  border-bottom: 1px $gray-light solid;
-
-  div.row:first-child {
-    display: -ms-flex;
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-align: center;
-    -ms-flex-align: center;
-    align-items: center;
-    padding-bottom: 20px;
-
-    div:first-child {
-      img {
-        max-width: 180px;
-        max-height: 180px;
-      }
-    }
-
-    div:last-child { // boutons de disponibilité de l'annonce
-      display: block;
-    }
-  }
-}
-
-// Media Query -----------------------------------------
-
-@media(min-width:768px) {
-  #page-wrapper {
-    position: inherit;
-    // margin: 0 0 0 250px;
-    padding: 0 30px;
-    border-left: 1px solid darken($gray-lightest, 6.5%);
   }
 }
 
@@ -135,6 +103,8 @@ p {
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+
+
 }
 
 .fa.fa-star, .fa.fa-star-half {
@@ -150,6 +120,45 @@ p {
   -ms-flex-pack: center;
   justify-content: center;
 }
+
+// Page profil.php ---------------------------------
+#listeAnnonces {
+  border-bottom: 1px $gray-light solid;
+
+  div.row:first-child {
+    display: -ms-flex;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    padding-bottom: 20px;
+
+    div:first-child {
+      img {
+        max-width: 180px;
+        max-height: 180px;
+      }
+    }
+
+    div:last-child { // boutons de disponibilité de l'annonce
+      display: block;
+    }
+  }
+}
+
+// Media Query -----------------------------------------
+
+@media(min-width:768px) {
+  #page-wrapper {
+    position: inherit;
+    // margin: 0 0 0 250px;
+    padding: 0 30px;
+    border-left: 1px solid darken($gray-lightest, 6.5%);
+  }
+}
+
 
 // Page commentaire-edit.php -------------------------------------------
 
@@ -826,26 +835,29 @@ table.dataTable thead .sorting:after {
   }
 }
 
-footer ul {
-  display: -ms-flex;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-  -ms-flex-flow: row nowrap;
-  flex-flow: row nowrap;
-  -webkit-box-pack: center;
-  -ms-flex-pack: center;
-  justify-content: space-around;
 
-  a.btn {
-    padding: 15px;
+footer {
+  ul {
+    display: -ms-flex;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+    -ms-flex-flow: row nowrap;
+    flex-flow: row nowrap;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: space-around;
 
-    &:hover {
-      background: deepskyblue;
-      text-decoration: none;
-      color: #FFF;
+    a.btn {
+      padding: 15px;
+
+      &:hover {
+        background: deepskyblue;
+        text-decoration: none;
+        color: #FFF;
+      }
     }
   }
 }

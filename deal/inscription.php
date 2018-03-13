@@ -189,7 +189,7 @@ include __DIR__.('/layout/top.php');
 </div>
 <div class="modal-body row">
 <div class="col-sm-6">
-<a class="btn btn-primary" href="< ?=SITE_PATH;?>admin/annonce-edit.php">Déposer une annonce</a>
+<a class="btn btn-primary" href="< ?=SITE_PATH;?>annonce-edit.php">Déposer une annonce</a>
 </div>
 <div class="col-sm-5 col-sm-offset-1">
 <a class="btn btn-default" href="< ?=SITE_PATH;?>index.php">Retour à l'accueil</a>

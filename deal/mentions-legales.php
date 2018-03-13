@@ -2,10 +2,6 @@
 require_once __DIR__.'/include/init.php';
 
 
-
-
-
-
 // ----------------- Traitement de l'affichage -----------------------
 // ----------------- Traitement de l'affichage -----------------------
 

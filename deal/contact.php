@@ -44,7 +44,9 @@ if (!empty($_POST)) {
     if (!$requete || ($stmt->rowCount() == 0)) {
       $errors[] = 'Un problème est survenu au moment de l\'enregistrement de votre message et n\'a pu être enregistré.';
     } else {
-      $success = true;
+      setFlashMessage('Votre message a bien été envoyé. Nous y répondrons au plus vite.', 'success');
+      header('Location: index.php');
+      // $success = true;
     }
   }
 }

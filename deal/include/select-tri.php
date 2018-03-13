@@ -10,8 +10,6 @@ if (isset($_GET['triSelect'])) {
   $req = 'SELECT a.id annonceId, a.titre titre, a.prix prix, a.ville ville, a.code_postal code_postal, a.date_enregistrement parution, m.pseudo pseudo, c.titre categorie, r.nom region FROM annonce a JOIN categorie c ON c.id = categorie_id JOIN membre m ON m.id = a.membre_id JOIN region r ON r.id = region_id ORDER BY '.$_GET['tri_annonces']. ' LIMIT 5';
   $stmt = $pdo->query($req);
   $annonces = $stmt->fetchAll();
-  var_dump($annonces);
-  echo '<br>';
 
   $tableauAnnonces = [];
 

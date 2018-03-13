@@ -134,7 +134,7 @@ if (!isUserConnected()) {
                       <li><a href="<?= SITE_PATH.'contact.php'; ?>" title="Contactez-nous" data-toggle="tooltip" data-placement="bottom">Contact</a></li>
 
                       <li data-toggle="<?= $popover; ?>" data-placement="bottom" data-content="Pour déposer une annonce, veuillez-vous connecter.">
-                        <a class="btn btn-primary <?= $disabled; ?>" href="<?=SITE_PATH;?>admin/annonce-edit.php">
+                        <a class="btn btn-primary <?= $disabled; ?>" href="<?=SITE_PATH;?>annonce-edit.php">
                           Déposer une annonce
                         </a>
                       </li>
@@ -193,9 +193,9 @@ if (!isUserConnected()) {
                         <?php else : ?>
 
                           <li class="dropdown">
-                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                              <i class="fa fa-user fa-fw"></i>
-                              Espace membre
+                            <a class="dropdown-toggle btn btn-primary" data-toggle="dropdown" href="#">
+                              <i class="fa fa-sign-in"></i>&nbsp;
+                              Connexion / Inscription&nbsp;
                               <i class="fa fa-caret-down"></i>
                             </a>
                             <ul class="dropdown-menu dropdown-user">

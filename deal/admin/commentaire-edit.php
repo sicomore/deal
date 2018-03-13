@@ -29,7 +29,6 @@ if (!empty($_GET)) {
       .'JOIN membre m ON m.id = a.membre_id WHERE c.id = '. (int)$_GET['id'];
       $stmt = $pdo->query($req);
       $commentaire = $stmt->fetch();
-      // var_dump($commentaire);
     }
   }
 

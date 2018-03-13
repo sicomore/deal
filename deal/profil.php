@@ -1,20 +1,19 @@
 <?php
 require_once __DIR__.'/include/init.php';
 
+// Blocage de sécurité : réservé aux admin et au membre concerné
 if (!isUserConnected() || !isUserAdmin() && isset($_GET['id'])) {
+  setFlashMessage('Vous ne pouvez accéder à cette page.', 'warning');
   header('Location: index.php');
   die;
-}
-
-// var_dump($_POST);
-
-if (isset($_GET['id'])) {
+} elseif (isset($_GET['id'])) {
   $idMembre = (int)$_GET['id'];
 } else {
   $idMembre = $_SESSION['membre']['id'];
 }
 
 $civilite = $role = $pseudo = $nom = $prenom = $email = $idAnnonce = $telephone = '';
+
 
 if (!empty($_POST) && isset($_POST['infosSubmit'])) {
   sanitizePost();
@@ -451,7 +450,7 @@ include __DIR__.('/layout/top.php');
           <h5 class="">Catégorie : <?= $infoAnnonce['titreCategorie']; ?></h5>
           <p class=""><?= $infoAnnonce['description_courte']; ?></p>
           <em class=""><h5>Adresse : <?= $infoAnnonce['adresse'].' '. $infoAnnonce['code_postal'].' '. $infoAnnonce['ville']; ?></h5></em>
-          <p><a href=" <?= SITE_PATH.'annonce-fiche.php?id='.$infoAnnonce['idAnnonce'] ;?>">Modifier l'annonce</a></p>
+          <p><a href=" <?= SITE_PATH.'annonce-edit.php?id='.$infoAnnonce['idAnnonce'] ;?>">Modifier l'annonce</a></p>
         </div>
 
         <!-- Options d'activation / désactivation de l'annonce -->
@@ -486,13 +485,11 @@ include __DIR__.('/layout/top.php');
       $stmtComment->bindValue(':idAnnonce', $infoAnnonce['idAnnonce']);
       $stmtComment->execute();
       $infosCommentaires = $stmtComment->fetchAll();
-      // var_dump($infosCommentaires);
 
       foreach ($infosCommentaires as $infoCommentaire) :
         if (isset($infoCommentaire['idCommentaire'])) :
           if ($infoCommentaire['idAnnonce'] == $infoAnnonce['idAnnonce']) :
             ?>
-            <!-- <div class="row"> -->
             <div class="row" id="commentairesAnnonces">
               <div class="panel panel-default">
                 <div class="panel-heading col-sm-4">
@@ -509,8 +506,8 @@ include __DIR__.('/layout/top.php');
                     if (isUserConnected() && $infoCommentaire['idVendeur'] == $_SESSION['membre']['id']) :
                       ?>
                       <form>
-                        <input type="hidden" name="idAnnonce" value="<?= $infoCommentaire['idAnnonce'] ;?>">
-                        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modal_commentaire" id="submitReponse" value="<?php echo $infoCommentaire['idAnnonce'] ;?>" data-idMembre="<?= $_SESSION['membre']['id'] ;?>">
+                        <!-- <input type="hidden" name="idAnnonce" value="< ?= $infoCommentaire['idAnnonce'] ;?>"> -->
+                        <button type="button" class="btn btn-primary boutonComment pull-right" data-toggle="modal" data-target="#modal_commentaire" value="<?php echo $infoCommentaire['idAnnonce'] ;?>" data-idMembre="<?= $_SESSION['membre']['id'] ;?>">
                           Répondre au commentaire
                         </button>
                       </form>
@@ -525,26 +522,9 @@ include __DIR__.('/layout/top.php');
       </div>
     <?php endforeach; ?>
   <?php endif; ?>
-
-
-  <!--========== Présetation sous forme de liste ==========-->
-
-  <!-- <div class="row" id="listeAnnonces">
-  <div class="col-sm-3">
-  <img src="< ?= SITE_PATH.'photos/'.$infoAnnonce['photo']; ?>" alt="photo de < ?= $infoAnnonce['titreAnnonce']; ?>" style="max-width: 180px">
 </div>
 
-<div class="col-sm-10">
-<h4 class="col-sm-8">< ?= $infoAnnonce['titreAnnonce']; ?></h4>
-<h5 class="col-sm-4 pull-right">Catégorie : < ?= $infoAnnonce['titreCategorie']; ?></h5>
-<p class="col-sm-12">< ?= $infoAnnonce['description_courte']; ?></p>
-<em class="col-sm-12"><h5>Adresse : < ?= $infoAnnonce['adresse'].' '. $infoAnnonce['code_postal'].' '. $infoAnnonce['ville']; ?></h5></em>
-</div>
-</div> -->
-</div>
-
-</div>
-
+</div>  <!-- END page-wrapper  -->
 
 <?php
 include __DIR__.('/layout/bottom.php');

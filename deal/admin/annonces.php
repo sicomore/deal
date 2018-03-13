@@ -4,9 +4,10 @@ adminSecurity();
 
 $triSelect = 'a.id desc';
 
-if ($_POST) {
-  extract($_POST);
+if ($_GET) {
+  extract($_GET);
 }
+var_dump($_GET);
 
 // Select des tris
 $req = 'SELECT * FROM tri';
@@ -69,10 +70,10 @@ include __DIR__ .'/../layout/top.php';
     <div class="panel panel-default">
       <div class="panel-heading">
         <!-- Select de tri -->
-        <form class="form-inline" method="post">
+        <form class="form-inline" method="get" action="annonces.php">
           <label for="">Trier par ...</label>
-          <div class="input-group">
-            <select class="form-control" name="triSelect" id="triSelect">
+          <div class="form-group">
+            <select class="form-control" name="triSelect" id="tri">
               <?php
               foreach ($tris as $tri) :
                 $selected = ($tri['tri'] == $triSelect) ? 'selected' : '';
@@ -81,38 +82,14 @@ include __DIR__ .'/../layout/top.php';
               endforeach;
               ?>
             </select>
-            <span class="input-group-btn">
+            <span class="form-group-btn">
               <button class="btn btn-primary form-group-btn pull-right" type="submit"><i class="fa fa-sort"></i> Trier</button>
             </span>
           </div>
-        </form>
+        <!-- </form> -->
       </div>
 
       <div class="panel-body liste_annonces">
-
-        <table width="100%" class="table table-striped table-bordered table-hover" id="dataTables-example">
-          <thead>
-            <tr>
-              <th>N°</th>
-              <th>Photo</th>
-              <th>Titre</th>
-              <th>Catégorie</th>
-              <th>Description courte</th>
-              <th>Description longue</th>
-              <th>Prix (€)</th>
-              <th>Adresse</th>
-              <th>Code Postal</th>
-              <th>Ville</th>
-              <th>Région</th>
-              <th>Membre</th>
-              <th>Date de parution</th>
-              <th>Options</th>
-            </tr>
-          </thead>
-          <tbody id="donnees">
-          </tbody>
-        </table>
-
 
         <table width="100%" class="table table-striped table-bordered table-hover" id="dataTables-example">
           <thead>
@@ -159,7 +136,7 @@ include __DIR__ .'/../layout/top.php';
                     <i class="fa fa-search"></i>
                   </a>
                   <?php if (isUserAdmin()) : ?>
-                    <a href="<?= SITE_PATH ?>admin/annonce-edit.php?id=<?= $annonce['id'] ?>" class="btn btn-warning" title="Modifier l'annonce" data-toggle="tooltip" data-placement="left">
+                    <a href="<?= SITE_PATH ?>annonce-edit.php?id=<?= $annonce['id'] ?>" class="btn btn-warning" title="Modifier l'annonce" data-toggle="tooltip" data-placement="left">
                       <i class="fa fa-edit"></i>
                     </a>
                     <a href="<?= SITE_PATH ?>admin/annonce-delete.php?id=<?= $annonce['id'] ?>" class="btn btn-danger" title="Supprimer l'annonce" data-toggle="tooltip" data-placement="left">
@@ -177,10 +154,10 @@ include __DIR__ .'/../layout/top.php';
     </div> <!-- end panel -->
 
     <nav aria-label="page navigation" id="pagination">
-      <form method="get">
+      <!-- <form method="get"> -->
         <ul class="pagination pagination-lg">
           <li <?= (($pageChoisie-1)<=0) ? 'class="disabled"' : '' ; ?>>
-            <a href="annonces.php?p=<?= (($pageChoisie-1)<=0) ? 1 : $pageChoisie-1 ; ?>" aria-label="Previous">
+            <a type="submit" href="annonces.php?p=<?= (($pageChoisie-1)<=0) ? 1 : $pageChoisie-1 ; ?>" aria-label="Previous">
               <span aria-hidden="true">&laquo;</span>
             </a>
           </li>
@@ -189,15 +166,14 @@ include __DIR__ .'/../layout/top.php';
 
             if($i == $pageChoisie) {
 
-              echo '<li class="active" name="'.$i.'"><a href="annonces.php?p='.$i.'">'.$i.'</a></li>';
+              echo '<li class="active" name="'.$i.'"><a type="submit" href="annonces.php?p='.$i.'">'.$i.'</a></li>';
             }	else {
-              echo '<li name="'.$i.'"><a href="annonces.php?p='.$i.'">'.$i.'</a></li>';
-              // echo '<li name="'.$i.'"><a href="annonces.php?p='.$i.'">'.$i.'</a></li>';
+              echo '<li name="'.$i.'"><a type="submit" href="annonces.php?p='.$i.'">'.$i.'</a></li>';
             }
           }
           ?>
           <li <?= ($pageChoisie >= $nbPages) ? 'class="disabled"' : '' ; ?>>
-            <a href="annonces.php?p=<?= ($pageChoisie > $nbPages) ? '' : $pageChoisie+1; ?>" aria-label="Next">
+            <a type="submit" href="annonces.php?p=<?= ($pageChoisie > $nbPages) ? '' : $pageChoisie+1; ?>" aria-label="Next">
               <span aria-hidden="true">&raquo;</span>
             </a>
           </li>
