@@ -262,6 +262,7 @@ include __DIR__.('/layout/top.php');
               <p><img src="<?= PHOTO_WEB . $photoActuelle; ?>" alt="photo de l'annonce" height="150px"></p>
 
               <?php
+              echo $photoActuelle;
             endif;
             ?>
 

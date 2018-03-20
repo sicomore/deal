@@ -3,13 +3,13 @@ require_once __DIR__.'/include/init.php';
 
 $photoActuelle = $commentaire = $avis = $note = '';
 
-// var_dump($_POST);
-
 $errors = [];
 
 if (!empty($_POST)) {
   sanitizePost();
   extract($_POST);
+
+
 }
 
 // Requête de toutes les informations concernant l'annonce et le vendeur -----------------------------
@@ -30,91 +30,21 @@ $reqCommentaires = 'SELECT c.id idCommentaire, c.commentaire commentaire, c.memb
 .'c.date_enregistrement date_enregistrement, c.annonce_id idAnnonce, m.pseudo pseudo, a.membre_id idVendeur '
 .'FROM commentaire c JOIN membre m ON m.id = c.membre_id '
 .'JOIN annonce a ON a.id = c.annonce_id '
-.'WHERE c.annonce_id = '.(int)$_GET['id'];
-
-// // Complément requête pour vérifier que le commentaire n'est pas posté 2x par le mm membre
-// if (!empty($_POST['commentaire'])) {
-//   $reqDoublon = $reqCommentaires .' AND c.membre_id = '.$_SESSION['membre']['id'].' AND c.commentaire = '
-//   .$pdo->quote($_POST['commentaire']);
-//   $stmt = $pdo->query($reqDoublon);
-//   $stmt->fetchAll();
-//   $commentDoublon = $stmt->rowCount();
-// }
-
-$reqCommentaires .= ' ORDER BY c.id DESC';
+.'WHERE c.annonce_id = '.(int)$_GET['id']
+.' ORDER BY c.id DESC';
 $stmt = $pdo->query($reqCommentaires);
 $commentTous = $stmt->fetchAll();
 
-// // Enregistrement du commentaire dans la table éponyme
-// if (!empty($_POST['commentaire']) && ($commentDoublon == 0)) {
-//   $req = 'INSERT INTO commentaire(commentaire, membre_id, annonce_id) VALUES (:commentaire, :membre_id, :annonce_id)';
-//   $stmt = $pdo->prepare($req);
-//   $stmt->bindValue(':commentaire', $_POST['commentaire']);
-//   $stmt->bindValue(':membre_id', $_SESSION['membre']['id']);
-//   $stmt->bindValue(':annonce_id', $annonce['id']);
-//   $stmt->execute();
-//   $success = true;
-// }
 
 
-// MAJ de la disponibilité de l'annonce -----------------------------------------------------------------
-// if (!empty($_POST['dispo'])) {
-//   $req = 'UPDATE annonce SET dispo = :dispo WHERE id = :id';
-//   $stmt = $pdo->prepare($req);
-//   $stmt->bindValue(':dispo', $_POST['dispo']);
-//   $stmt->bindValue(':id', (int)$_GET['id']);
-//   $stmt->execute();
-//   $success = true;
-//
-// }
 
-
-// Requête sur la table notes ---------------------------------------------------------------------
-// if (!empty($avis) || !empty($note)) {
-//
-//   $req = 'SELECT * FROM notes WHERE membre_id2 = '.$annonce['membre_id'].' AND membre_id1 = '. $_SESSION['membre']['id'];
-//   $stmt = $pdo->query($req);
-//   $stmt->fetchAll();
-//
-//   // Enregistrement de la note et de l'avis dans la table Note
-//   // membre_id1 = le notant
-//   // membre_id2 = le noté
-//   if ($stmt->rowCount() < 1) {
-//
-//     $req = 'INSERT INTO notes(note, avis, membre_id1, membre_id2, date_enregistrement) '
-//     .'VALUES (:note, :avis, :membre_id1, :membre_id2, now())';
-//     $stmt = $pdo->prepare($req);
-//     $stmt->bindValue(':note', $note);
-//     $stmt->bindValue(':avis', $avis);
-//     $stmt->bindValue(':membre_id1', $_SESSION['membre']['id']);
-//     $stmt->bindValue(':membre_id2', $annonce['membre_id']);
-//     $stmt->execute();
-//     $success = true;
-//
-//     // Mise à jour de la table notes
-//   } else {
-//     if (empty($note)) {
-//       $MAJ = ' avis = '.$pdo->quote($avis).',';
-//
-//     } elseif (empty($avis)) {
-//       $MAJ = ' note = '.$note.',';
-//
-//     } else {
-//       $MAJ = ' note = '.$note.', avis = '.$pdo->quote($avis).',';
-//     }
-//
-//     $req = 'UPDATE notes SET'. $MAJ .' date_enregistrement = now() WHERE membre_id1 = :idClient AND membre_id2 = :idVendeur';
-//     $stmt = $pdo->prepare($req);
-//     $stmt->bindValue(':idClient', $_SESSION['membre']['id']);
-//     $stmt->bindValue(':idVendeur', $annonce['membre_id']);
-//     $stmt->execute();
-//     $success = true;
-//   }
-// }
-
-// Requête pour afficher les "Autres annonces" autre que celle affichée
+// Requête pour afficher les "Autres annonces" (autre que celle affichée) ---------------------------------
 $req = <<<EOS
-SELECT a.*, a.titre titre_annonce FROM annonce a JOIN categorie c ON c.id = a.categorie_id WHERE a.id != ? AND c.id = (SELECT categorie_id FROM annonce WHERE id = ?) LIMIT 4
+SELECT a.*, a.titre titre_annonce
+FROM annonce a JOIN categorie c ON c.id = a.categorie_id
+WHERE a.id != ? AND c.id =
+      (SELECT categorie_id FROM annonce WHERE id = ?)
+LIMIT 4
 EOS;
 $stmt = $pdo->prepare($req);
 $stmt->bindValue(1, $_GET['id']);
@@ -221,7 +151,7 @@ include __DIR__.('/layout/top.php');
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h4 class="modal-title" id="modalLabel">Contacter le vendeur</h4>
+        <h4 class="modal-title" id="modalLabel">Contacter <?= $annonce['pseudo']; ?></h4>
       </div>
 
       <form method="post">
@@ -236,14 +166,18 @@ include __DIR__.('/layout/top.php');
             <div class="col-xs-12">
               <div class="form-group">
                 <label for="message">Par mail</label>
-                <textarea name="message" class="form-control" rows="5" id="message" placeholder="Laisser un message au vendeur"></textarea>
+                <textarea name="message" class="form-control" rows="5" id="message" placeholder="Laisser un message au vendeur" autofocus></textarea>
               </div>
             </div>
           </div>
 
+          <input type="hidden" name="idClient" value="<?= $_SESSION['membre']['id']; ?>">
+          <input type="hidden" name="idAnnonce" value="<?= $annonce['id']; ?>">
+          <input type="hidden" name="idVendeur" value="<?= $annonce['idVendeur']; ?>">
+
           <div class="row modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Annuler</button>
-            <button type="submit" class="btn btn-success">Envoyer</button>
+            <button type="submit" name="messageSubmit" id="messageSubmit" class="btn btn-success">Envoyer</button>
           </div>
         </div>
       </form>
@@ -254,6 +188,7 @@ include __DIR__.('/layout/top.php');
 <!--========================= Fin du modal tél et mail =========================-->
 
 <div class="container-fluid" id="page-wrapper">
+
 
   <?php
   displayFlashMessage();

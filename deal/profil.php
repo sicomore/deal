@@ -113,16 +113,6 @@ if (!empty($_POST) && isset($_POST['infosSubmit'])) {
   }
 }
 
-// // MAJ de la disponibilité de l'annonce -----------------------------------------------
-// if (isset($_POST['dispoSubmit'])) {
-//   $req = 'UPDATE annonce SET dispo = :dispo WHERE id = :id';
-//   $stmt = $pdo->prepare($req);
-//   $stmt->bindValue(':dispo', $_POST['dispo']);
-//   $stmt->bindValue(':id', $_POST['dispoIdAnnonce']);
-//   $stmt->execute();
-//   $success = true;
-// }
-
 
 // Recueil des informations du vendeur à afficher
 $req = 'SELECT * FROM membre m WHERE m.id = '. $idMembre;
@@ -455,7 +445,7 @@ include __DIR__.('/layout/top.php');
 
         <!-- Options d'activation / désactivation de l'annonce -->
         <div class="col-auto">
-          <?php  if (isUserConnected() && $_SESSION['membre']['id'] == $infoAnnonce['idVendeur'] || isUserAdmin()) : ?>
+          <!-- < ?php  if (isUserConnected() && $_SESSION['membre']['id'] == $infoAnnonce['idVendeur'] || isUserAdmin()) : ?>
 
             <form class="form" method="post">
               <input type="hidden" name="dispoIdAnnonce" value=" < ?= $infoAnnonce['idAnnonce']; ?> ">
@@ -463,19 +453,18 @@ include __DIR__.('/layout/top.php');
                 <div class="btn-group btn-group-vertical">
                   <div class="btn btn-success">
                     <label>
-                      <input class="<?php echo $infoAnnonce['idAnnonce']; ?>" type="radio" name="dispo" value= <?= ($infoAnnonce['dispo'] == 'active') ? '"active" checked' : '"active"' ;?>>Annonce activée
+                      <input class="< ?php echo $infoAnnonce['idAnnonce']; ?>" type="radio" name="dispo" value= < ?= ($infoAnnonce['dispo'] == 'active') ? '"active" checked' : '"active"' ;?>>Annonce activée
                     </label>
                   </div>
                   <div class="btn btn-danger">
                     <label>
-                      <input class="<?php echo $infoAnnonce['idAnnonce']; ?>" type="radio" name="dispo" value=<?= ($infoAnnonce['dispo'] == 'inactive') ? '"inactive" checked' : '"inactive"' ;?>>Annonce désactivée
+                      <input class="< ?php echo $infoAnnonce['idAnnonce']; ?>" type="radio" name="dispo" value=< ?= ($infoAnnonce['dispo'] == 'inactive') ? '"inactive" checked' : '"inactive"' ;?>>Annonce désactivée
                     </label>
                   </div>
-                  <!-- <input class="btn btn-primary" name="dispoSubmit" type="submit" value"Valider"> -->
                 </div>
               </div>
             </form>
-          <?php endif; ?>
+          < ?php endif; ?> -->
         </div>
 
       </div>

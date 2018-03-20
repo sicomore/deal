@@ -7,7 +7,6 @@ $triSelect = 'a.id desc';
 if ($_GET) {
   extract($_GET);
 }
-var_dump($_GET);
 
 // Select des tris
 $req = 'SELECT * FROM tri';

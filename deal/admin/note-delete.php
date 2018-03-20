@@ -13,7 +13,7 @@ if (empty($id)) {
   $req = 'DELETE FROM notes WHERE id = '.(int)$_GET['id'];
   $pdo->exec($req);
 
-  setFlashMessage("La note a bien été supprimée.");
+  setFlashMessage("La note et l'avis ".(int)$_GET['id']." ont bien été supprimés.");
 }
 
 header('Location: notes.php');

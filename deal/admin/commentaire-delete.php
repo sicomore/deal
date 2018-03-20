@@ -10,7 +10,7 @@ if ($comment == 1) {
   $req = 'DELETE FROM commentaire WHERE id = '.(int)$_GET['id'];
   $pdo->exec($req);
 
-  setFlashMessage("Le commentaire a bien été supprimé.");
+  setFlashMessage("Le commentaire ".(int)$_GET['id']." a bien été supprimé.");
 } else {
   setFlashMessage("Le commentaire que vous avez sélectionné n'existe pas ou plus.", 'error');
 }

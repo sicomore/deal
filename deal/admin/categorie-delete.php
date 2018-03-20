@@ -24,7 +24,7 @@ if (!$nb) {
 } else {
   setFlashMessage('La catégorie '.$cat['titre'].' ne peut être supprimée car elle contient des annonces.', 'error');
 }
-displayFlashMessage();
+// displayFlashMessage();
 
 header('Location: categorie.php');
 die;

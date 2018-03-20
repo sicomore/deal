@@ -84,55 +84,56 @@ include __DIR__.('/layout/top.php');
 
   <!--================= FORMULAIRE D'INSCRIPTION =================-->
 
-  <div class="col-sm-6 col-sm-offset-3">
+  <div class="col-sm-3">
+    <h4>Laissez vos messages, commentaires ou questions à propos de notre site via ce formulaire.</h4>
+    <p><i>(les champs contenant une * sont obligatoires)</i></p>
+  </div>
+
+  <div class="col-sm-6">
     <form class="contact" method="post">
       <div class="row">
 
-        <!-- <div class="form-group col-auto">
-        <input name="pseudo" value="< ?= $pseudo ;?>" type="text" class="form-control" id="pseudo" placeholder="Votre pseudo (ex: 'janest')" autofocus>
-      </div> -->
+        <div class="row">
+          <div class="btn-group col-sm-2" data-toggle="buttons">
+            <label class="btn btn-default civilite <?= ($civilite == 'Mme') ? 'active' : ''; ?>">
+              <input type="radio" name="civilite" value="Mme" id="femme" <?= ($civilite == 'Mme') ? 'checked' : '' ;?>> Mme
+            </label>
+            <label class="btn btn-default civilite <?= ($civilite == 'M.') ? 'active' : ''; ?>">
+              <input type="radio" name="civilite" value="M." id="homme"<?= ($civilite == 'M.') ? 'checked' : '' ;?>> M.
+            </label>
+          </div>
 
-      <div class="row">
-        <div class="btn-group col-sm-2" data-toggle="buttons">
-          <label class="btn btn-default civilite <?= ($civilite == 'Mme') ? 'active' : ''; ?>">
-            <input type="radio" name="civilite" value="Mme" id="femme" <?= ($civilite == 'Mme') ? 'checked' : '' ;?>> Mme
-          </label>
-          <label class="btn btn-default civilite <?= ($civilite == 'M.') ? 'active' : ''; ?>">
-            <input type="radio" name="civilite" value="M." id="homme"<?= ($civilite == 'M.') ? 'checked' : '' ;?>> M.
-          </label>
+          <div class="form-group col-sm-5">
+            <input name="nom" value="<?= $nom ;?>" type="text" class="form-control" id="nom" aria-describedby="name" placeholder="Votre nom * (ex: Anest)" autofocus>
+          </div>
+          <div class="form-group col-sm-5">
+            <input name="prenom" value="<?= $prenom ;?>" type="text" class="form-control" id="prenom" aria-describedby="forname" placeholder="Votre prénom (ex: Julien)">
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group col-sm-12">
+            <input name="email" value="<?= $email ;?>" type="email" class="form-control" id="email" aria-describedby="email" placeholder="Votre email * (ex: janest@mail.com)">
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group col-sm-12">
+            <input name="sujet" value="<?= $sujet ;?>" type="text" class="form-control" id="sujet" aria-describedby="subject" placeholder="Sujet de votre demande * (ex: Demande d'informations)">
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group col-sm-12">
+            <textarea name="message" class="form-control" rows="8" cols="80" placeholder="Votre message *"><?= $message ;?></textarea>
+          </div>
         </div>
 
-        <div class="form-group col-sm-5">
-          <input name="nom" value="<?= $nom ;?>" type="text" class="form-control" id="nom" aria-describedby="name" placeholder="Votre nom * (ex: Anest)" autofocus>
+        <div class="pull-right">
+          <a href="index.php" class="btn btn-default" type="cancel">Annuler</a>
+          <button type="submit" class="btn btn-primary pull-right">Envoyer</button>
         </div>
-        <div class="form-group col-sm-5">
-          <input name="prenom" value="<?= $prenom ;?>" type="text" class="form-control" id="prenom" aria-describedby="forname" placeholder="Votre prénom (ex: Julien)">
-        </div>
-      </div>
-      <div class="row">
-        <div class="form-group col-sm-12">
-          <input name="email" value="<?= $email ;?>" type="email" class="form-control" id="email" aria-describedby="email" placeholder="Votre email * (ex: janest@mail.com)">
-        </div>
-      </div>
-      <div class="row">
-        <div class="form-group col-sm-12">
-          <input name="sujet" value="<?= $sujet ;?>" type="text" class="form-control" id="sujet" aria-describedby="subject" placeholder="Sujet de votre demande * (ex: Demande d'informations)">
-        </div>
-      </div>
-      <div class="row">
-        <div class="form-group col-sm-12">
-          <textarea name="message" class="form-control" rows="8" cols="80" placeholder="Votre message *"><?= $message ;?></textarea>
-        </div>
-      </div>
 
-      <div class="pull-right">
-        <a href="index.php" class="btn btn-default" type="cancel">Annuler</a>
-        <button type="submit" class="btn btn-primary pull-right">Envoyer</button>
       </div>
-
-    </div>
-  </form>
-</div>
+    </form>
+  </div>
 
 </div>
 

@@ -55,58 +55,66 @@ $(function() {
   });
 
 
-  $('#triSelect').val([name = "triSelect"]).change( function(event) {
-    event.preventDefault();
+  // $('#triSelect').val([name = "triSelect"]).change( function(event) {
+  //   event.preventDefault();
+  //
+  //   // console.log('ça marche !');
+  //
+  //   $.ajax({
+  //
+  //     url: 'include/select-tri.php?triSelect=',
+  //     method: 'GET',
+  //     data: $("#triSelect option:selected").val().toLowerCase(),
+  //     // $(this).serialize(),
+  //     // {tri_annonces: },
+  //     dataType: 'json',
+  //     success: function(annonces, success) {
+  //       console.log('Connexion : '+success);
+  //       console.log('retour réussi !');
+  //       // console.log(annonces);
+  //
+  //     }
+  //   });
+  // });
 
-    // console.log('ça marche !');
 
-    $.ajax({
-
-      url: 'include/select-tri.php?triSelect=',
-      method: 'GET',
-      data: $("#triSelect option:selected").val().toLowerCase(),
-      // $(this).serialize(),
-      // {tri_annonces: },
-      dataType: 'json',
-      success: function(annonces, success) {
-        console.log('Connexion : '+success);
-        console.log('retour réussi !');
-        // console.log(annonces);
-
-      }
-    });
-  });
-
-
+  // ---------------------------------------------------------------
   // Mise à jour de la disponibilité de l'annonce par AJAX sur page annonce-fiche.php -------------------
 
-  $('input[name="dispo"]').on('click', function (event) {
+  $('input[name="dispo"]').each( function () {
+    var valeur = $(this).val();
+    console.log(valeur);
 
-    event.preventDefault();
+    $(this).on('click', function (event) {
 
-    var active = $('input[name="dispo"]:checked').val();
-    var annonce_id = $(this).attr('class');
-    console.log(active);
-    console.log(annonce_id);
+      event.preventDefault();
 
-    $.post(
-      'dist/xhr/disponibilite.php',
-      {
-        dispo : active,
-        idAnnonce: annonce_id
-      },
-      function (reponse) {
-        console.log(reponse);
+      var active = $('input[name="dispo"]:checked').val();
+      var annonce_id = $(this).attr('class');
+      console.log(active);
+      console.log(annonce_id);
 
-        $('#dispoMAJ').append(reponse);
+      $.post(
+        'dist/xhr/disponibilite.php',
+        {
+          dispo : active,
+          idAnnonce: annonce_id
+        },
+        function (reponse) {
+          console.log(reponse);
 
-      },
-      'text'
-    );
+          $('#dispoMAJ').append(reponse);
+
+        },
+        'text'
+      );
+    });
+
   });
 
-
-  // Réponse au commentaire dans la page profil.php -------------------
+  // --------------------------------------------------------------------
+  // Réponse au commentaire dans la page profil.php et annonce-fiche.php
+  // --------------------------------------------------------------------
 
   var bouton = document.querySelectorAll('.boutonComment');
   for (i=0; i<bouton.length; i++) {
@@ -130,7 +138,6 @@ $(function() {
         event.preventDefault();
         $.post(
           'dist/xhr/commentaireNoteAvis.php',
-          // 'dist/xhr/commentaireReponse.php',
           {
             idAnnonce: idAnnonce,
             idMembre: idMembre,
@@ -149,9 +156,66 @@ $(function() {
         );
       });
     }
-  }
+  };
 
+  // --------------------------------------------------------------------
+  // Envoi de mail au propriétaire de l'annonce dans annonce-fiche.php
+  // --------------------------------------------------------------------
 
+  $('#messageSubmit').click( function (event) {
+
+    var message = $('#message').val();
+    var idClient = $('input[name="idClient"]').val();
+    var idVendeur = $('input[name="idVendeur"]').val();
+    var idAnnonce = $('input[name="idAnnonce"]').val();
+    console.log(message);
+    console.log(idClient);
+    console.log(idAnnonce);
+    console.log(idVendeur);
+
+    event.preventDefault();
+    $.post(
+      'dist/xhr/commentaireNoteAvis.php',
+      {
+        message: message,
+        idClient: idClient,
+        idVendeur: idVendeur,
+        idAnnonce: idAnnonce
+      },
+      function (reponse) {
+        console.log(reponse);
+        $('button[class="close"]').trigger('click');
+        $('#dispoMAJ').html(reponse);
+        $('#message').val('');
+      },
+      'html'
+    );
+  });
+
+  // Autocompletion dans la zone de recherche de la navbar --------------------------
+  //
+  // $('#input-recherche').on('keyup', function (event) {
+  //
+  //   var zone = $('#input-recherche').val().trim();
+  //
+  //   if (zone !== '') {
+  //     console.log(zone);
+  //
+  //     event.preventDefault();
+  //
+  //
+  //     $.post(
+  //       'dist/xhr/recherche.php',
+  //       {
+  //         mot: zone
+  //       },
+  //       function (reponse) {
+  //         console.log(reponse);
+  //       },
+  //       'html'
+  //     );
+  //   }
+  // });
 
 
   // Tri de la liste des annnonces dans la page annonces.php ----------------------------------------------
@@ -179,63 +243,14 @@ $(function() {
   //   });
 
 
-    // Autocompletion dans la zone de recherche de la navbar --------------------------
-    // function evenement(event) {
-    //   $('#zone-de-chargement').html('');
-    //
-    //   if ($('#q').val().trim() !== '') {
-    //
-    //     console.log('Soumission du formulaire');
-    //     event.preventDefault();
-    //
-    //     jQuery.ajax({
-    //       url: 'xhr/langages.php', // L'URL du fichier texte.
-    //       method: 'GET', // La méthode est du GET.
-    //       data: {
-    //         q: $('#q').val()
-    //       }, // Pas de données à envoyer.
-    //       dataType: 'json', // Le type de données attendu.
-    //       success: function(donnees) {
-    //         // Fonction exécutée en cas de succés.
-    //         // Deboggage des données reçues dans la console.
-    //
-    //         if (donnees.length) {
-    //
-    //           // var suggestions = '<ul>';
-    //           // for (var i = 0; data[i]; i++) {
-    //           //   suggestions += '<li>' + data[i] + '</li>';
-    //           // }
-    //           // suggestions += '</ul>';
-    //           // $('#suggestions').html(suggestions);
-    //
-    //           var liste = $('#zone-de-chargement').append('<ul>');
-    //           for (var i = 0; i < donnees.length; i++) {
-    //             liste = liste.append('<li>' + donnees[i] + '</li>');
-    //           }
-    //           liste += '</ul>';
-    //           console.log(liste);
-    //         }  else {
-    //           $('#zone-de-chargement').html('<p><em>Aucun résultat<em></p>');
-    //         }
-    //       },
-    //       error : function (error) {
-    //         console.log(error);
-    //       }
-    //     });
-    //   }
-    // }
-    //
-    // jQuery('form').on('keyup', function (event) {
-    //   evenement(event);
-    // });
 
 
 
-    // Table des annonces responsive dans annonces.php
-    // $('#tableAnnonces').DataTable({
-    //   responsive: true
-    // });
+  // Table des annonces responsive dans annonces.php
+  // $('#tableAnnonces').DataTable({
+  //   responsive: true
+  // });
 
 
 
-  });  //end DOM Ready
+});  //end DOM Ready

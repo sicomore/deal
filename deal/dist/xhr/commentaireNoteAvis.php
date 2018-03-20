@@ -73,13 +73,29 @@ if (!empty($_POST['avis']) || !empty($_POST['note'])) {
       $MAJ = ' note = '.$_POST['note'].', avis = '.$pdo->quote($_POST['avis']).',';
     }
 
-    $req = 'UPDATE notes SET'. $MAJ .' date_enregistrement = now() WHERE membre_id1 = :idClient AND membre_id2 = :idVendeur';
+    $req = 'UPDATE notes SET'. $MAJ .' date_enregistrement = now() '
+    .'WHERE membre_id1 = :idClient AND membre_id2 = :idVendeur';
     $stmt = $pdo->prepare($req);
     $stmt->bindValue(':idClient', $_SESSION['membre']['id']);
     $stmt->bindValue(':idVendeur', $_POST['idVendeur']);
     $stmt->execute();
     $messages[] = 'Votre note et/ou votre avis a bien été pris en compte.';
   }
+}
+
+if (!empty($_POST['message'])) {
+  sanitizePost();
+
+  $req = 'INSERT INTO mail(message, membre_id1, membre_id2, annonce_id) '
+  .'VALUES (:message, :membre_id1, :membre_id2, :annonce_id)';
+  $stmt = $pdo->prepare($req);
+  $stmt->bindValue(':message', $_POST['message']);
+  $stmt->bindValue(':membre_id1', $_POST['idClient']);
+  $stmt->bindValue(':membre_id2', $_POST['idVendeur']);
+  $stmt->bindValue(':annonce_id', $_POST['idAnnonce']);
+  $stmt->execute();
+  $messages[] = 'Votre message a bien été envoyé au propriétaire de l\'annonce.';
+
 }
 
 if (!empty($messages)) {

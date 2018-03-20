@@ -143,32 +143,19 @@ if (!isUserConnected()) {
 
                     <ul class="nav navbar-nav navbar-right">
 
-                      <form class="navbar-form navbar-left">
+                      <form id="form-recherche" class="navbar-form navbar-left">
                         <div class="form-group">
                           <div class="input-group custom-search-form">
-                            <input type="text" class="form-control" placeholder="Recherche...">
+                            <input type="text" name="search" id="input-recherche" class="form-control" placeholder="Recherche...">
                             <span class="input-group-btn">
-                              <button class="btn btn-default" type="button">
+                              <button class="btn btn-default" type="button" id="bouton-search">
                                 <i class="fa fa-search"></i>
                               </button>
                             </span>
                           </div>
-
-                          <!-- <input type="text" class="form-control" placeholder="Search"> -->
                         </div>
-                        <!-- <button type="submit" class="btn btn-default">Submit</button> -->
                       </form>
 
-                      <!-- <li class="sidebar-search">
-                        <div class="input-group custom-search-form">
-                          <input type="text" class="form-control" placeholder="Recherche...">
-                          <span class="input-group-btn">
-                            <button class="btn btn-default" type="button">
-                              <i class="fa fa-search"></i>
-                            </button>
-                          </span>
-                        </div>
-                      </li> -->
 
                       <?php if (isUserConnected()) : ?>
 
