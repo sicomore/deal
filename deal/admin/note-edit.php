@@ -122,7 +122,7 @@ include __DIR__ .'/../layout/top.php';
 
         <div class="col-auto">
           <button class="btn btn-primary pull-right" type="submit" name="button">Enregistrer</button>
-          <a href="commentaires.php" class="btn btn-default pull-right" type="cancel">Annuler</a>
+          <a href="notes.php" class="btn btn-default pull-right" type="cancel">Annuler</a>
         </div>
       </div>
     </div>

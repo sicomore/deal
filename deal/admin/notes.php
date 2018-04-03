@@ -7,6 +7,31 @@ $req = 'SELECT n.id id, n.note note, n.avis avis, n.date_enregistrement date_enr
 .'JOIN membre mv ON mv.id = n.membre_id2 '
 .'ORDER BY n.date_enregistrement DESC';
 $stmt = $pdo->query($req);
+
+// Affichage des annonces (Pagination)
+$annoncesParPage = 10;
+$nbTotalAnnonces = $stmt->rowCount();
+$nbPages = ceil($nbTotalAnnonces/$annoncesParPage);
+
+if(isset($_GET['p']) && !empty($_GET['p'])) {
+  $pageChoisie = (int)$_GET['p'];
+  if($pageChoisie > $nbPages) {
+    $pageChoisie = $nbPages;
+  }
+} else {
+  $pageChoisie = 1;
+}
+
+if ($nbTotalAnnonces < 1) {
+  $pageChoisie = 1;
+  setFlashMessage('Aucune annonce disponible pour cette sélection', 'info');
+}
+
+$premiereAnnonce = ($pageChoisie-1) * $annoncesParPage;
+
+// Limitation des annonces à 10 par page
+$req .= ' LIMIT '.$premiereAnnonce.', '.$annoncesParPage;
+$stmt = $pdo->query($req);
 $notes = $stmt->fetchAll();
 
 
@@ -60,6 +85,35 @@ include __DIR__ .'/../layout/top.php';
     ?>
 
   </table>
+
+  <nav aria-label="page navigation" id="pagination">
+    <form method="get">
+      <ul class="pagination pagination-lg">
+        <li <?= (($pageChoisie-1)<=0) ? 'class="disabled"' : '' ; ?>>
+          <a type="submit" href="notes.php?p=<?= (($pageChoisie-1)<=0) ? 1 : $pageChoisie-1 ; ?>" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        <?php
+        for($i = 1; $i <= $nbPages; $i++) {
+
+          if($i == $pageChoisie) {
+
+            echo '<li class="active" name="'.$i.'"><a type="submit" href="notes.php?p='.$i.'">'.$i.'</a></li>';
+          }	else {
+            echo '<li name="'.$i.'"><a type="submit" href="notes.php?p='.$i.'">'.$i.'</a></li>';
+          }
+        }
+        ?>
+        <li <?= ($pageChoisie >= $nbPages) ? 'class="disabled"' : '' ; ?>>
+          <a type="submit" href="notes.php?p=<?= ($pageChoisie > $nbPages) ? '' : $pageChoisie+1; ?>" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      </ul>
+    </form>
+  </nav>
+
 </div>
 
 <?php

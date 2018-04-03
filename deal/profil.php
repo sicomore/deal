@@ -123,7 +123,7 @@ extract($infosMembre);
 // Recueil des informations des annonces à afficher
 $req = <<<EOS
 SELECT a.id idAnnonce, dispo, a.titre titreAnnonce, a.photo photo,
-description_courte, description_longue, ville, adresse, code_postal, a.membre_id idVendeur, ca.titre titreCategorie, r.nom nomRegion
+description_courte, description_longue, ville, adresse, code_postal, date_enregistrement parution, a.membre_id idVendeur, ca.titre titreCategorie, r.nom nomRegion
 FROM annonce a
 JOIN categorie ca ON ca.id = a.categorie_id
 JOIN region r ON r.id = a.region_id
@@ -435,11 +435,12 @@ include __DIR__.('/layout/top.php');
         </div>
 
         <div class="col-sm-7">
-          <h4 class=""><?= $infoAnnonce['titreAnnonce']; ?></h4>
-          <h5 class="">N° Annonce : <?= $infoAnnonce['idAnnonce']; ?></h5>
-          <h5 class="">Catégorie : <?= $infoAnnonce['titreCategorie']; ?></h5>
-          <p class=""><?= $infoAnnonce['description_courte']; ?></p>
-          <em class=""><h5>Adresse : <?= $infoAnnonce['adresse'].' '. $infoAnnonce['code_postal'].' '. $infoAnnonce['ville']; ?></h5></em>
+          <h4><?= $infoAnnonce['titreAnnonce']; ?></h4>
+          <h5>N° Annonce : <?= $infoAnnonce['idAnnonce']; ?></h5>
+          <h5>Catégorie : <?= $infoAnnonce['titreCategorie']; ?></h5>
+          <p><?= $infoAnnonce['description_courte']; ?></p>
+          <h5><em>Adresse : <?= $infoAnnonce['adresse'].' '. $infoAnnonce['code_postal'].' '. $infoAnnonce['ville']; ?></em></h5>
+          <p><i>(Date de parution: <?= strftime('%d/%m/%Y', strtotime($infoAnnonce['parution'])); ?>)</i></p>
           <p><a href=" <?= SITE_PATH.'annonce-edit.php?id='.$infoAnnonce['idAnnonce'] ;?>">Modifier l'annonce</a></p>
         </div>
 

@@ -74,7 +74,7 @@ if(isset($_POST['page']) && !empty($_POST['page'])) {
 
 if ($nbTotalAnnonces < 1) {
   $pageChoisie = 1;
-  setFlashMessage('Aucune annonce disponible pour cette sélection', 'info');
+  setFlashMessage('Aucune annonce n\'est disponible pour cette sélection', 'info');
 }
 
 $premiereAnnonce = ($pageChoisie-1) * $annoncesParPage;
@@ -100,8 +100,6 @@ include __DIR__.'/layout/top.php';
       <h1 class="page-header">Accueil</h1>
     </div>
   </div>
-
-  <?php displayFlashMessage(); ?>
 
   <form class="form-group" method="post">
     <div class="row">

@@ -193,7 +193,7 @@ include __DIR__.('/layout/top.php');
 
   <div class="row">
     <div class="col-lg-12">
-      <h1 class="page-header">Déposer une annonce</h1>
+      <h1 class="page-header">Edition de l'annonce</h1>
     </div>
   </div>
 
