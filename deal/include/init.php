@@ -14,5 +14,3 @@ require_once __DIR__.'/connexion-bdd.php';
 
 // Initialisation des fonctions utilitaires
 require_once __DIR__.'/fonctions.php';
-
-require __DIR__.'/annonce.php';
