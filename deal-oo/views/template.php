@@ -1,4 +1,9 @@
-<!DOCTYPE html>
+<?php
+require '../classes/sitePath.php';
+$sitePath = new classes\sitePath();
+ ?>
+
+ <!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -12,30 +17,30 @@
   <title>Deal - Site de petites annonce</title>
 
   <!-- Bootstrap Core CSS -->
-  <link href="<?=SITE_PATH;?>vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="<?= $sitePath->sitePath();?>vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
   <!-- MetisMenu CSS -->
-  <link href="<?=SITE_PATH;?>vendor/metisMenu/metisMenu.min.css" rel="stylesheet">
+  <link href="<?= $sitePath->sitePath();?>vendor/metisMenu/metisMenu.min.css" rel="stylesheet">
 
-  <!-- < ?php if (__FILE__ == SITE_PATH.'admin/annonces.php') : ?> -->
+  <!-- < ?php if (__FILE__ ==  $sitePath->sitePath().'admin/annonces.php') : ?> -->
 
   <!-- DataTables CSS -->
-  <link href="<?=SITE_PATH;?>vendor/datatables-plugins/dataTables.bootstrap.css" rel="stylesheet">
+  <link href="<?= $sitePath->sitePath();?>vendor/datatables-plugins/dataTables.bootstrap.css" rel="stylesheet">
 
   <!-- DataTables Responsive CSS -->
-  <link href="<?=SITE_PATH;?>vendor/datatables-responsive/dataTables.responsive.css" rel="stylesheet">
+  <link href="<?= $sitePath->sitePath();?>vendor/datatables-responsive/dataTables.responsive.css" rel="stylesheet">
 
   <!-- < ?php endif; ?> -->
 
   <!-- Custom CSS -->
-  <link href="<?=SITE_PATH;?>dist/css/general.css" rel="stylesheet">
-  <link href="<?=SITE_PATH;?>dist/css/lightbox.css" rel="stylesheet">
+  <link href="<?= $sitePath->sitePath();?>dist/css/general.css" rel="stylesheet">
+  <link href="<?= $sitePath->sitePath();?>dist/css/lightbox.css" rel="stylesheet">
 
   <!-- Morris Charts CSS -->
-  <link href="<?=SITE_PATH;?>vendor/morrisjs/morris.css" rel="stylesheet">
+  <link href="<?= $sitePath->sitePath();?>vendor/morrisjs/morris.css" rel="stylesheet">
 
   <!-- Custom Fonts -->
-  <link href="<?=SITE_PATH;?>vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+  <link href="<?= $sitePath->sitePath();?>vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
   <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet" type="text/css">
 
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -53,7 +58,7 @@
 
     <!--============================================ NAVBAR ADMIN ============================================-->
 
-    <?php if (isUserAdmin()) : ?>
+    <!-- < ?php if (isUserAdmin()) : ?> -->
       <nav class="navbar navbar-inverse">
         <div class="container-fluid">
           <div class="navbar-header">
@@ -63,36 +68,36 @@
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
             </button>
-            <a class="nav navbar-brand" href="<?= SITE_PATH; ?>index.php">Administration</a>
+            <a class="nav navbar-brand" href="<?=  $sitePath->sitePath(); ?>index.php">Administration</a>
           </div>
           <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav navbar-right">
               <li >
                 <a class="btn btn-default" href="
-                <?= SITE_PATH; ?>admin/stats.php">
+                <?=  $sitePath->sitePath(); ?>admin/stats.php">
                 Statistiques</a>
               </li>
               <li class="dropdown btn-default">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Gestion<span class="caret"></span></a>
                 <ul class="dropdown-menu">
                   <li>
-                    <a class="" href="<?= SITE_PATH; ?>admin/annonces.php">
+                    <a class="" href="<?=  $sitePath->sitePath(); ?>admin/annonces.php">
                       Annonces</a>
                     </li>
                     <li >
-                      <a class="" href="<?= SITE_PATH; ?>admin/categorie.php">
+                      <a class="" href="<?=  $sitePath->sitePath(); ?>admin/categorie.php">
                         Catégories</a>
                       </li>
                       <li >
-                        <a class="" href="<?= SITE_PATH; ?>admin/membre-edit.php">
+                        <a class="" href="<?=  $sitePath->sitePath(); ?>admin/membre-edit.php">
                           Membres</a>
                         </li>
                         <li >
-                          <a class="" href="<?= SITE_PATH; ?>admin/commentaires.php">
+                          <a class="" href="<?=  $sitePath->sitePath(); ?>admin/commentaires.php">
                             Commentaires</a>
                           </li>
                           <li >
-                            <a class="" href="<?= SITE_PATH; ?>admin/notes.php">
+                            <a class="" href="<?=  $sitePath->sitePath(); ?>admin/notes.php">
                               Notes & Avis</a>
                             </li>
                           </ul>
@@ -103,7 +108,7 @@
                   </div>
                 </nav>
 
-              <?php endif; ?>
+              <!-- < ?php endif; ?> -->
 
 
               <!--============================================ NAVBAR ============================================-->
@@ -117,15 +122,15 @@
                       <span class="icon-bar"></span>
                       <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="<?= SITE_PATH; ?>index.php">Deal</a>
+                    <a class="navbar-brand" href="<?=  $sitePath->sitePath(); ?>index.php">Deal</a>
                   </div>
 
                   <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-2">
                     <ul class="nav navbar-nav">
-                      <li><a href="<?= SITE_PATH.'contact.php'; ?>" title="Contactez-nous" data-toggle="tooltip" data-placement="bottom">Contact</a></li>
+                      <li><a href="<?=  $sitePath->sitePath().'contact.php'; ?>" title="Contactez-nous" data-toggle="tooltip" data-placement="bottom">Contact</a></li>
 
                       <li data-toggle="<?= $popover; ?>" data-placement="bottom" data-content="Pour déposer une annonce, veuillez-vous connecter.">
-                        <a class="btn btn-primary <?= $disabled; ?>" href="<?=SITE_PATH;?>annonce-edit.php">
+                        <a class="btn btn-primary <?= $disabled; ?>" href="<?= $sitePath->sitePath();?>annonce-edit.php">
                           Déposer une annonce
                         </a>
                       </li>
@@ -158,12 +163,12 @@
                           </a>
                           <ul class="dropdown-menu dropdown-user">
                             <li>
-                              <a href="<?=SITE_PATH;?>profil.php">
+                              <a href="<?= $sitePath->sitePath();?>profil.php">
                                 <i class="glyphicon glyphicon-user"></i>&nbsp;&nbsp;Mon profil</a>
                               </li>
                               <li class="divider"></li>
                               <li>
-                                <a href="<?=SITE_PATH;?>deconnexion.php"><i class="fa fa-sign-out fa-fw"></i> Déconnexion</a>
+                                <a href="<?= $sitePath->sitePath();?>deconnexion.php"><i class="fa fa-sign-out fa-fw"></i> Déconnexion</a>
                               </li>
                             </ul>
                           </li>
@@ -178,11 +183,11 @@
                             </a>
                             <ul class="dropdown-menu dropdown-user">
                               <li>
-                                <a class="btn btn-default" href="<?=SITE_PATH;?>connexion.php">Connexion</a>
+                                <a class="btn btn-default" href="<?= $sitePath->sitePath();?>connexion.php">Connexion</a>
                               </li>
                               <li class="divider"></li>
                               <li>
-                                <a class="btn btn-primary" href="<?=SITE_PATH;?>inscription.php">Inscription</a>
+                                <a class="btn btn-primary" href="<?= $sitePath->sitePath();?>inscription.php">Inscription</a>
                               </li>
                             </ul>
                           </li>
@@ -197,33 +202,33 @@
 
                 <?php echo $vue; ?>
 
-                
+
               </div> <!-- .container-fluid #wrapper -->
 
               <footer class="container-fluid">
 
                 <ul class="list-inline">
-                  <li class="list-inline-item"><a class="btn" href="<?= SITE_PATH.'index.php' ?>">Accueil</a></li>
-                  <li class="list-inline-item"><a class="btn" href="<?= SITE_PATH.'mentions-legales.php' ?>">Mentions légales</a></li>
-                  <li class="list-inline-item"><a class="btn" href="<?= SITE_PATH.'cgu.php'; ?> ">C.G.U.</a></li>
-                  <li class="list-inline-item"><a class="btn" href="<?= SITE_PATH.'contact.php'; ?>">Contact</a></li>
+                  <li class="list-inline-item"><a class="btn" href="<?=  $sitePath->sitePath().'index.php' ?>">Accueil</a></li>
+                  <li class="list-inline-item"><a class="btn" href="<?=  $sitePath->sitePath().'mentions-legales.php' ?>">Mentions légales</a></li>
+                  <li class="list-inline-item"><a class="btn" href="<?=  $sitePath->sitePath().'cgu.php'; ?> ">C.G.U.</a></li>
+                  <li class="list-inline-item"><a class="btn" href="<?=  $sitePath->sitePath().'contact.php'; ?>">Contact</a></li>
                 </ul>
               </footer>
 
 
               <!-- jQuery -->
-              <script src="<?=SITE_PATH;?>vendor/jquery/jquery.min.js"></script>
+              <script src="<?= $sitePath->sitePath();?>vendor/jquery/jquery.min.js"></script>
 
               <!-- Bootstrap Core JavaScript -->
-              <script src="<?=SITE_PATH;?>vendor/bootstrap/js/bootstrap.min.js"></script>
+              <script src="<?= $sitePath->sitePath();?>vendor/bootstrap/js/bootstrap.min.js"></script>
 
               <!-- Metis Menu Plugin JavaScript -->
-              <script src="<?=SITE_PATH;?>vendor/metisMenu/metisMenu.min.js"></script>
+              <script src="<?= $sitePath->sitePath();?>vendor/metisMenu/metisMenu.min.js"></script>
 
 
               <!-- Custom Theme JavaScript -->
-              <script src="<?=SITE_PATH;?>dist/js/sb-admin-2.js"></script>
-              <script src="<?=SITE_PATH;?>dist/js/lightbox.js"></script>
+              <script src="<?= $sitePath->sitePath();?>dist/js/sb-admin-2.js"></script>
+              <script src="<?= $sitePath->sitePath();?>dist/js/lightbox.js"></script>
 
 
 

@@ -1,5 +1,7 @@
 <?php
+namespace models;
 
+include 'ModelMaitre.php';
 /**
  * Recherche du membre dans la BDD
  * $var string
@@ -7,7 +9,7 @@
  */
 class ModelMembre extends ModelMaitre {
 
-  public function actionSelectMembre($pseudo, $mdp) {
+  public function selectMembre($pseudo, $mdp) {
 
     $pdo = $this->connexionBdd();
 
@@ -32,7 +34,7 @@ class ModelMembre extends ModelMaitre {
   }
 
 
-  public function actionAddMembre($civilite, $pseudo, $nom, $prenom, $mdp, $telephone, $email, $role) {
+  public function addMembre($civilite, $pseudo, $nom, $prenom, $mdp, $telephone, $email, $role) {
 
     $pdo->connexionBdd();
 
@@ -60,7 +62,7 @@ class ModelMembre extends ModelMaitre {
   }
 
 
-  public function actionUpdateMembre($idMembre, $civilite, $pseudo, $nom, $prenom, $mdp = '', $telephone, $email, $role = '', $reqMdp = '', $reqGet = '') {
+  public function updateMembre($idMembre, $civilite, $pseudo, $nom, $prenom, $mdp = '', $telephone, $email, $role = '', $reqMdp = '', $reqGet = '') {
 
     $pdo->connexionBdd();
 
@@ -95,7 +97,7 @@ class ModelMembre extends ModelMaitre {
   }
 
 
-  public function actionDeleteMembre($idMembre) {
+  public function deleteMembre($idMembre) {
 
     $pdo->connexionBdd();
 

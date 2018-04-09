@@ -1,13 +1,12 @@
 <?php
+namespace models;
+
+include '../config/bdd.php';
 
 /**
  *
  */
 class ModelMaitre extends Bdd {
-
-  // function __construct(argument) {
-  //   # code...
-  // }
 
   public function connexionBdd() {
 

@@ -1,11 +1,11 @@
 <?php
-
+namespace models;
 /**
 *
 */
 class ModelAnnonce extends ModelMaitre {
 
-  public function actionSelectAnnonce($reqC='',$reqR='',$reqM='',$reqPm='',$reqPM='', $triPar='a.id DESC') {
+  public function selectAnnonce($reqC='',$reqR='',$reqM='',$reqPm='',$reqPM='', $triPar='a.id DESC') {
 
     $pdo->connexionBdd();
 
@@ -23,7 +23,7 @@ class ModelAnnonce extends ModelMaitre {
   }
 
 
-  public function actionAddArticle($titre, $description_courte, $description_longue, $prix, $photo, $ville, $adresse, $code_postal, $membre_id, $categorie_id, $region_id) {
+  public function addAnnonce($titre, $description_courte, $description_longue, $prix, $photo, $ville, $adresse, $code_postal, $membre_id, $categorie_id, $region_id) {
 
     $pdo->connexionBdd();
 
@@ -54,7 +54,7 @@ class ModelAnnonce extends ModelMaitre {
   }
 
 
-  public function actionUpdateAnnonce($idAnnonce, $titre, $description_courte, $description_longue, $prix, $photo, $ville, $adresse, $code_postal, $membre_id, $categorie_id, $region_id) {
+  public function updateAnnonce($idAnnonce, $titre, $description_courte, $description_longue, $prix, $photo, $ville, $adresse, $code_postal, $membre_id, $categorie_id, $region_id) {
 
     $this->connexionBdd();
 
@@ -97,7 +97,7 @@ class ModelAnnonce extends ModelMaitre {
   }
 
 
-  public function actionDeleteAnnonce($idAnnonce) {
+  public function deleteAnnonce($idAnnonce) {
 
     $pdo->connexionBdd();
 
