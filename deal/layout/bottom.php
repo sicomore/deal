@@ -35,8 +35,20 @@
 <script src="< ?=SITE_PATH;?>data/morris-data.js"></script> -->
 
 <!-- Custom Theme JavaScript -->
-<script src="<?=SITE_PATH;?>dist/js/sb-admin-2.js"></script>
 <script src="<?=SITE_PATH;?>dist/js/lightbox.js"></script>
+<script src="<?=SITE_PATH;?>dist/js/typeahead.min.js"></script>
+<script src="<?=SITE_PATH;?>dist/js/sb-admin-2.js"></script>
+
+<script>
+$(document).ready(function(){
+  // Autocompletion input recherche dans navbar
+  $('body form input.typeahead').typeahead({
+    name: 'typeahead',
+    remote:'<?=SITE_PATH;?>include/search.php?key=%QUERY',
+    limit : 10
+  });
+});
+</script>
 
 
 

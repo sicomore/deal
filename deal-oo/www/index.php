@@ -1,27 +1,39 @@
 <?php
 
-include '../routing/routes.php';
+include '../config/routes.php';
+include '../service/autoloader.php';
+
+$autoload = new \service\Autoloader();
+$autoload->spl_register();
 
 if (!empty($_GET)) {
 
-  foreach ($routes as $key => $value) {
-    if ($_GET == $cle) {
+  foreach ($_GET as $cle => $valeur) {
 
-      $classe = 'Controller'.$value['controller'];
+    if (isset($cle) && !empty($cle) && empty($valeur)) {
 
-      // A éliminer une fois l'autoloader mis en place
-      include '../controllers/'.lcfirst($classe).'.php';
+      foreach ($routes as $key => $value) {
+        if ($cle == $key) {
+          // if ($_GET['page'] == $key) {
 
-      $methode = 'action'.$value['action'];
-      echo $methode;
-      $action = new $classe();
-      $action->$methode();
+          $classe = '\controller\Controller'.$value['controller'];
 
+          $methode = 'action'.$value['action'];
+          $action = new $classe();
+          $action->$methode();
+        }
+      }
+    } else {
+      include '../Controller/controllerAnnonce.php';
+      $pageAnnonces = new \controller\ControllerAnnonce();
+      $pageAnnonces->actionListeAnnonces();
+      die();
     }
   }
 
+
 } else {
-  include '../controllers/controllerMembre.php';
-  $pageMembres = new controllers\ControllerMembre();
-  $pageMembres->actionConnexionMembre();
+  include '../controller/controllerAnnonce.php';
+  $pageAnnonces = new \controller\ControllerAnnonce();
+  $pageAnnonces->actionListeAnnonces();
 }

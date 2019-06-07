@@ -16,6 +16,70 @@ p {
 #wrapper {
   width: 100%;
   padding-bottom: 20px;
+
+// Autocompletion input recherche ---------------
+  .custom-search-form{
+    font-family: sans-serif;
+    position: relative;
+    padding: 5px 10px;
+  }
+
+  .typeahead, .tt-query, .tt-hint {
+    border: 1px solid #CCCCCC;
+    border-radius: 3px 0 0 3px;
+    font-size: 1em;
+    height: 34px;
+    line-height: 1em;
+    outline: medium none;
+    padding: 8px 12px;
+    margin-top: 7px;
+    width: 250px;
+  }
+
+  .typeahead {
+    background-color: #FFFFFF;
+
+    &:focus {
+      border: 2px solid #0097CF;
+    }
+  }
+
+  .tt-query {
+    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset;
+  }
+
+  .tt-hint {
+    color: #999999;
+  }
+
+  .tt-dropdown-menu {
+    background-color: #FFFFFF;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 3px 0 0 3px;
+    -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    // margin-top: 12px;
+    padding: 8px 0;
+    width: 250px;
+  }
+
+  .tt-suggestion {
+    font-size: 1em;
+    line-height: 1em;
+    padding: 3px 20px;
+
+    p {
+      margin: 0;
+    }
+  }
+
+  .tt-suggestion.tt-is-under-cursor {
+    background-color: #0097CF;
+    color: #FFFFFF;
+  }
+  // Fin Autocompletion input recherche ---------------
+
 }
 
 #page-wrapper {

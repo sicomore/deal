@@ -79,7 +79,17 @@ $(function() {
 
 
   // ---------------------------------------------------------------
-  // Mise à jour de la disponibilité de l'annonce par AJAX sur page annonce-fiche.php -------------------
+  // Autocompletion input de recherche navbar
+  // ---------------------------------------------------------------
+  // $('body form input.typeahead').typeahead({
+  //   name: 'typeahead',
+  //   remote:'<?=SITE_PATH;?>include/search.php?key=%QUERY',
+  //   limit : 10
+  // });
+
+  // ---------------------------------------------------------------
+  // Mise à jour de la disponibilité de l'annonce par AJAX sur page annonce-fiche.php
+  // ---------------------------------------------------------------
 
   $('input[name="dispo"]').each( function () {
     var valeur = $(this).val();

@@ -20,7 +20,6 @@ $req = 'SELECT * FROM region';
 $stmt = $pdo->query($req);
 $regs = $stmt->fetchAll();
 
-
 if (!empty($_POST)) {
   sanitizePost();
   extract($_POST);
